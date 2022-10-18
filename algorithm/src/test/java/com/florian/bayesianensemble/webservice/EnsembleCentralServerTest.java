@@ -1,0 +1,96 @@
+package com.florian.bayesianensemble.webservice;
+
+import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
+import com.florian.nscalarproduct.webservice.ServerEndpoint;
+import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
+import com.florian.vertibayes.webservice.domain.external.WebNode;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class EnsembleCentralServerTest {
+
+    @Test
+    void createEnsemble() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/k2/smallK2Example_secondhalf.csv",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "x1";
+        req.setTarget(target);
+        List<ExpectationMaximizationResponse> networks = central.createEnsemble(req).getNetworks();
+
+        assertEquals(networks.size(), 2);
+
+        List<WebNode> network1 = networks.get(0).getNodes();
+        List<WebNode> network2 = networks.get(1).getNodes();
+
+        //assert that the only node that is present in both is the target node
+        for (WebNode n : network1) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network2, n));
+            } else {
+                assertFalse(checkNodeIsPresent(network2, n));
+            }
+        }
+
+        for (WebNode n : network2) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network1, n));
+            } else {
+                assertFalse(checkNodeIsPresent(network1, n));
+            }
+        }
+
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not
+
+        assertEquals(network1.get(0).getName(), "x1");
+        assertEquals(network1.get(0).getParents().size(), 0);
+
+        assertEquals(network1.get(1).getName(), "x2");
+        assertEquals(network1.get(1).getParents().size(), 1);
+        assertEquals(network1.get(1).getParents().get(0), "x1");
+
+        assertEquals(network2.get(0).getName(), "x3");
+        assertEquals(network2.get(0).getParents().size(), 0);
+
+        assertEquals(network2.get(1).getName(), "x1");
+        assertEquals(network2.get(1).getParents().size(), 1);
+        assertEquals(network2.get(1).getParents().get(0), "x3");
+
+    }
+
+    private boolean checkNodeIsPresent(List<WebNode> nodes, WebNode n) {
+        for (WebNode node : nodes) {
+            if (n.getName().equals(node.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
