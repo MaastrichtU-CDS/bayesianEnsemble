@@ -2,3 +2,4 @@
 /algorithm/*.iml
 /algorithm/target
 /.idea
+/algorithm/individuals.arff

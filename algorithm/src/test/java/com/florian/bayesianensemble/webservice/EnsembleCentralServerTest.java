@@ -1,6 +1,7 @@
 package com.florian.bayesianensemble.webservice;
 
 import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
+import com.florian.bayesianensemble.webservice.domain.EnsembleResponse;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
@@ -40,7 +41,8 @@ class EnsembleCentralServerTest {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         String target = "x1";
         req.setTarget(target);
-        List<ExpectationMaximizationResponse> networks = central.createEnsemble(req).getNetworks();
+        EnsembleResponse response = central.createEnsemble(req);
+        List<ExpectationMaximizationResponse> networks = response.getNetworks();
 
         assertEquals(networks.size(), 2);
 
@@ -82,6 +84,10 @@ class EnsembleCentralServerTest {
         assertEquals(network2.get(1).getName(), "x1");
         assertEquals(network2.get(1).getParents().size(), 1);
         assertEquals(network2.get(1).getParents().get(0), "x3");
+
+        //assert the AUCS are correctly calculate for this small dataset with no internal logic
+        assertEquals(response.getAucs().get("1"), 0.52, 0.01);
+        assertEquals(response.getAucs().get("0"), 0.52, 0.01);
 
     }
 
