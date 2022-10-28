@@ -23,6 +23,6 @@ class EnsembleServerTest {
         List<Node> nodes = server.getNodes(req).getNodes();
         assertEquals(nodes.size(), 1);
         assertEquals(nodes.get(0).getName(), target);
-        assertEquals(nodes.get(0).getType(), Attribute.AttributeType.numeric);
+        assertEquals(nodes.get(0).getType(), Attribute.AttributeType.string);
     }
 }

@@ -1,10 +1,7 @@
 package com.florian.bayesianensemble.webservice;
 
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
-import com.florian.bayesianensemble.webservice.domain.internal.ClassificationResponse;
-import com.florian.bayesianensemble.webservice.domain.internal.InternalNetwork;
-import com.florian.bayesianensemble.webservice.domain.internal.ValidateRequest;
-import com.florian.bayesianensemble.webservice.domain.internal.ValidateResponse;
+import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.data.Attribute;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Node;
@@ -13,7 +10,6 @@ import org.apache.commons.collections.map.HashedMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import weka.classifiers.bayes.BayesNet;
-import weka.core.Instance;
 import weka.core.Instances;
 
 import java.io.BufferedReader;
@@ -58,7 +54,6 @@ public class EnsembleServer extends BayesServer {
             List<double[]> probabilities = new ArrayList<>();
 
             sumProbabilities(req, probabilities);
-            averageProbabilities(probabilities);
             ValidateResponse res = new ValidateResponse();
             res.setAucs(calculateAUC(probabilities, req.getTarget(), req.getNetworks().get(this.serverId)));
             return res;
@@ -68,28 +63,29 @@ public class EnsembleServer extends BayesServer {
     }
 
     private void sumProbabilities(ValidateRequest req, List<double[]> probabilities) throws Exception {
+        List<List<Probability>> res = new ArrayList<>();
         for (ServerEndpoint e : getEndpoints()) {
             if (e instanceof EnsembleEndpoint) {
-                List<double[]> res = ((EnsembleEndpoint) e).classify(req).getProbabilities();
-                if (probabilities.size() == 0) {
-                    probabilities.addAll(res);
-                } else {
-                    for (int i = 0; i < probabilities.size(); i++) {
-                        double[] prob = res.get(i);
-                        for (int j = 0; j < prob.length; j++) {
-                            probabilities.get(i)[j] += prob[j];
-                        }
+                res.add(((EnsembleEndpoint) e).classify(req).getProbabilities());
+            }
+        }
+        Probability[] summed = new Probability[res.get(0).size()];
+        double[] count = new double[res.get(0).size()];
+        for (List<Probability> p : res) {
+            for (int i = 0; i < p.size(); i++) {
+                if (p.get(i).isLocallyPresent()) {
+                    if (summed[i] == null) {
+                        summed[i] = new Probability();
                     }
+                    summed[i].setProbability(p.get(i).getProbability());
+                    count[i]++;
                 }
             }
         }
-    }
-
-    private void averageProbabilities(List<double[]> probabilities) {
-        for (int i = 0; i < probabilities.size(); i++) {
-            for (int j = 0; j < probabilities.get(i).length; j++) {
-                // one endpoint is the secret endpoint, so divide by endpoints -1
-                probabilities.get(i)[j] /= (getEndpoints().size() - 1);
+        for (int i = 0; i < summed.length; i++) {
+            probabilities.add(summed[i].getProbability());
+            for (int j = 0; j < summed[i].getProbability().length; j++) {
+                probabilities.get(i)[j] = probabilities.get(i)[j] / count[i];
             }
         }
     }
@@ -97,9 +93,14 @@ public class EnsembleServer extends BayesServer {
     @PostMapping ("classify")
     public ClassificationResponse classify(ValidateRequest req) throws Exception {
         Instances data = makeInstances(req.getTarget());
-        List<double[]> probabilities = new ArrayList<>();
-        for (Instance i : data) {
-            probabilities.add(req.getNetworks().get(this.serverId).distributionForInstance(i));
+        List<Probability> probabilities = new ArrayList<>();
+        for (int i = 0; i < data.numInstances(); i++) {
+            Probability p = new Probability();
+            probabilities.add(p);
+            if (recordIsLocallyPresent(i)) {
+                p.setLocallyPresent(true);
+                p.setProbability(req.getNetworks().get(this.serverId).distributionForInstance(data.instance(i)));
+            }
         }
         ClassificationResponse res = new ClassificationResponse();
         res.setProbabilities(probabilities);

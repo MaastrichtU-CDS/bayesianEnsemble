@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClassificationResponse {
-    List<double[]> probabilities = new ArrayList<>();
+    List<Probability> probabilities = new ArrayList<>();
 
-    public List<double[]> getProbabilities() {
+    public List<Probability> getProbabilities() {
         return probabilities;
     }
 
-    public void setProbabilities(List<double[]> probabilities) {
+    public void setProbabilities(List<Probability> probabilities) {
         this.probabilities = probabilities;
     }
 }

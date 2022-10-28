@@ -7,6 +7,15 @@ import java.util.List;
 public class CreateEnsembleRequest {
     private String target;
     private List<WebNode> networks;
+    private boolean hybrid;
+
+    public boolean isHybrid() {
+        return hybrid;
+    }
+
+    public void setHybrid(boolean hybrid) {
+        this.hybrid = hybrid;
+    }
 
     public String getTarget() {
         return target;

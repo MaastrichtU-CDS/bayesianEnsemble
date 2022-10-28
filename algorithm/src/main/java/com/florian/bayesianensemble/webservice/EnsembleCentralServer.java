@@ -8,6 +8,7 @@ import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Network;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
+import com.florian.vertibayes.webservice.VertiBayesEndpoint;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationWekaResponse;
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
@@ -29,6 +30,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
         for (ServerEndpoint e : getEndpoints()) {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
+            setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
             learnStructure(network);
             WebBayesNetwork n = new WebBayesNetwork();
             n.setNodes(WebNodeMapper.mapWebNodeFromNode(network));
@@ -54,6 +56,17 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return response;
     }
 
+    private void setUseLocalData(boolean hybrid, EnsembleEndpoint e) {
+        //make sure every other endpoint is set to use full data:
+        for (ServerEndpoint end : getEndpoints()) {
+            ((VertiBayesEndpoint) end).setUseLocalOnly(false);
+        }
+        //check if purely local data should be used for the local endpoint
+        if (hybrid) {
+            e.setUseLocalOnly(true);
+        }
+    }
+
     private List<Node> getLocalNodes(EnsembleEndpoint e, Node target) {
         List<Node> nodes = e.getAllNodes().getNodes();
         boolean contained = false;
@@ -63,6 +76,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                 break;
             }
         }
+
         if (!contained) {
             nodes.add(target);
         }
