@@ -9,10 +9,10 @@ import com.florian.vertibayes.bayes.Network;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
+import com.florian.vertibayes.webservice.domain.CreateNetworkRequest;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationWekaResponse;
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
-import com.florian.vertibayes.webservice.mapping.WebNodeMapper;
 import org.apache.commons.collections.map.HashedMap;
 import weka.classifiers.bayes.BayesNet;
 
@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.florian.bayesianensemble.util.Util.findNode;
+import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNodeFromNode;
 import static com.florian.vertibayes.weka.BifMapper.fromWekaBif;
 
 public class EnsembleCentralServer extends VertiBayesCentralServer {
@@ -86,10 +88,11 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
         for (ServerEndpoint e : getEndpoints()) {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
+            setBins(network, req);
             setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
-            learnStructure(network);
+            network = learnStructure(network, req.getMinPercentage());
             WebBayesNetwork n = new WebBayesNetwork();
-            n.setNodes(WebNodeMapper.mapWebNodeFromNode(network));
+            n.setNodes(mapWebNodeFromNode(network));
             n.setWekaResponse(true);
             n.setTarget(target.getName());
             ExpectationMaximizationWekaResponse res = (ExpectationMaximizationWekaResponse) expectationMaximization(n);
@@ -97,6 +100,17 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         }
 
         return bayesNets;
+    }
+
+    private void setBins(List<Node> network, CreateEnsembleRequest req) {
+        if (req.getNetworks() != null) {
+            for (WebNode n : req.getNetworks()) {
+                Node node = findNode(n.getName(), network);
+                if (node != null) {
+                    node.setBins(n.getBins());
+                }
+            }
+        }
     }
 
     private void setUseLocalData(boolean hybrid, EnsembleEndpoint e) {
@@ -134,10 +148,13 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return targetList.get(0);
     }
 
-    private List<Node> learnStructure(List<Node> nodes) {
+    private List<Node> learnStructure(List<Node> nodes, int minpercentage) {
         Network n = new Network(getEndpoints(), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());
         n.setNodes(nodes);
-        n.createNetwork();
+        CreateNetworkRequest req = new CreateNetworkRequest();
+        req.setNodes(mapWebNodeFromNode(nodes));
+        req.setMinPercentage(minpercentage);
+        n.createNetwork(req);
         return n.getNodes();
     }
 

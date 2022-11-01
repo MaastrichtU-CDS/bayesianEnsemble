@@ -8,12 +8,23 @@ public class CreateEnsembleRequest {
     private String target;
     private List<WebNode> networks;
     private boolean hybrid;
+    private int minPercentage;
+
     private int folds = 1;
     private static final int MIN_FOLDS = 1;
     private static final int MAX_FOLDS = 10;
 
     public int getFolds() {
         return folds;
+    }
+
+
+    public int getMinPercentage() {
+        return minPercentage;
+    }
+
+    public void setMinPercentage(int minPercentage) {
+        this.minPercentage = minPercentage;
     }
 
     public void setFolds(int folds) {

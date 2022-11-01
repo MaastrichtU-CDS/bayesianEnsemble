@@ -2,7 +2,9 @@ package com.florian.bayesianensemble.webservice;
 
 import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
 import com.florian.bayesianensemble.webservice.domain.EnsembleResponse;
+import com.florian.nscalarproduct.data.Attribute;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
+import com.florian.vertibayes.bayes.Bin;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +42,84 @@ public class EnsembleCentralServerTest {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         String target = "x1";
         req.setTarget(target);
+        EnsembleResponse response = central.createEnsemble(req);
+        List<List<WebNode>> networks = response.getNetworks();
+
+        assertEquals(networks.size(), 2);
+
+        List<WebNode> network1 = networks.get(0);
+        List<WebNode> network2 = networks.get(1);
+
+        //assert that the only node that is present in both is the target node
+        for (WebNode n : network1) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network2, n));
+            } else {
+                assertFalse(checkNodeIsPresent(network2, n));
+            }
+        }
+
+        for (WebNode n : network2) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network1, n));
+            } else {
+                assertFalse(checkNodeIsPresent(network1, n));
+            }
+        }
+
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not
+
+        assertEquals(network1.get(0).getName(), "x1");
+        assertEquals(network1.get(0).getParents().size(), 0);
+
+        assertEquals(network1.get(1).getName(), "x2");
+        assertEquals(network1.get(1).getParents().size(), 1);
+        assertEquals(network1.get(1).getParents().get(0), "x1");
+
+        assertEquals(network2.get(0).getName(), "x3");
+        assertEquals(network2.get(0).getParents().size(), 0);
+
+        assertEquals(network2.get(1).getName(), "x1");
+        assertEquals(network2.get(1).getParents().size(), 1);
+        assertEquals(network2.get(1).getParents().get(0), "x3");
+
+        //assert the AUCS are correctly calculate for this small dataset with no internal logic
+        assertEquals(response.getAucs().get("1"), 0.52, 0.01);
+        assertEquals(response.getAucs().get("0"), 0.52, 0.01);
+
+    }
+
+    @Test
+    public void testCreateEnsembleManualBinned() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/k2/smallK2Example_secondhalf.csv",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "x1";
+        req.setTarget(target);
+        req.setNetworks(createK2Nodes());
+
         EnsembleResponse response = central.createEnsemble(req);
         List<List<WebNode>> networks = response.getNetworks();
 
@@ -377,5 +457,40 @@ public class EnsembleCentralServerTest {
             }
         }
         return false;
+    }
+
+    public static List<WebNode> createK2Nodes() {
+        List<WebNode> nodes = new ArrayList<>();
+        WebNode x1 = new WebNode();
+        x1.setType(Attribute.AttributeType.numeric);
+        x1.setName("x1");
+        WebNode x2 = new WebNode();
+        x2.setType(Attribute.AttributeType.numeric);
+        x2.setName("x2");
+        WebNode x3 = new WebNode();
+        x3.setType(Attribute.AttributeType.string);
+        x3.setName("x3");
+
+        nodes.add(x1);
+        nodes.add(x2);
+        nodes.add(x3);
+
+        Bin one = new Bin();
+        one.setUpperLimit("1.5");
+        one.setLowerLimit("0.5");
+
+        Bin zero = new Bin();
+        zero.setUpperLimit("0.5");
+        zero.setLowerLimit("-0.5");
+
+        for (WebNode node : nodes) {
+            if (!node.getName().equals("x3")) {
+                node.getBins().add(zero);
+                node.getBins().add(one);
+            }
+        }
+
+        return nodes;
+
     }
 }
