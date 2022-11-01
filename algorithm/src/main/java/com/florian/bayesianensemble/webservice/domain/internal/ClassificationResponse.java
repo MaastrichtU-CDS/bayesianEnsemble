@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClassificationResponse {
-    List<Probability> probabilities = new ArrayList<>();
+    private List<Probability> probabilities = new ArrayList<>();
 
     public List<Probability> getProbabilities() {
         return probabilities;

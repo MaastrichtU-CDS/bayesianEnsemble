@@ -9,10 +9,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class EnsembleServerTest {
+public class EnsembleServerTest {
 
     @Test
-    void getTargetNode() {
+    public void testGetTargetNode() {
         EnsembleServer server = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
                                                    "1");
         CollectNodesRequest req = new CollectNodesRequest();

@@ -5,8 +5,8 @@ import weka.classifiers.bayes.BayesNet;
 import java.util.Map;
 
 public class ValidateRequest {
-    Map<String, BayesNet> networks;
-    String target;
+    private Map<String, BayesNet> networks;
+    private String target;
 
     public String getTarget() {
         return target;

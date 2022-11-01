@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InternalNetwork {
-    List<Node> nodes = new ArrayList<>();
+    private List<Node> nodes = new ArrayList<>();
 
     public List<Node> getNodes() {
         return nodes;

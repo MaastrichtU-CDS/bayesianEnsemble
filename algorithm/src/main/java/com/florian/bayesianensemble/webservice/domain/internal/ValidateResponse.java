@@ -5,7 +5,7 @@ import org.apache.commons.collections.map.HashedMap;
 import java.util.Map;
 
 public class ValidateResponse {
-    Map<String, Double> aucs = new HashedMap();
+    private Map<String, Double> aucs = new HashedMap();
 
     public Map<String, Double> getAucs() {
         return aucs;

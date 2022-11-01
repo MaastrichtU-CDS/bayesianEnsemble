@@ -9,24 +9,80 @@ import com.florian.vertibayes.bayes.Network;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
-import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationWekaResponse;
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
+import com.florian.vertibayes.webservice.domain.external.WebNode;
 import com.florian.vertibayes.webservice.mapping.WebNodeMapper;
+import org.apache.commons.collections.map.HashedMap;
 import weka.classifiers.bayes.BayesNet;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.florian.vertibayes.weka.BifMapper.fromWekaBif;
+
 public class EnsembleCentralServer extends VertiBayesCentralServer {
 
     public EnsembleResponse createEnsemble(CreateEnsembleRequest req) throws Exception {
-        Node target = getTargetNode(req.getTarget());
+        int[] folds = createFolds(req.getFolds());
+        if (req.getFolds() > 1) {
+            return kfoldEnsemble(req, folds);
+        } else {
+            return noFoldEnsemble(req, folds);
+        }
+    }
 
-        Map<String, ExpectationMaximizationResponse> networks = new HashMap<>();
+    private EnsembleResponse kfoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
+
+        Map<String, Double> aucs = new HashMap<>();
+
+        for (int i = 0; i < req.getFolds(); i++) {
+            initFold(folds, i);
+
+            Map<String, BayesNet> bayesNets = performEnsemble(req);
+            initValidationFold(folds, i);
+            Map<String, Double> foldAucs = validateEnsemble(req, bayesNets);
+            for (String key : foldAucs.keySet()) {
+                if (aucs.get(key) == null) {
+                    aucs.put(key, foldAucs.get(key));
+                } else {
+                    aucs.put(key, aucs.get(key) + foldAucs.get(key));
+                }
+            }
+        }
+
+        //average AUC
+        for (String key : aucs.keySet()) {
+            aucs.put(key, aucs.get(key) / req.getFolds());
+        }
+
+        //Train final model
+        activateAll(folds);
+        Map<String, BayesNet> bayesNets = performEnsemble(req);
+
+        //create response
+        EnsembleResponse response = createEnsembleEsponse(aucs, bayesNets);
+        return response;
+    }
+
+    private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
+        Map<String, BayesNet> bayesNets = performEnsemble(req);
+        activateAll(folds);
+
+        Map<String, Double> aucs = validateEnsemble(req, bayesNets);
+
+        //create response
+        EnsembleResponse response = createEnsembleEsponse(aucs, bayesNets);
+        return response;
+    }
+
+    private Map<String, BayesNet> performEnsemble(CreateEnsembleRequest req) throws Exception {
+        Node target = getTargetNode(req.getTarget());
         Map<String, BayesNet> bayesNets = new HashMap<>();
+
 
         for (ServerEndpoint e : getEndpoints()) {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
@@ -38,22 +94,9 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             n.setTarget(target.getName());
             ExpectationMaximizationWekaResponse res = (ExpectationMaximizationWekaResponse) expectationMaximization(n);
             bayesNets.put(e.getServerId(), res.getWeka());
-            networks.put(e.getServerId(), res);
         }
 
-        ValidateRequest validate = new ValidateRequest();
-
-        validate.setNetworks(bayesNets);
-        validate.setTarget(req.getTarget());
-        Map<String, Double> aucs = new HashMap<>();
-        for (ServerEndpoint e : getEndpoints()) {
-            aucs.putAll(((EnsembleEndpoint) e).validate(validate).getAucs());
-        }
-
-        EnsembleResponse response = new EnsembleResponse();
-        response.setAucs(aucs);
-        response.setNetworks(networks.values().stream().collect(Collectors.toList()));
-        return response;
+        return bayesNets;
     }
 
     private void setUseLocalData(boolean hybrid, EnsembleEndpoint e) {
@@ -97,4 +140,44 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         n.createNetwork();
         return n.getNodes();
     }
+
+    private EnsembleResponse createEnsembleEsponse(Map<String, Double> aucs, Map<String, BayesNet> bayesNets)
+            throws Exception {
+        EnsembleResponse response = new EnsembleResponse();
+        response.setAucs(aucs);
+        List<List<WebNode>> nets = new ArrayList<>();
+        for (BayesNet net : bayesNets.values()) {
+            nets.add(fromWekaBif(net.graph()));
+        }
+        response.setNetworks(nets);
+        return response;
+    }
+
+    private Map<String, Double> validateEnsemble(CreateEnsembleRequest req, Map<String, BayesNet> bayesNets)
+            throws Exception {
+        ValidateRequest validate = new ValidateRequest();
+        validate.setNetworks(bayesNets);
+        validate.setTarget(req.getTarget());
+        Map<String, Integer> count = new HashedMap();
+        Map<String, Double> aucs = new HashedMap();
+
+        for (ServerEndpoint e : getEndpoints()) {
+            Map<String, Double> foldAUC = ((EnsembleEndpoint) e).validate(validate).getAucs();
+            for (String key : foldAUC.keySet()) {
+                if (aucs.get(key) == null) {
+                    count.put(key, 1);
+                    aucs.put(key, foldAUC.get(key));
+                } else {
+                    aucs.put(key, foldAUC.get(key) + aucs.get(key));
+                    count.put(key, count.get(key) + 1);
+                }
+            }
+        }
+        for (String key : aucs.keySet()) {
+            // average in case of a hybrid split
+            aucs.put(key, aucs.get(key) / count.get(key));
+        }
+        return aucs;
+    }
 }
+

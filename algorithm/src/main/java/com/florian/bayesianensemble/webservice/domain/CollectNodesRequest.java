@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollectNodesRequest {
-    List<String> names = new ArrayList<>();
+    private List<String> names = new ArrayList<>();
 
     public List<String> getNames() {
         return names;
