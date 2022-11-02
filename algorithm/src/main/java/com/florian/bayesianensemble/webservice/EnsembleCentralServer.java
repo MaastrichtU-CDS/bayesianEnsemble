@@ -3,6 +3,7 @@ package com.florian.bayesianensemble.webservice;
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
 import com.florian.bayesianensemble.webservice.domain.EnsembleResponse;
+import com.florian.bayesianensemble.webservice.domain.internal.InternalNetwork;
 import com.florian.bayesianensemble.webservice.domain.internal.ValidateRequest;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Network;
@@ -10,13 +11,11 @@ import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
 import com.florian.vertibayes.webservice.domain.CreateNetworkRequest;
-import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationWekaResponse;
+import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationOpenMarkovResponse;
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
 import org.apache.commons.collections.map.HashedMap;
-import weka.classifiers.bayes.BayesNet;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +23,8 @@ import java.util.stream.Collectors;
 
 import static com.florian.bayesianensemble.util.Util.findNode;
 import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNodeFromNode;
-import static com.florian.vertibayes.weka.BifMapper.fromWekaBif;
 
 public class EnsembleCentralServer extends VertiBayesCentralServer {
-
     public EnsembleResponse createEnsemble(CreateEnsembleRequest req) throws Exception {
         int[] folds = createFolds(req.getFolds());
         if (req.getFolds() > 1) {
@@ -44,9 +41,9 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         for (int i = 0; i < req.getFolds(); i++) {
             initFold(folds, i);
 
-            Map<String, BayesNet> bayesNets = performEnsemble(req);
+            Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
             initValidationFold(folds, i);
-            Map<String, Double> foldAucs = validateEnsemble(req, bayesNets);
+            Map<String, Double> foldAucs = validateEnsembleOpenMarkov(req, bayesNets);
             for (String key : foldAucs.keySet()) {
                 if (aucs.get(key) == null) {
                     aucs.put(key, foldAucs.get(key));
@@ -63,28 +60,27 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
         //Train final model
         activateAll(folds);
-        Map<String, BayesNet> bayesNets = performEnsemble(req);
+        Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
 
         //create response
-        EnsembleResponse response = createEnsembleEsponse(aucs, bayesNets);
+        EnsembleResponse response = createEnsembleResponse(aucs, bayesNets);
         return response;
     }
 
     private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
-        Map<String, BayesNet> bayesNets = performEnsemble(req);
+        Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
         activateAll(folds);
 
-        Map<String, Double> aucs = validateEnsemble(req, bayesNets);
+        Map<String, Double> aucs = validateEnsembleOpenMarkov(req, bayesNets);
 
         //create response
-        EnsembleResponse response = createEnsembleEsponse(aucs, bayesNets);
+        EnsembleResponse response = createEnsembleResponse(aucs, bayesNets);
         return response;
     }
 
-    private Map<String, BayesNet> performEnsemble(CreateEnsembleRequest req) throws Exception {
+    private Map<String, String> performEnsembleOpenMarkov(CreateEnsembleRequest req) throws Exception {
         Node target = getTargetNode(req.getTarget());
-        Map<String, BayesNet> bayesNets = new HashMap<>();
-
+        Map<String, String> bayesNets = new HashMap<>();
 
         for (ServerEndpoint e : getEndpoints()) {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
@@ -93,10 +89,12 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             network = learnStructure(network, req.getMinPercentage());
             WebBayesNetwork n = new WebBayesNetwork();
             n.setNodes(mapWebNodeFromNode(network));
-            n.setWekaResponse(true);
+            n.setOpenMarkovResponse(true);
             n.setTarget(target.getName());
-            ExpectationMaximizationWekaResponse res = (ExpectationMaximizationWekaResponse) expectationMaximization(n);
-            bayesNets.put(e.getServerId(), res.getWeka());
+            ExpectationMaximizationOpenMarkovResponse res =
+                    (ExpectationMaximizationOpenMarkovResponse) expectationMaximization(
+                            n);
+            bayesNets.put(e.getServerId(), res.getOpenMarkov());
         }
 
         return bayesNets;
@@ -143,9 +141,16 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private Node getTargetNode(String target) {
         CollectNodesRequest targetReq = new CollectNodesRequest();
         targetReq.getNames().add(target);
-        List<Node> targetList = getEndpoints().stream().map(x -> ((EnsembleEndpoint) x).getNodes(targetReq))
-                .collect(Collectors.toList()).get(0).getNodes();
-        return targetList.get(0);
+
+        List<InternalNetwork> targetLists = getEndpoints().parallelStream()
+                .map(x -> ((EnsembleEndpoint) x).getNodes(targetReq))
+                .collect(Collectors.toList());
+        for (InternalNetwork l : targetLists) {
+            if (l.getNodes().size() > 0) {
+                return l.getNodes().get(0);
+            }
+        }
+        return null;
     }
 
     private List<Node> learnStructure(List<Node> nodes, int minpercentage) {
@@ -158,23 +163,19 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return n.getNodes();
     }
 
-    private EnsembleResponse createEnsembleEsponse(Map<String, Double> aucs, Map<String, BayesNet> bayesNets)
+    private EnsembleResponse createEnsembleResponse(Map<String, Double> aucs, Map<String, String> bayesNets)
             throws Exception {
         EnsembleResponse response = new EnsembleResponse();
         response.setAucs(aucs);
-        List<List<WebNode>> nets = new ArrayList<>();
-        for (BayesNet net : bayesNets.values()) {
-            nets.add(fromWekaBif(net.graph()));
-        }
-        response.setNetworks(nets);
+        response.setNetworks(bayesNets.values().stream().collect(Collectors.toList()));
         return response;
     }
 
-    private Map<String, Double> validateEnsemble(CreateEnsembleRequest req, Map<String, BayesNet> bayesNets)
+    private Map<String, Double> validateEnsembleOpenMarkov(CreateEnsembleRequest req, Map<String, String> bayesNets)
             throws Exception {
         ValidateRequest validate = new ValidateRequest();
-        validate.setNetworks(bayesNets);
         validate.setTarget(req.getTarget());
+        validate.setNetworks(bayesNets);
         Map<String, Integer> count = new HashedMap();
         Map<String, Double> aucs = new HashedMap();
 

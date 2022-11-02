@@ -1,12 +1,18 @@
 package com.florian.bayesianensemble.webservice.domain.internal;
 
-import weka.classifiers.bayes.BayesNet;
-
 import java.util.Map;
 
 public class ValidateRequest {
-    private Map<String, BayesNet> networks;
+    private Map<String, String> networks;
     private String target;
+
+    public Map<String, String> getNetworks() {
+        return networks;
+    }
+
+    public void setNetworks(Map<String, String> networks) {
+        this.networks = networks;
+    }
 
     public String getTarget() {
         return target;
@@ -14,13 +20,5 @@ public class ValidateRequest {
 
     public void setTarget(String target) {
         this.target = target;
-    }
-
-    public Map<String, BayesNet> getNetworks() {
-        return networks;
-    }
-
-    public void setNetworks(Map<String, BayesNet> networks) {
-        this.networks = networks;
     }
 }

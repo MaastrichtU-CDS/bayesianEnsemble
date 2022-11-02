@@ -1,12 +1,18 @@
 package com.florian.bayesianensemble.webservice;
 
+import com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier;
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.data.Attribute;
+import com.florian.nscalarproduct.data.Data;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.BayesServer;
 import org.apache.commons.collections.map.HashedMap;
+import org.openmarkov.core.exception.NodeNotFoundException;
+import org.openmarkov.core.model.network.ProbNet;
+import org.openmarkov.core.model.network.Variable;
+import org.openmarkov.core.model.network.potential.TablePotential;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import weka.classifiers.bayes.BayesNet;
@@ -18,6 +24,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier.loadModel;
 import static com.florian.bayesianensemble.util.Util.createArrf;
 
 public class EnsembleServer extends BayesServer {
@@ -55,7 +62,8 @@ public class EnsembleServer extends BayesServer {
 
             sumProbabilities(req, probabilities);
             ValidateResponse res = new ValidateResponse();
-            res.setAucs(calculateAUC(probabilities, req.getTarget(), req.getNetworks().get(this.serverId)));
+            res.setAucs(calculateAUCOpenMarkov(probabilities, req.getTarget(),
+                                               req.getNetworks().get(this.serverId)));
             return res;
         } else {
             return new ValidateResponse();
@@ -94,17 +102,47 @@ public class EnsembleServer extends BayesServer {
     public ClassificationResponse classify(ValidateRequest req) throws Exception {
         Instances data = makeInstances(req.getTarget());
         List<Probability> probabilities = new ArrayList<>();
+        ProbNet network = null;
+        if (req.getNetworks() != null) {
+            network = loadModel(req.getNetworks().get(this.serverId));
+        }
         for (int i = 0; i < data.numInstances(); i++) {
             Probability p = new Probability();
             probabilities.add(p);
             if (recordIsLocallyPresent(i)) {
                 p.setLocallyPresent(true);
-                p.setProbability(req.getNetworks().get(this.serverId).distributionForInstance(data.instance(i)));
+                Map<String, String> evidence = createIndividual(getData(), i, req.getTarget());
+                HashMap<Variable, TablePotential> posteriorValues = OpenMarkovClassifier.classify(evidence,
+                                                                                                  req.getTarget(),
+                                                                                                  network);
+                for (Variable key : posteriorValues.keySet()) {
+                    String name = key.getName();
+                    TablePotential potential = posteriorValues.get(key);
+                    for (int k = 0; k < potential.values.length; k++) {
+                        if (name.equals(req.getTarget())) {
+                            p.setProbability(potential.getValues());
+                        }
+                    }
+                }
             }
         }
         ClassificationResponse res = new ClassificationResponse();
         res.setProbabilities(probabilities);
         return res;
+    }
+
+    private Map<String, String> createIndividual(Data data, int i, String target) {
+        List<List<Attribute>> d = data.getData();
+        Map<String, String> evidence = new HashMap<>();
+        for (int j = 0; j < data.getData().size(); j++) {
+            Attribute a = d.get(j).get(i);
+            if (data.getIdColumn() == j || data.getLocalPresenceColumn() == j || a.isUnknown()
+                    || a.getAttributeName().equals("locallyPresent") || a.getAttributeName().equals(target)) {
+                continue;
+            }
+            evidence.put(a.getAttributeName(), a.getValue());
+        }
+        return evidence;
     }
 
     @GetMapping ("getAllNodes")
@@ -137,6 +175,16 @@ public class EnsembleServer extends BayesServer {
             }
         }
         return data;
+    }
+
+    private Map<String, Double> calculateAUCOpenMarkov(List<double[]> probabilities, String target, String net) {
+        List<String> labels = collectLabelsOpenMarkov(target, loadModel(net));
+        Map<String, Double> aucs = new HashedMap();
+
+        for (int i = 0; i < labels.size(); i++) {
+            aucs.put(labels.get(i), calculateAUC(probabilities, labels, i, target));
+        }
+        return aucs;
     }
 
     private Map<String, Double> calculateAUC(List<double[]> probabilities, String target, BayesNet net) {
@@ -212,5 +260,16 @@ public class EnsembleServer extends BayesServer {
             }
         }
         return labels;
+    }
+
+    private List<String> collectLabelsOpenMarkov(String target, ProbNet net) {
+        Variable node = null;
+        try {
+            node = net.getVariable(target);
+            return Arrays.asList(node.getStates()).stream().map(x -> x.getName()).collect(Collectors.toList());
+        } catch (NodeNotFoundException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 }

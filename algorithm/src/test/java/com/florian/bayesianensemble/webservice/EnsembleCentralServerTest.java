@@ -7,11 +7,16 @@ import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Bin;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
 import org.junit.jupiter.api.Test;
+import org.openmarkov.core.model.graph.Link;
+import org.openmarkov.core.model.network.Node;
+import org.openmarkov.core.model.network.ProbNet;
+import org.openmarkov.core.model.network.Variable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier.loadModel;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EnsembleCentralServerTest {
@@ -43,48 +48,221 @@ public class EnsembleCentralServerTest {
         String target = "x1";
         req.setTarget(target);
         EnsembleResponse response = central.createEnsemble(req);
-        List<List<WebNode>> networks = response.getNetworks();
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
 
         assertEquals(networks.size(), 2);
 
-        List<WebNode> network1 = networks.get(0);
-        List<WebNode> network2 = networks.get(1);
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
 
         //assert that the only node that is present in both is the target node
-        for (WebNode n : network1) {
+        for (Variable n : network1.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network2, n));
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network2, n));
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
             }
         }
 
-        for (WebNode n : network2) {
+        for (Variable n : network2.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network1, n));
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network1, n));
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
             }
         }
-
         //check expected network
         //network 1: x1 -> x2
         //network 2: x3 -> x1
-        //probabilities are not
+        //probabilities are not explicitly checked
 
-        assertEquals(network1.get(0).getName(), "x1");
-        assertEquals(network1.get(0).getParents().size(), 0);
 
-        assertEquals(network1.get(1).getName(), "x2");
-        assertEquals(network1.get(1).getParents().size(), 1);
-        assertEquals(network1.get(1).getParents().get(0), "x1");
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network2.get(0).getName(), "x3");
-        assertEquals(network2.get(0).getParents().size(), 0);
 
-        assertEquals(network2.get(1).getName(), "x1");
-        assertEquals(network2.get(1).getParents().size(), 1);
-        assertEquals(network2.get(1).getParents().get(0), "x3");
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode2().getName(), "x1");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+
+
+        //assert the AUCS are correctly calculate for this small dataset with no internal logic
+        assertEquals(response.getAucs().get("1"), 0.52, 0.01);
+        assertEquals(response.getAucs().get("0"), 0.52, 0.01);
+
+    }
+
+    @Test
+    public void testCreateEnsembleOpenMarkov() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/k2/smallK2Example_secondhalf.csv",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "x1";
+        req.setTarget(target);
+        EnsembleResponse response = central.createEnsemble(req);
+
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
+
+        assertEquals(networks.size(), 2);
+
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+
+        //assert that the only node that is present in both is the target node
+        for (Variable n : network1.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
+            }
+        }
+
+        for (Variable n : network2.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
+            }
+        }
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not explicitly checked
+
+
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
+
+
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode2().getName(), "x1");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+
+        //assert the AUCS are correctly calculate for this small dataset with no internal logic
+        assertEquals(response.getAucs().get("1"), 0.52, 0.01);
+        assertEquals(response.getAucs().get("0"), 0.52, 0.01);
+
+    }
+
+    @Test
+    public void testCreateEnsembleBigData() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/bigK2Example_firsthalf.csv",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/k2/bigK2Example_secondhalf.csv",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "x3";
+        req.setTarget(target);
+        EnsembleResponse response = central.createEnsemble(req);
+
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
+
+        assertEquals(networks.size(), 2);
+
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+
+        //assert that the only node that is present in both is the target node
+        for (Variable n : network1.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
+            }
+        }
+
+        for (Variable n : network2.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
+            }
+        }
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not explicitly checked
+
+
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
+
+
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode2().getName(), "x1");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
 
         //assert the AUCS are correctly calculate for this small dataset with no internal logic
         assertEquals(response.getAucs().get("1"), 0.52, 0.01);
@@ -121,48 +299,54 @@ public class EnsembleCentralServerTest {
         req.setNetworks(createK2Nodes());
 
         EnsembleResponse response = central.createEnsemble(req);
-        List<List<WebNode>> networks = response.getNetworks();
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
 
         assertEquals(networks.size(), 2);
 
-        List<WebNode> network1 = networks.get(0);
-        List<WebNode> network2 = networks.get(1);
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
 
         //assert that the only node that is present in both is the target node
-        for (WebNode n : network1) {
+        for (Variable n : network1.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network2, n));
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network2, n));
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
             }
         }
 
-        for (WebNode n : network2) {
+        for (Variable n : network2.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network1, n));
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network1, n));
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
             }
         }
-
         //check expected network
         //network 1: x1 -> x2
         //network 2: x3 -> x1
-        //probabilities are not
+        //probabilities are not explicitly checked
 
-        assertEquals(network1.get(0).getName(), "x1");
-        assertEquals(network1.get(0).getParents().size(), 0);
 
-        assertEquals(network1.get(1).getName(), "x2");
-        assertEquals(network1.get(1).getParents().size(), 1);
-        assertEquals(network1.get(1).getParents().get(0), "x1");
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network2.get(0).getName(), "x3");
-        assertEquals(network2.get(0).getParents().size(), 0);
 
-        assertEquals(network2.get(1).getName(), "x1");
-        assertEquals(network2.get(1).getParents().size(), 1);
-        assertEquals(network2.get(1).getParents().get(0), "x3");
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode2().getName(), "x1");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
 
         //assert the AUCS are correctly calculate for this small dataset with no internal logic
         assertEquals(response.getAucs().get("1"), 0.52, 0.01);
@@ -198,48 +382,54 @@ public class EnsembleCentralServerTest {
         req.setTarget(target);
         req.setFolds(10);
         EnsembleResponse response = central.createEnsemble(req);
-        List<List<WebNode>> networks = response.getNetworks();
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
 
         assertEquals(networks.size(), 2);
 
-        List<WebNode> network1 = networks.get(0);
-        List<WebNode> network2 = networks.get(1);
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
 
         //assert that the only node that is present in both is the target node
-        for (WebNode n : network1) {
+        for (Variable n : network1.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network2, n));
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network2, n));
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
             }
         }
 
-        for (WebNode n : network2) {
+        for (Variable n : network2.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network1, n));
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network1, n));
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
             }
         }
-
         //check expected network
         //network 1: x1 -> x2
         //network 2: x3 -> x1
-        //probabilities are not
+        //probabilities are not explicitly checked
 
-        assertEquals(network1.get(0).getName(), "x1");
-        assertEquals(network1.get(0).getParents().size(), 0);
 
-        assertEquals(network1.get(1).getName(), "x2");
-        assertEquals(network1.get(1).getParents().size(), 1);
-        assertEquals(network1.get(1).getParents().get(0), "x1");
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network2.get(0).getName(), "x3");
-        assertEquals(network2.get(0).getParents().size(), 0);
 
-        assertEquals(network2.get(1).getName(), "x1");
-        assertEquals(network2.get(1).getParents().size(), 1);
-        assertEquals(network2.get(1).getParents().get(0), "x3");
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode2().getName(), "x1");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
 
         //assert the AUCS are correctly calculate for this small dataset with no internal logic
         assertEquals(response.getAucs().get("1"), 0.52, 0.01);
@@ -282,70 +472,73 @@ public class EnsembleCentralServerTest {
         req.setTarget(target);
         req.setHybrid(true);
         EnsembleResponse response = central.createEnsemble(req);
-        List<List<WebNode>> networks = response.getNetworks();
+        List<String> networks = response.getNetworks();
 
         assertEquals(networks.size(), 3);
 
-        List<WebNode> network1 = networks.get(0);
-        List<WebNode> network2 = networks.get(1);
-        List<WebNode> network3 = networks.get(2);
+        ProbNet network1 = loadModel(networks.get(0));
+        ProbNet network2 = loadModel(networks.get(1));
+        ProbNet network3 = loadModel(networks.get(2));
 
         //check network 1 & 2 have the same nodes, but only share the target with network 3
 
-
-        for (WebNode n : network1) {
+        for (Variable n : network1.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network3, n));
+                assertTrue(checkNodeIsPresent(network3.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network3, n));
+                assertFalse(checkNodeIsPresent(network3.getVariables(), n));
             }
-            assertTrue(checkNodeIsPresent(network2, n));
+            assertTrue(checkNodeIsPresent(network2.getVariables(), n));
         }
 
-        for (WebNode n : network2) {
+        for (Variable n : network2.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network3, n));
+                assertTrue(checkNodeIsPresent(network3.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network3, n));
+                assertFalse(checkNodeIsPresent(network3.getVariables(), n));
             }
-            assertTrue(checkNodeIsPresent(network1, n));
+            assertTrue(checkNodeIsPresent(network1.getVariables(), n));
         }
 
         //check expected network
         //network 1: x1 -> x2
         //network 2: x3 -> x1
         //probabilities are not
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+        List<Link<Node>> links_3 = network3.getLinks();
 
-        assertEquals(network1.get(0).getName(), "x1");
-        assertEquals(network1.get(0).getParents().size(), 0);
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network1.get(1).getName(), "x2");
-        assertEquals(network1.get(1).getParents().size(), 1);
-        assertEquals(network1.get(1).getParents().get(0), "x1");
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode1().getName(), "x1");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_2.get(0).getNode2().getName(), "x2");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network2.get(0).getName(), "x1");
-        assertEquals(network2.get(0).getParents().size(), 0);
 
-        assertEquals(network2.get(1).getName(), "x2");
-        assertEquals(network2.get(1).getParents().size(), 1);
-        assertEquals(network2.get(1).getParents().get(0), "x1");
-
-        assertEquals(network3.get(0).getName(), "x3");
-        assertEquals(network3.get(0).getParents().size(), 0);
-
-        assertEquals(network3.get(1).getName(), "x1");
-        assertEquals(network3.get(1).getParents().size(), 1);
-        assertEquals(network3.get(1).getParents().get(0), "x3");
+        assertEquals(links_3.size(), 1);
+        assertEquals(links_3.get(0).getNode2().getName(), "x1");
+        assertEquals(links_3.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_3.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_3.get(0).getNode1().getName(), "x3");
+        assertEquals(links_3.get(0).getNode1().getParents().size(), 0);
 
         //check probabilities are different for the two networks that are hybridly split
-        assertEquals(network1.get(0).getProbabilities().get(0).getP(), 0.40, 0.01);
-        assertEquals(network2.get(0).getProbabilities().get(0).getP(), 0.60, 0.01);
-
+        assertEquals(network1.getPotentials().get(0).getVariables().get(0).getName(), "x1");
+        assertEquals(network2.getPotentials().get(0).getVariables().get(0).getName(), "x1");
+        assertEquals(network1.getPotentials().get(0).getCPT().values[0], 0.40, 0.01);
+        assertEquals(network2.getPotentials().get(0).getCPT().values[0], 0.60, 0.01);
 
         //assert the AUCS are correctly calculate for this small dataset with little to no internal logic
         assertEquals(response.getAucs().get("1"), 0.52, 0.01);
         assertEquals(response.getAucs().get("0"), 0.52, 0.01);
-
     }
 
     @Test
@@ -384,65 +577,69 @@ public class EnsembleCentralServerTest {
         req.setHybrid(true);
         req.setFolds(10);
         EnsembleResponse response = central.createEnsemble(req);
-        List<List<WebNode>> networks = response.getNetworks();
+        List<String> networks = response.getNetworks();
 
         assertEquals(networks.size(), 3);
 
-        List<WebNode> network1 = networks.get(0);
-        List<WebNode> network2 = networks.get(1);
-        List<WebNode> network3 = networks.get(2);
+        ProbNet network1 = loadModel(networks.get(0));
+        ProbNet network2 = loadModel(networks.get(1));
+        ProbNet network3 = loadModel(networks.get(2));
 
         //check network 1 & 2 have the same nodes, but only share the target with network 3
 
-
-        for (WebNode n : network1) {
+        for (Variable n : network1.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network3, n));
+                assertTrue(checkNodeIsPresent(network3.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network3, n));
+                assertFalse(checkNodeIsPresent(network3.getVariables(), n));
             }
-            assertTrue(checkNodeIsPresent(network2, n));
+            assertTrue(checkNodeIsPresent(network2.getVariables(), n));
         }
 
-        for (WebNode n : network2) {
+        for (Variable n : network2.getVariables()) {
             if (n.getName().equals(target)) {
-                assertTrue(checkNodeIsPresent(network3, n));
+                assertTrue(checkNodeIsPresent(network3.getVariables(), n));
             } else {
-                assertFalse(checkNodeIsPresent(network3, n));
+                assertFalse(checkNodeIsPresent(network3.getVariables(), n));
             }
-            assertTrue(checkNodeIsPresent(network1, n));
+            assertTrue(checkNodeIsPresent(network1.getVariables(), n));
         }
 
         //check expected network
         //network 1: x1 -> x2
         //network 2: x3 -> x1
         //probabilities are not
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+        List<Link<Node>> links_3 = network3.getLinks();
 
-        assertEquals(network1.get(0).getName(), "x1");
-        assertEquals(network1.get(0).getParents().size(), 0);
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network1.get(1).getName(), "x2");
-        assertEquals(network1.get(1).getParents().size(), 1);
-        assertEquals(network1.get(1).getParents().get(0), "x1");
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode1().getName(), "x1");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_2.get(0).getNode2().getName(), "x2");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x1");
 
-        assertEquals(network2.get(0).getName(), "x1");
-        assertEquals(network2.get(0).getParents().size(), 0);
 
-        assertEquals(network2.get(1).getName(), "x2");
-        assertEquals(network2.get(1).getParents().size(), 1);
-        assertEquals(network2.get(1).getParents().get(0), "x1");
-
-        assertEquals(network3.get(0).getName(), "x3");
-        assertEquals(network3.get(0).getParents().size(), 0);
-
-        assertEquals(network3.get(1).getName(), "x1");
-        assertEquals(network3.get(1).getParents().size(), 1);
-        assertEquals(network3.get(1).getParents().get(0), "x3");
+        assertEquals(links_3.size(), 1);
+        assertEquals(links_3.get(0).getNode2().getName(), "x1");
+        assertEquals(links_3.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_3.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_3.get(0).getNode1().getName(), "x3");
+        assertEquals(links_3.get(0).getNode1().getParents().size(), 0);
 
         //check probabilities are different for the two networks that are hybridly split
-        assertEquals(network1.get(0).getProbabilities().get(0).getP(), 0.40, 0.02);
-        assertEquals(network2.get(0).getProbabilities().get(0).getP(), 0.60, 0.02);
-
+        assertEquals(network1.getPotentials().get(0).getVariables().get(0).getName(), "x1");
+        assertEquals(network2.getPotentials().get(0).getVariables().get(0).getName(), "x1");
+        assertEquals(network1.getPotentials().get(0).getCPT().values[0], 0.40, 0.01);
+        assertEquals(network2.getPotentials().get(0).getCPT().values[0], 0.60, 0.01);
 
         //assert the AUCS are correctly calculate for this small dataset with little to no internal logic
         assertEquals(response.getAucs().get("1"), 0.52, 0.01);
@@ -450,9 +647,9 @@ public class EnsembleCentralServerTest {
 
     }
 
-    private boolean checkNodeIsPresent(List<WebNode> nodes, WebNode n) {
-        for (WebNode node : nodes) {
-            if (n.getName().equals(node.getName())) {
+    private boolean checkNodeIsPresent(List<Variable> variables, Variable v) {
+        for (Variable variable : variables) {
+            if (variable.getName().equals(v.getName())) {
                 return true;
             }
         }
