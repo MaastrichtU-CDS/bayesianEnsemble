@@ -3,6 +3,15 @@ package com.florian.bayesianensemble.webservice.domain.internal;
 public class Probability {
     private double[] probability;
     private boolean locallyPresent;
+    private boolean isActive;
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     public double[] getProbability() {
         return probability;

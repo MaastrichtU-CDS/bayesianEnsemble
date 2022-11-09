@@ -81,19 +81,32 @@ public class EnsembleServer extends BayesServer {
         double[] count = new double[res.get(0).size()];
         for (List<Probability> p : res) {
             for (int i = 0; i < p.size(); i++) {
+                if (summed[i] == null) {
+                    summed[i] = new Probability();
+                }
+                if (p.get(i).isActive()) {
+                    summed[i].setActive(true);
+                }
                 if (p.get(i).isLocallyPresent()) {
-                    if (summed[i] == null) {
-                        summed[i] = new Probability();
+                    summed[i].setLocallyPresent(true);
+                    if (summed[i].getProbability() == null) {
+                        summed[i].setProbability(p.get(i).getProbability());
+                    } else {
+                        for (int j = 0; j < p.get(i).getProbability().length; j++) {
+                            summed[i].getProbability()[j] = p.get(i)
+                                    .getProbability()[j] + summed[i].getProbability()[j];
+                        }
                     }
-                    summed[i].setProbability(p.get(i).getProbability());
                     count[i]++;
                 }
             }
         }
         for (int i = 0; i < summed.length; i++) {
             probabilities.add(summed[i].getProbability());
-            for (int j = 0; j < summed[i].getProbability().length; j++) {
-                probabilities.get(i)[j] = probabilities.get(i)[j] / count[i];
+            if (summed[i].isActive()) {
+                for (int j = 0; j < summed[i].getProbability().length; j++) {
+                    summed[i].getProbability()[j] = summed[i].getProbability()[j] / count[i];
+                }
             }
         }
     }
@@ -109,7 +122,10 @@ public class EnsembleServer extends BayesServer {
         for (int i = 0; i < data.numInstances(); i++) {
             Probability p = new Probability();
             probabilities.add(p);
-            if (recordIsLocallyPresent(i)) {
+            if (recordIsActive(i)) {
+                p.setActive(true);
+            }
+            if (recordIsLocallyPresent(i) && recordIsActive(i)) {
                 p.setLocallyPresent(true);
                 Map<String, String> evidence = createIndividual(getData(), i, req.getTarget());
                 HashMap<Variable, TablePotential> posteriorValues = OpenMarkovClassifier.classify(evidence,
@@ -187,32 +203,23 @@ public class EnsembleServer extends BayesServer {
         return aucs;
     }
 
-    private Map<String, Double> calculateAUC(List<double[]> probabilities, String target, BayesNet net) {
-        double auc = 0;
-        int node = 0;
-        for (int i = 0; i < net.getNrOfNodes(); i++) {
-            if (net.getNodeName(i).equals(target)) {
-                node = i;
-            }
-        }
-        List<String> labels = collectLabels(net, node);
-        Map<String, Double> aucs = new HashedMap();
-
-        for (int i = 0; i < labels.size(); i++) {
-            aucs.put(labels.get(i), calculateAUC(probabilities, labels, i, target));
-        }
-        return aucs;
-    }
-
     private double calculateAUC(List<double[]> probabilities, List<String> labels, int classLabel, String target) {
 
         Set uniqueProbs = new HashSet();
         for (int i = 0; i < probabilities.size(); i++) {
-            uniqueProbs.add(probabilities.get(i)[classLabel]);
+            if (probabilities.get(i) == null) {
+                continue;
+            } else {
+                uniqueProbs.add(probabilities.get(i)[classLabel]);
+            }
         }
+        //make sure 0 and 1 are included.
+        uniqueProbs.add(0.0);
+        uniqueProbs.add(1.0);
         List<Double> sorted = (List<Double>) uniqueProbs.stream().sorted().collect(Collectors.toList());
+        Collections.reverse(sorted);
         double auc = 0;
-        double oldTp = 0;
+        double oldTpr = 0;
         double oldFpr = 0;
 
         for (Double treshold : sorted) {
@@ -221,27 +228,32 @@ public class EnsembleServer extends BayesServer {
             double tn = 0;
             double fn = 0;
             for (int i = 0; i < probabilities.size(); i++) {
-                String trueLabel = getData().getAttributeValues(target).get(i).getValue();
-                if (probabilities.get(i)[classLabel] <= treshold) {
-                    //probability is high enough to be assigned this class label
-                    if (trueLabel.equals(labels.get(classLabel))) {
-                        tp++;
-                    } else {
-                        fp++;
-                    }
+                if (probabilities.get(i) == null) {
+                    continue;
                 } else {
-                    //probability is too low to be assigned this class label
-                    if (trueLabel.equals(labels.get(classLabel))) {
-                        fn++;
+                    String trueLabel = getData().getAttributeValues(target).get(i).getValue();
+                    if (probabilities.get(i)[classLabel] >= treshold) {
+                        //probability is high enough to be assigned this class label
+                        if (trueLabel.equals(labels.get(classLabel))) {
+                            tp++;
+                        } else {
+                            fp++;
+                        }
                     } else {
-                        tn++;
+                        //probability is too low to be assigned this class label
+                        if (trueLabel.equals(labels.get(classLabel))) {
+                            fn++;
+                        } else {
+                            tn++;
+                        }
                     }
                 }
             }
-            double tpr = tp / (tp + fn);
-            double fpr = fp / (fp + tn);
-            auc += tpr * (fpr - oldFpr);
+            double tpr = tp + fn == 0 ? 0 : tp / (tp + fn);
+            double fpr = fp + tn == 0 ? 0 : fp / (fp + tn);
+            auc += (fpr - oldFpr) * (tpr - oldTpr) / 2 + ((fpr - oldFpr) * oldTpr);
             oldFpr = fpr;
+            oldTpr = tpr;
         }
         return auc;
     }

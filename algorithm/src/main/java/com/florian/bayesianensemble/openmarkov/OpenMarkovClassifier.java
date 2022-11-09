@@ -24,7 +24,7 @@ public final class OpenMarkovClassifier {
             InputStream input = new ByteArrayInputStream(model.getBytes());
             // Load the Bayesian network
             PGMXReader_0_2 pgmxReader = new PGMXReader_0_2();
-            ProbNet network = pgmxReader.loadProbNet(model, input);
+            ProbNet network = pgmxReader.loadProbNet("Network", input);
             return network;
 
         } catch (Exception e) {
@@ -55,7 +55,11 @@ public final class OpenMarkovClassifier {
                 Finding f = new Finding(v, index);
                 postResolutionEvidence.addFinding(f);
             } else if (v.getVariableType() == VariableType.DISCRETIZED) {
-                Finding f = new Finding(v, Double.valueOf(evidence.get(key)));
+                try {
+                    Finding f = new Finding(v, Double.valueOf(evidence.get(key)));
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
             }
         }
 
