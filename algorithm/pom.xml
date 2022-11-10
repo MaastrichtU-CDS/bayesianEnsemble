@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.florian</groupId>
             <artifactId>n-scalar-product-protocol</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>2.2-STABLE</version>
         </dependency>
         <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>

@@ -15,6 +15,8 @@ import org.openmarkov.core.model.network.Variable;
 import org.openmarkov.core.model.network.potential.TablePotential;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import weka.classifiers.bayes.BayesNet;
 import weka.core.Instances;
 
@@ -27,8 +29,12 @@ import java.util.stream.Collectors;
 import static com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier.loadModel;
 import static com.florian.bayesianensemble.util.Util.createArrf;
 
+@RestController
 public class EnsembleServer extends BayesServer {
     private static final String ARFF = "individuals.arff";
+
+    public EnsembleServer() {
+    }
 
     public EnsembleServer(String id, List<ServerEndpoint> endpoints) {
         this.serverId = id;
@@ -40,7 +46,7 @@ public class EnsembleServer extends BayesServer {
     }
 
     @PostMapping ("getNodes")
-    public InternalNetwork getNodes(CollectNodesRequest req) {
+    public InternalNetwork getNodes(@RequestBody CollectNodesRequest req) {
         List<Node> nodes = new ArrayList<>();
         for (String name : req.getNames()) {
             Integer relevantColumn = getData().getAttributeCollumn(name);
@@ -56,13 +62,10 @@ public class EnsembleServer extends BayesServer {
     }
 
     @PostMapping ("validate")
-    public ValidateResponse validate(ValidateRequest req) throws Exception {
+    public ValidateResponse validate(@RequestBody ValidateRequest req) throws Exception {
         if (isLocallyPresent(req.getTarget())) {
-            List<double[]> probabilities = new ArrayList<>();
-
-            sumProbabilities(req, probabilities);
             ValidateResponse res = new ValidateResponse();
-            res.setAucs(calculateAUCOpenMarkov(probabilities, req.getTarget(),
+            res.setAucs(calculateAUCOpenMarkov(req.getProbabilities(), req.getTarget(),
                                                req.getNetworks().get(this.serverId)));
             return res;
         } else {
@@ -70,49 +73,8 @@ public class EnsembleServer extends BayesServer {
         }
     }
 
-    private void sumProbabilities(ValidateRequest req, List<double[]> probabilities) throws Exception {
-        List<List<Probability>> res = new ArrayList<>();
-        for (ServerEndpoint e : getEndpoints()) {
-            if (e instanceof EnsembleEndpoint) {
-                res.add(((EnsembleEndpoint) e).classify(req).getProbabilities());
-            }
-        }
-        Probability[] summed = new Probability[res.get(0).size()];
-        double[] count = new double[res.get(0).size()];
-        for (List<Probability> p : res) {
-            for (int i = 0; i < p.size(); i++) {
-                if (summed[i] == null) {
-                    summed[i] = new Probability();
-                }
-                if (p.get(i).isActive()) {
-                    summed[i].setActive(true);
-                }
-                if (p.get(i).isLocallyPresent()) {
-                    summed[i].setLocallyPresent(true);
-                    if (summed[i].getProbability() == null) {
-                        summed[i].setProbability(p.get(i).getProbability());
-                    } else {
-                        for (int j = 0; j < p.get(i).getProbability().length; j++) {
-                            summed[i].getProbability()[j] = p.get(i)
-                                    .getProbability()[j] + summed[i].getProbability()[j];
-                        }
-                    }
-                    count[i]++;
-                }
-            }
-        }
-        for (int i = 0; i < summed.length; i++) {
-            probabilities.add(summed[i].getProbability());
-            if (summed[i].isActive()) {
-                for (int j = 0; j < summed[i].getProbability().length; j++) {
-                    summed[i].getProbability()[j] = summed[i].getProbability()[j] / count[i];
-                }
-            }
-        }
-    }
-
     @PostMapping ("classify")
-    public ClassificationResponse classify(ValidateRequest req) throws Exception {
+    public ClassificationResponse classify(@RequestBody ClassifyRequest req) throws Exception {
         Instances data = makeInstances(req.getTarget());
         List<Probability> probabilities = new ArrayList<>();
         ProbNet network = null;

@@ -1,10 +1,7 @@
 package com.florian.bayesianensemble.webservice;
 
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
-import com.florian.bayesianensemble.webservice.domain.internal.ClassificationResponse;
-import com.florian.bayesianensemble.webservice.domain.internal.InternalNetwork;
-import com.florian.bayesianensemble.webservice.domain.internal.ValidateRequest;
-import com.florian.bayesianensemble.webservice.domain.internal.ValidateResponse;
+import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.webservice.Server;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
 
@@ -45,7 +42,7 @@ public class EnsembleEndpoint extends VertiBayesEndpoint {
         }
     }
 
-    public ClassificationResponse classify(ValidateRequest req) throws Exception {
+    public ClassificationResponse classify(ClassifyRequest req) throws Exception {
         if (testing) {
             return ((EnsembleServer) (server)).classify(req);
         } else {

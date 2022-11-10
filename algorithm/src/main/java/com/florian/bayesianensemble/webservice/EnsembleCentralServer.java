@@ -3,7 +3,9 @@ package com.florian.bayesianensemble.webservice;
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
 import com.florian.bayesianensemble.webservice.domain.EnsembleResponse;
+import com.florian.bayesianensemble.webservice.domain.internal.ClassifyRequest;
 import com.florian.bayesianensemble.webservice.domain.internal.InternalNetwork;
+import com.florian.bayesianensemble.webservice.domain.internal.Probability;
 import com.florian.bayesianensemble.webservice.domain.internal.ValidateRequest;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Network;
@@ -15,7 +17,11 @@ import com.florian.vertibayes.webservice.domain.external.ExpectationMaximization
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
 import org.apache.commons.collections.map.HashedMap;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +30,11 @@ import java.util.stream.Collectors;
 import static com.florian.bayesianensemble.util.Util.findNode;
 import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNodeFromNode;
 
+@RestController
 public class EnsembleCentralServer extends VertiBayesCentralServer {
-    public EnsembleResponse createEnsemble(CreateEnsembleRequest req) throws Exception {
+    @PostMapping ("createEnsemble")
+    public EnsembleResponse createEnsemble(@RequestBody CreateEnsembleRequest req) throws Exception {
+        initEndpoints();
         int[] folds = createFolds(req.getFolds());
         if (req.getFolds() > 1) {
             return kfoldEnsemble(req, folds);
@@ -173,13 +182,19 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
     private Map<String, Double> validateEnsembleOpenMarkov(CreateEnsembleRequest req, Map<String, String> bayesNets)
             throws Exception {
-        ValidateRequest validate = new ValidateRequest();
-        validate.setTarget(req.getTarget());
-        validate.setNetworks(bayesNets);
+        ClassifyRequest classify = new ClassifyRequest();
+        classify.setTarget(req.getTarget());
+        classify.setNetworks(bayesNets);
         Map<String, Integer> count = new HashedMap();
         Map<String, Double> aucs = new HashedMap();
 
         for (ServerEndpoint e : getEndpoints()) {
+            List<double[]> probabilities = new ArrayList<>();
+            sumProbabilities(classify, probabilities);
+            ValidateRequest validate = new ValidateRequest();
+            validate.setTarget(req.getTarget());
+            validate.setNetworks(bayesNets);
+            validate.setProbabilities(probabilities);
             Map<String, Double> foldAUC = ((EnsembleEndpoint) e).validate(validate).getAucs();
             for (String key : foldAUC.keySet()) {
                 if (aucs.get(key) == null) {
@@ -197,5 +212,62 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         }
         return aucs;
     }
+
+    private void sumProbabilities(ClassifyRequest req, List<double[]> probabilities) throws Exception {
+        List<List<Probability>> res = new ArrayList<>();
+        for (ServerEndpoint e : getEndpoints()) {
+            if (e instanceof EnsembleEndpoint) {
+                res.add(((EnsembleEndpoint) e).classify(req).getProbabilities());
+            }
+        }
+        Probability[] summed = new Probability[res.get(0).size()];
+        double[] count = new double[res.get(0).size()];
+        for (List<Probability> p : res) {
+            for (int i = 0; i < p.size(); i++) {
+                if (summed[i] == null) {
+                    summed[i] = new Probability();
+                }
+                if (p.get(i).isActive()) {
+                    summed[i].setActive(true);
+                }
+                if (p.get(i).isLocallyPresent()) {
+                    summed[i].setLocallyPresent(true);
+                    if (summed[i].getProbability() == null) {
+                        summed[i].setProbability(p.get(i).getProbability());
+                    } else {
+                        for (int j = 0; j < p.get(i).getProbability().length; j++) {
+                            summed[i].getProbability()[j] = p.get(i)
+                                    .getProbability()[j] + summed[i].getProbability()[j];
+                        }
+                    }
+                    count[i]++;
+                }
+            }
+        }
+        for (int i = 0; i < summed.length; i++) {
+            probabilities.add(summed[i].getProbability());
+            if (summed[i].isActive()) {
+                for (int j = 0; j < summed[i].getProbability().length; j++) {
+                    summed[i].getProbability()[j] = summed[i].getProbability()[j] / count[i];
+                }
+            }
+        }
+    }
+
+    private void initEndpoints() {
+        if (getEndpoints().size() == 0) {
+            setEndpoints(new ArrayList<>());
+            for (String s : servers) {
+                getEndpoints().add(new EnsembleEndpoint(s));
+            }
+        }
+        if (getSecretEndpoint() == null) {
+            setSecretEndpoint(new ServerEndpoint(secretServer));
+        }
+        getEndpoints().stream().forEach(x -> x.initEndpoints());
+        getSecretEndpoint().initEndpoints();
+        getEndpoints().stream().forEach(x -> ((VertiBayesEndpoint) x).initMaximumLikelyhoodData(new ArrayList<>()));
+    }
+
 }
 

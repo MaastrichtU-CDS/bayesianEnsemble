@@ -1,12 +1,10 @@
 package com.florian.bayesianensemble.webservice.domain.internal;
 
-import java.util.List;
 import java.util.Map;
 
-public class ValidateRequest {
+public class ClassifyRequest {
     private Map<String, String> networks;
     private String target;
-    private List<double[]> probabilities;
 
     public Map<String, String> getNetworks() {
         return networks;
@@ -22,13 +20,5 @@ public class ValidateRequest {
 
     public void setTarget(String target) {
         this.target = target;
-    }
-
-    public List<double[]> getProbabilities() {
-        return probabilities;
-    }
-
-    public void setProbabilities(List<double[]> probabilities) {
-        this.probabilities = probabilities;
     }
 }
