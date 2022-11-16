@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.florian.bayesianensemble.util.Util.findNode;
 import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNodeFromNode;
+import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNodeToNode;
 
 @RestController
 public class EnsembleCentralServer extends VertiBayesCentralServer {
@@ -92,27 +93,53 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Node target = getTargetNode(req.getTarget());
         Map<String, String> bayesNets = new HashMap<>();
 
-        for (ServerEndpoint e : getEndpoints()) {
-            List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
-            setBins(network, req);
-            setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
-            network = learnStructure(network, req.getMinPercentage());
-            WebBayesNetwork n = new WebBayesNetwork();
-            n.setNodes(mapWebNodeFromNode(network));
-            n.setOpenMarkovResponse(true);
-            n.setTarget(target.getName());
-            ExpectationMaximizationOpenMarkovResponse res =
-                    (ExpectationMaximizationOpenMarkovResponse) expectationMaximization(
-                            n);
-            bayesNets.put(e.getServerId(), res.getOpenMarkov());
+        Map<String, List<Node>> structures = generateStructures(req);
+        for (String key : structures.keySet()) {
+            bayesNets.put(key, trainStructure(key, structures, target, req.isHybrid()));
         }
 
         return bayesNets;
     }
 
+    private String trainStructure(String key, Map<String, List<Node>> structures, Node target, boolean isHybrid)
+            throws Exception {
+        for (ServerEndpoint e : getEndpoints()) {
+            if (e.getServerId().equals(key)) {
+                setUseLocalData(isHybrid, (EnsembleEndpoint) e);
+            }
+        }
+        WebBayesNetwork n = new WebBayesNetwork();
+        n.setNodes(mapWebNodeFromNode(structures.get(key)));
+        n.setOpenMarkovResponse(true);
+        n.setTarget(target.getName());
+        ExpectationMaximizationOpenMarkovResponse res =
+                (ExpectationMaximizationOpenMarkovResponse) expectationMaximization(
+                        n);
+        return res.getOpenMarkov();
+    }
+
+    private Map<String, List<Node>> generateStructures(CreateEnsembleRequest req) {
+        Node target = getTargetNode(req.getTarget());
+        Map<String, List<Node>> networks = new HashMap<>();
+
+        for (ServerEndpoint e : getEndpoints()) {
+            if (req.getNetworks() != null && req.getNetworks().containsKey(e.getServerId())) {
+                List<Node> network = mapWebNodeToNode(req.getNetworks().get(e.getServerId()));
+                networks.put(e.getServerId(), network);
+            } else {
+                List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
+                setBins(network, req);
+                setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
+                network = learnStructure(network, req.getMinPercentage());
+                networks.put(e.getServerId(), network);
+            }
+        }
+        return networks;
+    }
+
     private void setBins(List<Node> network, CreateEnsembleRequest req) {
-        if (req.getNetworks() != null) {
-            for (WebNode n : req.getNetworks()) {
+        if (req.getBinned() != null) {
+            for (WebNode n : req.getBinned()) {
                 Node node = findNode(n.getName(), network);
                 if (node != null) {
                     node.setBins(n.getBins());

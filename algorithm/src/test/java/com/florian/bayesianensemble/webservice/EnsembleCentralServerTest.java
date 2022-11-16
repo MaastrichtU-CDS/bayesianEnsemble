@@ -14,6 +14,7 @@ import org.openmarkov.core.model.network.Variable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier.loadModel;
@@ -96,6 +97,80 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
         assertEquals(links_2.get(0).getNode1().getName(), "x3");
         assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+
+
+        assertEquals(response.getAucs().get("1"), 0.78, 0.01);
+        assertEquals(response.getAucs().get("0"), 0.78, 0.01);
+
+    }
+
+    @Test
+    public void testCreateEnsemblePredefinedStructure() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/k2/smallK2Example_secondhalf.csv",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "x1";
+        req.setTarget(target);
+
+        EnsembleResponse response = central.createEnsemble(req);
+
+        req.setNetworks(new HashMap<>());
+        req.getNetworks().put("2", createX3Structured());
+        EnsembleResponse responsePrestructured = central.createEnsemble(req);
+
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
+
+        List<ProbNet> networksPrestuctured = new ArrayList<>();
+        for (String net : responsePrestructured.getNetworks()) {
+            networksPrestuctured.add(loadModel(net));
+        }
+
+        assertEquals(networks.size(), 2);
+        assertEquals(networksPrestuctured.size(), 2);
+
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_2 = network2.getLinks();
+
+        ProbNet network2Prestructured = networksPrestuctured.get(1);
+        List<Link<Node>> links_2Prestructured = network2Prestructured.getLinks();
+
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode2().getName(), "x1");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getName(), "x3");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+
+        //check that the prestructured network looks different, namely the parent-child relation is switched around
+
+        assertEquals(links_2Prestructured.size(), 1);
+        assertEquals(links_2Prestructured.get(0).getNode2().getName(), "x3");
+        assertEquals(links_2Prestructured.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2Prestructured.get(0).getNode2().getParents().get(0).getName(), "x1");
+        assertEquals(links_2Prestructured.get(0).getNode1().getName(), "x1");
+        assertEquals(links_2Prestructured.get(0).getNode1().getParents().size(), 0);
 
 
         assertEquals(response.getAucs().get("1"), 0.78, 0.01);
@@ -292,7 +367,7 @@ public class EnsembleCentralServerTest {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         String target = "x1";
         req.setTarget(target);
-        req.setNetworks(createK2Nodes());
+        req.setBinned(createK2Nodes());
 
         EnsembleResponse response = central.createEnsemble(req);
         List<ProbNet> networks = new ArrayList<>();
@@ -681,6 +756,24 @@ public class EnsembleCentralServerTest {
                 node.getBins().add(one);
             }
         }
+
+        return nodes;
+
+    }
+
+    public static List<WebNode> createX3Structured() {
+        List<WebNode> nodes = new ArrayList<>();
+        WebNode x1 = new WebNode();
+        x1.setType(Attribute.AttributeType.string);
+        x1.setName("x1");
+        WebNode x3 = new WebNode();
+        x3.setType(Attribute.AttributeType.string);
+        x3.setName("x3");
+
+        nodes.add(x1);
+        nodes.add(x3);
+
+        x3.getParents().add("x1");
 
         return nodes;
 

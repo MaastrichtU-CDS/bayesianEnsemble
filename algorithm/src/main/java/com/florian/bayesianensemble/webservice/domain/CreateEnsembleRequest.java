@@ -3,16 +3,27 @@ package com.florian.bayesianensemble.webservice.domain;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
 
 import java.util.List;
+import java.util.Map;
 
 public class CreateEnsembleRequest {
     private String target;
-    private List<WebNode> networks;
+    private Map<String, List<WebNode>> networks;
+    private List<WebNode> binned;
     private boolean hybrid;
     private int minPercentage;
 
     private int folds = 1;
     private static final int MIN_FOLDS = 1;
     private static final int MAX_FOLDS = 10;
+
+    public void setNetworks(
+            Map<String, List<WebNode>> networks) {
+        this.networks = networks;
+    }
+
+    public Map<String, List<WebNode>> getNetworks() {
+        return networks;
+    }
 
     public int getFolds() {
         return folds;
@@ -54,11 +65,11 @@ public class CreateEnsembleRequest {
         this.target = target;
     }
 
-    public List<WebNode> getNetworks() {
-        return networks;
+    public List<WebNode> getBinned() {
+        return binned;
     }
 
-    public void setNetworks(List<WebNode> networks) {
-        this.networks = networks;
+    public void setBinned(List<WebNode> binned) {
+        this.binned = binned;
     }
 }
