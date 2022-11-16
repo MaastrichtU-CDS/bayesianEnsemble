@@ -36,6 +36,7 @@ import static com.florian.bayesianensemble.util.Util.createArrf;
 public class EnsembleServer extends BayesServer {
     private static final String ARFF = "individuals.arff";
     private Map<String, Paillier> encryption = new HashMap();
+    private static final int TEN = 10;
 
     public EnsembleServer() {
     }
@@ -57,7 +58,7 @@ public class EnsembleServer extends BayesServer {
         return p.getPublicKey();
     }
 
-    @GetMapping ("decrypt")
+    @PostMapping ("decrypt")
     public BigInteger decrypt(@RequestBody DecryptionRequest req) {
         BigInteger decrypted = encryption.get(req.getName()).decrypt(req.getValue());
         return decrypted;
@@ -141,7 +142,7 @@ public class EnsembleServer extends BayesServer {
     }
 
     private BigInteger setPrecision(int precision, double v) {
-        return BigInteger.valueOf((long) (v * Math.pow(10, precision)));
+        return BigInteger.valueOf((long) (v * Math.pow(TEN, precision)));
     }
 
     private Map<String, String> createIndividual(Data data, int i, String target) {

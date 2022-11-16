@@ -22,7 +22,7 @@ public class EnsembleEndpoint extends VertiBayesEndpoint {
         if (testing) {
             return ((EnsembleServer) (server)).generatePaillierKey(name);
         } else {
-            return REST_TEMPLATE.postForEntity(serverUrl + "/generatePaillierKey?name=", name, PublicPaillierKey.class)
+            return REST_TEMPLATE.getForEntity(serverUrl + "/generatePaillierKey?name=" + name, PublicPaillierKey.class)
                     .getBody();
         }
     }

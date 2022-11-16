@@ -31,6 +31,7 @@ import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNode
 @RestController
 public class EnsembleCentralServer extends VertiBayesCentralServer {
     private static final int PRECISION = 5;
+    private static final int TEN = 10;
 
     @PostMapping ("createEnsemble")
     public EnsembleResponse createEnsemble(@RequestBody CreateEnsembleRequest req) throws Exception {
@@ -273,7 +274,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                     decrypt.setValue(summed[i].getEncryptedProbability()[j]);
                     decrypt.setName(encryptionName);
                     d[j] = ((EnsembleEndpoint) getEndpoints().get(getEndpoints().size() - 1)).decrypt(decrypt)
-                            .doubleValue() / Math.pow(10, PRECISION);
+                            .doubleValue() / Math.pow(TEN, PRECISION);
                 }
                 probabilities.add(d);
                 for (int j = 0; j < summed[i].getEncryptedProbability().length; j++) {
