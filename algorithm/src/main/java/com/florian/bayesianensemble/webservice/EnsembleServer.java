@@ -5,6 +5,8 @@ import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.data.Attribute;
 import com.florian.nscalarproduct.data.Data;
+import com.florian.nscalarproduct.encryption.Paillier;
+import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.BayesServer;
@@ -23,6 +25,7 @@ import weka.core.Instances;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,7 @@ import static com.florian.bayesianensemble.util.Util.createArrf;
 @RestController
 public class EnsembleServer extends BayesServer {
     private static final String ARFF = "individuals.arff";
+    private Map<String, Paillier> encryption = new HashMap();
 
     public EnsembleServer() {
     }
@@ -43,6 +47,20 @@ public class EnsembleServer extends BayesServer {
 
     public EnsembleServer(String path, String id) {
         super(path, id);
+    }
+
+    @GetMapping ("generatePaillierKey")
+    public PublicPaillierKey generatePaillierKey(String name) {
+        Paillier p = new Paillier();
+        p.generateKeyPair();
+        encryption.put(name, p);
+        return p.getPublicKey();
+    }
+
+    @GetMapping ("decrypt")
+    public BigInteger decrypt(@RequestBody DecryptionRequest req) {
+        BigInteger decrypted = encryption.get(req.getName()).decrypt(req.getValue());
+        return decrypted;
     }
 
     @PostMapping ("getNodes")
@@ -77,6 +95,7 @@ public class EnsembleServer extends BayesServer {
     public ClassificationResponse classify(@RequestBody ClassifyRequest req) throws Exception {
         Instances data = makeInstances(req.getTarget());
         List<Probability> probabilities = new ArrayList<>();
+
         ProbNet network = null;
         if (req.getNetworks() != null) {
             network = loadModel(req.getNetworks().get(this.serverId));
@@ -105,8 +124,24 @@ public class EnsembleServer extends BayesServer {
             }
         }
         ClassificationResponse res = new ClassificationResponse();
+
+        for (Probability p : probabilities) {
+            if (p.getProbability() != null) {
+                BigInteger[] encrypted = new BigInteger[p.getProbability().length];
+                for (int i = 0; i < p.getProbability().length; i++) {
+                    encrypted[i] = req.getKey()
+                            .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
+                    p.getProbability()[i] = -1;
+                }
+                p.setEncryptedProbability(encrypted);
+            }
+        }
         res.setProbabilities(probabilities);
         return res;
+    }
+
+    private BigInteger setPrecision(int precision, double v) {
+        return BigInteger.valueOf((long) (v * Math.pow(10, precision)));
     }
 
     private Map<String, String> createIndividual(Data data, int i, String target) {

@@ -2,8 +2,11 @@ package com.florian.bayesianensemble.webservice;
 
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.internal.*;
+import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.Server;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
+
+import java.math.BigInteger;
 
 public class EnsembleEndpoint extends VertiBayesEndpoint {
 
@@ -14,6 +17,25 @@ public class EnsembleEndpoint extends VertiBayesEndpoint {
     public EnsembleEndpoint(String url) {
         super(url);
     }
+
+    public PublicPaillierKey generatePaillierKey(String name) {
+        if (testing) {
+            return ((EnsembleServer) (server)).generatePaillierKey(name);
+        } else {
+            return REST_TEMPLATE.postForEntity(serverUrl + "/generatePaillierKey?name=", name, PublicPaillierKey.class)
+                    .getBody();
+        }
+    }
+
+    public BigInteger decrypt(DecryptionRequest req) {
+        if (testing) {
+            return ((EnsembleServer) (server)).decrypt(req);
+        } else {
+            return REST_TEMPLATE.postForEntity(serverUrl + "/decrypt", req, BigInteger.class)
+                    .getBody();
+        }
+    }
+
 
     public InternalNetwork getNodes(CollectNodesRequest request) {
         if (testing) {

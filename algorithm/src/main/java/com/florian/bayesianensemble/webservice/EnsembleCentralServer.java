@@ -3,10 +3,8 @@ package com.florian.bayesianensemble.webservice;
 import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
 import com.florian.bayesianensemble.webservice.domain.EnsembleResponse;
-import com.florian.bayesianensemble.webservice.domain.internal.ClassifyRequest;
-import com.florian.bayesianensemble.webservice.domain.internal.InternalNetwork;
-import com.florian.bayesianensemble.webservice.domain.internal.Probability;
-import com.florian.bayesianensemble.webservice.domain.internal.ValidateRequest;
+import com.florian.bayesianensemble.webservice.domain.internal.*;
+import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Network;
 import com.florian.vertibayes.bayes.Node;
@@ -32,6 +30,8 @@ import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNode
 
 @RestController
 public class EnsembleCentralServer extends VertiBayesCentralServer {
+    private static final int PRECISION = 5;
+
     @PostMapping ("createEnsemble")
     public EnsembleResponse createEnsemble(@RequestBody CreateEnsembleRequest req) throws Exception {
         initEndpoints();
@@ -183,14 +183,18 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private Map<String, Double> validateEnsembleOpenMarkov(CreateEnsembleRequest req, Map<String, String> bayesNets)
             throws Exception {
         ClassifyRequest classify = new ClassifyRequest();
+        String encryptionName = String.valueOf(System.currentTimeMillis());
         classify.setTarget(req.getTarget());
         classify.setNetworks(bayesNets);
+        classify.setKey(getPublicPaillierKey(encryptionName));
+        classify.setPrecision(PRECISION);
+
         Map<String, Integer> count = new HashedMap();
         Map<String, Double> aucs = new HashedMap();
 
         for (ServerEndpoint e : getEndpoints()) {
             List<double[]> probabilities = new ArrayList<>();
-            sumProbabilities(classify, probabilities);
+            sumProbabilities(classify, probabilities, encryptionName);
             ValidateRequest validate = new ValidateRequest();
             validate.setTarget(req.getTarget());
             validate.setNetworks(bayesNets);
@@ -213,7 +217,14 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return aucs;
     }
 
-    private void sumProbabilities(ClassifyRequest req, List<double[]> probabilities) throws Exception {
+    private PublicPaillierKey getPublicPaillierKey(String encryptionName) {
+        EnsembleEndpoint encryptionEndpoint = (EnsembleEndpoint) getEndpoints().get(getEndpoints().size() - 1);
+        PublicPaillierKey key = encryptionEndpoint.generatePaillierKey(encryptionName);
+        return key;
+    }
+
+    private void sumProbabilities(ClassifyRequest req, List<double[]> probabilities, String encryptionName)
+            throws Exception {
         List<List<Probability>> res = new ArrayList<>();
         for (ServerEndpoint e : getEndpoints()) {
             if (e instanceof EnsembleEndpoint) {
@@ -234,10 +245,20 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                     summed[i].setLocallyPresent(true);
                     if (summed[i].getProbability() == null) {
                         summed[i].setProbability(p.get(i).getProbability());
+
                     } else {
-                        for (int j = 0; j < p.get(i).getProbability().length; j++) {
+                        for (int j = 0; j < p.get(i).getEncryptedProbability().length; j++) {
                             summed[i].getProbability()[j] = p.get(i)
                                     .getProbability()[j] + summed[i].getProbability()[j];
+                        }
+                    }
+
+                    if (summed[i].getEncryptedProbability() == null) {
+                        summed[i].setEncryptedProbability(p.get(i).getEncryptedProbability());
+                    } else {
+                        for (int j = 0; j < p.get(i).getEncryptedProbability().length; j++) {
+                            summed[i].getEncryptedProbability()[j] = p.get(i)
+                                    .getEncryptedProbability()[j].multiply(summed[i].getEncryptedProbability()[j]);
                         }
                     }
                     count[i]++;
@@ -245,10 +266,18 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             }
         }
         for (int i = 0; i < summed.length; i++) {
-            probabilities.add(summed[i].getProbability());
             if (summed[i].isActive()) {
-                for (int j = 0; j < summed[i].getProbability().length; j++) {
-                    summed[i].getProbability()[j] = summed[i].getProbability()[j] / count[i];
+                DecryptionRequest decrypt = new DecryptionRequest();
+                double[] d = new double[summed[i].getEncryptedProbability().length];
+                for (int j = 0; j < d.length; j++) {
+                    decrypt.setValue(summed[i].getEncryptedProbability()[j]);
+                    decrypt.setName(encryptionName);
+                    d[j] = ((EnsembleEndpoint) getEndpoints().get(getEndpoints().size() - 1)).decrypt(decrypt)
+                            .doubleValue() / Math.pow(10, PRECISION);
+                }
+                probabilities.add(d);
+                for (int j = 0; j < summed[i].getEncryptedProbability().length; j++) {
+                    summed[i].getProbability()[j] = d[j] / count[i];
                 }
             }
         }
