@@ -9,10 +9,10 @@ from com.florian.verticox.wrapper import secondary
 
 WAIT = 10
 RETRY = 20
-IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/verticox_predictors'
+IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/bayesian_ensemble'
 
 
-def verticoxPredictors(client, data, nodes, requirements, predictors, *args, **kwargs):
+def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentage, hybrid, folds, *args, **kwargs):
         """
     
         :param client:
@@ -36,8 +36,10 @@ def verticoxPredictors(client, data, nodes, requirements, predictors, *args, **k
         commodity_node_task = secondary.init_local()
 
         adresses = []
+        names = []
         for task in tasks:
             adresses.append(_await_addresses(client, task["id"])[0])
+            adresses.append(task["id"])
 
         #assuming the last taks before tasks[0] controls the commodity server
         #Assumption is basically that noone got in between the starting of this master-task and its subtasks
@@ -54,9 +56,9 @@ def verticoxPredictors(client, data, nodes, requirements, predictors, *args, **k
 
         info('Sharing addresses & setting ids')
         _setId(commodity_address, "0");
-        id = 1
+        id = 0
         for adress in adresses:
-            _setId(adress, str(id));
+            _setId(adress, nodes[id]);
             id+=1
             others = adresses.copy()
             others.remove(adress)
@@ -65,7 +67,7 @@ def verticoxPredictors(client, data, nodes, requirements, predictors, *args, **k
 
         _initCentralServer(commodity_address, adresses)
 
-        response = _getSummedPredictors(commodity_address, requirements, predictors)
+        response = _trainEnsemble(commodity_address, target, networks, binned, minpercentage, hybrid, folds)
 
         info('Commiting murder')
         for adress in adresses:
@@ -73,20 +75,15 @@ def verticoxPredictors(client, data, nodes, requirements, predictors, *args, **k
 
         return response
 
-def _getSummedPredictors(targetUrl, requirements, targetPredictors):
-    predictors = {}
-    for predictor in targetPredictors:
-        predictors[predictor] = _getSummedPredictor(targetUrl, requirements, predictor)
-
-    return predictors
-
-
-def _getSummedPredictor(targetUrl, requirements, predictor):
+def _trainEnsemble(targetUrl, target, networks, binned, minpercentage, hybrid, folds):
     r = requests.post(targetUrl + "/sumRelevantValues", json={
-        "requirements": requirements,
-        "predictor": predictor,
+        "target": target,
+        "networks": networks,
+        "binned": binned,
+        "hybrid":hybrid,
+        "minPercentage":minpercentage,
+        "folds":folds,
     })
-
     return r.json()
 
 

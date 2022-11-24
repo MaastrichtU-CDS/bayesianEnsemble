@@ -1,10 +1,10 @@
 import vantage6.client
 
-IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/verticox_predictors'
+IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/bayesian_ensemble'
 NAME = 'verticox_predictors from client'
 
 
-class VerticoxPredictorsClient:
+class BayesianEnsembleClient:
 
     def __init__(self, client: vantage6.client.Client):
         """
@@ -13,9 +13,9 @@ class VerticoxPredictorsClient:
         """
         self.client = client
 
-    def verticox(self, collaboration, commodity_node, nodes, requirements,predictors):
+    def bayesianEnsemble(self, collaboration, commodity_node, nodes,  target, networks, binned, minpercentage, hybrid, folds):
         return self.client.task.create(collaboration=collaboration,
                                        organizations=[commodity_node],
                                        name=NAME, image=IMAGE, description=NAME,
-                                       input={'method': 'verticoxPredictors', 'master': True,
-                                              'args': [nodes, requirements, predictors]})
+                                       input={'method': 'bayesianEnsemble', 'master': True,
+                                              'args': [nodes, target, networks, binned, minpercentage, hybrid, folds]})
