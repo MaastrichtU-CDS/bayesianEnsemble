@@ -7,3 +7,5 @@
 /algorithm/test.xml
 /test.arff
 /test.xml
+/dockerwrapper/.idea
+/dockerwrapper/*.sh
