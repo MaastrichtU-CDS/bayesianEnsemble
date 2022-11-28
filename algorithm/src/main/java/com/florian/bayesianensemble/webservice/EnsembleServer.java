@@ -57,7 +57,7 @@ public class EnsembleServer extends BayesServer {
         encryption.put(name, p);
         return p.getPublicKey();
     }
-    
+
     @PostMapping ("decrypt")
     public BigInteger decrypt(@RequestBody DecryptionRequest req) {
         BigInteger decrypted = encryption.get(req.getName()).decrypt(req.getValue());
