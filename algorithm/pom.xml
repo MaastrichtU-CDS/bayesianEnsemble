@@ -95,6 +95,20 @@
                     <finalName>final</finalName>
                 </configuration>
             </plugin>
+            <plugin>
+                <!--Makes sure there is a main class in the jar with all the dependencies-->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.florian.bayesianensemble.WebserviceDtApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
             <!--Dependency check-->
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -186,10 +200,10 @@
             </plugin>
 
             <!-- Turn this off to be able to use it as a library, stupid spring boot ruins libraries apparently-->
-            <!--            <plugin>-->
-            <!--                <groupId>org.springframework.boot</groupId>-->
-            <!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-            <!--            </plugin>-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
