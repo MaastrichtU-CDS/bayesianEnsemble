@@ -4,8 +4,8 @@ from typing import List
 import requests
 from vantage6.common import info
 
-from com.florian.verticox import urlcollector
-from com.florian.verticox.wrapper import secondary
+from com.florian.bayesianensemble import urlcollector
+from com.florian.bayesianensemble.wrapper import secondary
 
 WAIT = 10
 RETRY = 20

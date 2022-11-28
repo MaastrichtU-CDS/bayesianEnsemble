@@ -1,7 +1,7 @@
 import vantage6.client
 
 IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/bayesian_ensemble'
-NAME = 'verticox_predictors from client'
+NAME = 'bayesianensemble from client'
 
 
 class BayesianEnsembleClient:
