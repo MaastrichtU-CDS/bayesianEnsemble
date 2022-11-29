@@ -26,9 +26,11 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
         info('Dit is de nieuwste image')
         i = 0
         print(nodes)
+        names = []
         for node in nodes:
             info('Node ' + str(i))
             tasks.append(_initEndpoints(client, [node]))
+            names.append(node)
             i = i+1
 
         # TODO: init commodity server on a different server?
@@ -36,10 +38,10 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
         commodity_node_task = secondary.init_local()
 
         adresses = []
-        names = []
+
         for task in tasks:
             adresses.append(_await_addresses(client, task["id"])[0])
-            adresses.append(task["id"])
+
 
         #assuming the last taks before tasks[0] controls the commodity server
         #Assumption is basically that noone got in between the starting of this master-task and its subtasks
@@ -58,13 +60,16 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
         _setId(commodity_address, "0");
         id = 0
         for adress in adresses:
-            _setId(adress, nodes[id]);
+            info('adress')
+            info(adress)
+            _setId(adress, str(nodes[id]));
             id+=1
             others = adresses.copy()
             others.remove(adress)
             others.append(global_commodity_address)
             urlcollector.put_endpoints(adress, others)
 
+        info('were here now')
         _initCentralServer(commodity_address, adresses)
 
         response = _trainEnsemble(commodity_address, target, networks, binned, minpercentage, hybrid, folds)
@@ -76,7 +81,7 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
         return response
 
 def _trainEnsemble(targetUrl, target, networks, binned, minpercentage, hybrid, folds):
-    r = requests.post(targetUrl + "/sumRelevantValues", json={
+    r = requests.post(targetUrl + "/createEnsemble", json={
         "target": target,
         "networks": networks,
         "binned": binned,
@@ -105,11 +110,11 @@ def _killSpring(server: str):
         pass
 
 def _setId(ip: str, id:str):
+    info(id)
+    info(ip)
     r = requests.post(ip + "/setID?id="+id)
 
 def _initEndpoints(client, organizations):
-    print('Dit is in de init')
-    print(organizations)
     # start the various java endpoints for n2n
     return client.create_new_task(
         input_={'method': 'init'},

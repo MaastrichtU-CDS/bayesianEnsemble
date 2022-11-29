@@ -18,5 +18,7 @@ def _get_jar_path():
 
 def init_local():
     process = subprocess.Popen(['java', '-jar', _get_jar_path()])
-
     return process
+
+def init_crash():
+    info("crash" +1)
