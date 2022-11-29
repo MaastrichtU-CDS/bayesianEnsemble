@@ -30,7 +30,7 @@ WORKDIR /build/vertibayes
 RUN mvn install
 
 WORKDIR /build
-RUN git clone --branch main git@github.com:MaastrichtU-CDS/bayesianEnsemble.git
+RUN git clone --branch 1.0-stable git@github.com:MaastrichtU-CDS/bayesianEnsemble.git
 
 WORKDIR /build/bayesianEnsemble/algorithm
 RUN mvn install:install-file -Dfile=./openmarkov/OpenMarkov-0.4.0.jar -DgroupId=org.openmarkov -DartifactId=org.openmarkov.full -Dversion=0.4.0-SNAPSHOT -Dpackaging=jar
