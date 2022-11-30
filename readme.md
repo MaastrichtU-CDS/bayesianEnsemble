@@ -169,3 +169,23 @@ The AUC is listed per class label.
 
 ### Crossfold validation:
 Crossfold validation is automaticly executed if folds >1. The maximum number of folds is 10.
+
+### Vantag6 Wrapper:
+The wrapper uses the following request:
+
+```
+nodes=<Data-owner nodes>
+networks=<key-value pairs, listing predefined network structures per dataparty, the key indicates the relevant node>
+binned=<Predefined bins>
+COMMODITYSERVER=<Organisation selected to play the role of commodity server>
+minPercentage=<minimum percentage used for binning scheme, 0.1, 0.25, 0.3 or 0.4>
+target=<the class variable>
+hybrid=<Boolean indicating if the ensembles may make use of hybrid variables, or act as if everything is purely based on local information.>
+folds=<number of folds for crossfold validation, max 10, min 1>
+
+task = self.client.task.create(collaboration=collaboration,
+                                       organizations=[commodity_node],
+                                       name=NAME, image=IMAGE, description=NAME,
+                                       input={'method': 'bayesianEnsemble', 'master': True,
+                                              'args': [nodes, target, networks, binned, minpercentage, hybrid, folds]})
+```
