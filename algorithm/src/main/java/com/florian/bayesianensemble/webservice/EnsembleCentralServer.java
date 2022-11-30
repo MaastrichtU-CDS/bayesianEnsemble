@@ -123,6 +123,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Map<String, List<Node>> networks = new HashMap<>();
 
         for (ServerEndpoint e : getEndpoints()) {
+            System.out.println(e.getServerId() + " " + req.getNetworks().containsKey(e.getServerId()));
             if (req.getNetworks() != null && req.getNetworks().containsKey(e.getServerId())) {
                 List<Node> network = mapWebNodeToNode(req.getNetworks().get(e.getServerId()));
                 networks.put(e.getServerId(), network);
