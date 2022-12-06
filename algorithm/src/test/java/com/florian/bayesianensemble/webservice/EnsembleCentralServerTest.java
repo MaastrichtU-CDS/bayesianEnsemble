@@ -105,6 +105,101 @@ public class EnsembleCentralServerTest {
     }
 
     @Test
+    public void testCreateEnsembleIris() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/iris/left.arff",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/iris/right.arff",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "label";
+        req.setTarget(target);
+        EnsembleResponse response = central.createEnsemble(req);
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
+
+        assertEquals(networks.size(), 2);
+
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+
+        //assert that the only node that is present in both is the target node
+        for (Variable n : network1.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
+            }
+        }
+
+        for (Variable n : network2.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
+            }
+        }
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not explicitly checked
+
+
+        assertEquals(links_1.size(), 2);
+        assertEquals(links_1.get(0).getNode1().getName(), "sepalwidth");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "petalwidth");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "sepalwidth");
+        assertEquals(links_1.get(1).getNode1().getName(), "petalwidth");
+        assertEquals(links_1.get(1).getNode1().getParents().size(), 1);
+        assertEquals(links_1.get(1).getNode1().getParents().get(0).getName(), "sepalwidth");
+        assertEquals(links_1.get(1).getNode2().getName(), "label");
+        assertEquals(links_1.get(1).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(1).getNode2().getParents().get(0).getName(), "petalwidth");
+
+        assertEquals(links_2.size(), 2);
+        assertEquals(links_2.get(0).getNode1().getName(), "sepallength");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_2.get(0).getNode2().getName(), "petallength");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "sepallength");
+
+        assertEquals(links_2.get(1).getNode1().getName(), "petallength");
+        assertEquals(links_2.get(1).getNode1().getParents().size(), 1);
+        assertEquals(links_2.get(1).getNode1().getParents().get(0).getName(), "sepallength");
+        assertEquals(links_2.get(1).getNode2().getName(), "label");
+        assertEquals(links_2.get(1).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(1).getNode2().getParents().get(0).getName(), "petallength");
+
+
+        assertEquals(response.getAucs().get("Iris-setosa"), 0.78, 0.01);
+        assertEquals(response.getAucs().get("Iris-versicolor"), 0.78, 0.01);
+        assertEquals(response.getAucs().get("Iris-virginica"), 0.78, 0.01);
+
+    }
+
+    @Test
     public void testCreateEnsemblePredefinedStructure() throws Exception {
         EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
                                                      "1");
