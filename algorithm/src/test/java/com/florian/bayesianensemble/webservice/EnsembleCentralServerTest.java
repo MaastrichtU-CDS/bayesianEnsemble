@@ -191,8 +191,7 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2.get(1).getNode2().getName(), "label");
         assertEquals(links_2.get(1).getNode2().getParents().size(), 1);
         assertEquals(links_2.get(1).getNode2().getParents().get(0).getName(), "petallength");
-
-
+        
         assertEquals(response.getAucs().get("Iris-setosa"), 0.95, 0.05);
         assertEquals(response.getAucs().get("Iris-versicolor"), 0.89, 0.05);
         assertEquals(response.getAucs().get("Iris-virginica"), 0.99, 0.05);

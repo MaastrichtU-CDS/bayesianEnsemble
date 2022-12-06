@@ -10,3 +10,7 @@
 /dockerwrapper/.idea
 /dockerwrapper/*.sh
 /dockerwrapper/test/TestScript.py
+/algorithm/resources/Experiments/left.arff
+/algorithm/resources/Experiments/leftweka.arff
+/algorithm/resources/Experiments/right.arff
+/algorithm/resources/Experiments/rightweka.arff

@@ -1,4 +1,4 @@
-package com.florian.bayesianensemble.webservice.performance;
+package com.florian.bayesianensemble.webservice.performance.base;
 
 import com.florian.nscalarproduct.data.Attribute;
 import com.florian.nscalarproduct.data.Data;
@@ -42,7 +42,7 @@ public class Util {
             }
             data.add(s);
         }
-        
+
 
         data.add("");
         data.add("@DATA");

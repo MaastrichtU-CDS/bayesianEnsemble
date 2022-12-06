@@ -1,4 +1,4 @@
-package com.florian.bayesianensemble.webservice.performance;
+package com.florian.bayesianensemble.webservice.performance.base;
 
 import com.florian.bayesianensemble.webservice.EnsembleCentralServer;
 import com.florian.bayesianensemble.webservice.EnsembleEndpoint;
@@ -20,9 +20,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-import static com.florian.bayesianensemble.webservice.performance.Util.dataToArff;
+import static com.florian.bayesianensemble.webservice.performance.base.Performance.compare;
+import static com.florian.bayesianensemble.webservice.performance.base.Util.dataToArff;
 
-public class PerformanceTest {
+public class PerformanceTestBase {
     private String source;
     private static final String LEFT = "resources/Experiments/left.arff";
     private static final String LEFT_WEKA = "resources/Experiments/leftweka.arff";
@@ -32,7 +33,7 @@ public class PerformanceTest {
     private static final int ROUNDS = 10;
     private static final int FOLDS = 10;
 
-    public PerformanceTest(String source, String target) {
+    public PerformanceTestBase(String source, String target) {
         this.source = source;
         this.TARGET = target;
     }
@@ -43,12 +44,21 @@ public class PerformanceTest {
         for (int i = 0; i < ROUNDS; i++) {
             splitSource();
             Map<String, Double> results = trainModel();
-            System.out.println(results);
+
             p.addLeftAuc(validateAgainstWeka(LEFT_WEKA));
             p.addRightAuc(validateAgainstWeka(RIGHT_WEKA));
+            if (p.getEnsembleAucMax() == null) {
+                p.setEnsembleAucMax(results);
+                p.setEnsembleAucMin(results);
+            } else {
+                if (compare(results, p.getEnsembleAucMax()) > 0) {
+                    p.setEnsembleAucMax(results);
+                }
+                if (compare(results, p.getEnsembleAucMin()) < 0) {
+                    p.setEnsembleAucMin(results);
+                }
+            }
 
-            System.out.println(validateAgainstWeka(LEFT_WEKA));
-            System.out.println(validateAgainstWeka(RIGHT_WEKA));
             for (String key : results.keySet()) {
                 if (aucs.containsKey(key)) {
                     aucs.put(key, aucs.get(key) + results.get(key));
@@ -65,7 +75,7 @@ public class PerformanceTest {
         return p;
     }
 
-    public double validateAgainstWeka(String source) throws Exception {
+    public Map<String, Double> validateAgainstWeka(String source) throws Exception {
         Performance p = new Performance();
 
         BayesNet network = new BayesNet();
@@ -84,7 +94,12 @@ public class PerformanceTest {
 
         Evaluation eval = new Evaluation(data);
         eval.crossValidateModel(network, data, FOLDS, new Random(1));
-        return eval.weightedAreaUnderROC();
+
+        Map<String, Double> aucs = new HashMap<>();
+        for (int i = 0; i < data.attribute(data.classIndex()).numValues(); i++) {
+            aucs.put(data.attribute(data.classIndex()).value(i), eval.areaUnderROC(i));
+        }
+        return aucs;
     }
 
     private Map<String, Double> trainModel() throws Exception {
