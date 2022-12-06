@@ -57,6 +57,7 @@ public final class OpenMarkovClassifier {
             } else if (v.getVariableType() == VariableType.DISCRETIZED) {
                 try {
                     Finding f = new Finding(v, Double.valueOf(evidence.get(key)));
+                    postResolutionEvidence.addFinding(f);
                 } catch (Exception e) {
                     System.out.println(e);
                 }
