@@ -48,31 +48,21 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
     private EnsembleResponse kfoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
 
-        Map<String, Double> aucs = new HashMap<>();
-
+        List<double[]> probablites = new ArrayList<>();
         for (int i = 0; i < req.getFolds(); i++) {
             initFold(folds, i);
 
             Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
             initValidationFold(folds, i);
-            Map<String, Double> foldAucs = validateEnsembleOpenMarkov(req, bayesNets);
-            for (String key : foldAucs.keySet()) {
-                if (aucs.get(key) == null) {
-                    aucs.put(key, foldAucs.get(key));
-                } else {
-                    aucs.put(key, aucs.get(key) + foldAucs.get(key));
-                }
-            }
-        }
 
-        //average AUC
-        for (String key : aucs.keySet()) {
-            aucs.put(key, aucs.get(key) / req.getFolds());
+            classify(probablites, req, bayesNets);
         }
 
         //Train final model
         activateAll(folds);
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
+
+        Map<String, Double> aucs = calculateAUC(probablites, req.getTarget(), bayesNets);
 
         //create response
         EnsembleResponse response = createEnsembleResponse(aucs, bayesNets, req.getTarget());
@@ -82,8 +72,9 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
         activateAll(folds);
-
-        Map<String, Double> aucs = validateEnsembleOpenMarkov(req, bayesNets);
+        List<double[]> probablites = new ArrayList<>();
+        classify(probablites, req, bayesNets);
+        Map<String, Double> aucs = calculateAUC(probablites, req.getTarget(), bayesNets);
 
         //create response
         EnsembleResponse response = createEnsembleResponse(aucs, bayesNets, req.getTarget());
@@ -230,23 +221,13 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return response;
     }
 
-    private Map<String, Double> validateEnsembleOpenMarkov(CreateEnsembleRequest req, Map<String, String> bayesNets)
+    public Map<String, Double> calculateAUC(List<double[]> probabilities, String target, Map<String, String> bayesNets)
             throws Exception {
-        ClassifyRequest classify = new ClassifyRequest();
-        String encryptionName = String.valueOf(System.currentTimeMillis());
-        classify.setTarget(req.getTarget());
-        classify.setNetworks(bayesNets);
-        classify.setKey(getPublicPaillierKey(encryptionName));
-        classify.setPrecision(PRECISION);
-
-        Map<String, Integer> count = new HashedMap();
         Map<String, Double> aucs = new HashedMap();
-
+        Map<String, Integer> count = new HashedMap();
         for (ServerEndpoint e : getEndpoints()) {
-            List<double[]> probabilities = new ArrayList<>();
-            sumProbabilities(classify, probabilities, encryptionName);
             ValidateRequest validate = new ValidateRequest();
-            validate.setTarget(req.getTarget());
+            validate.setTarget(target);
             validate.setNetworks(bayesNets);
             validate.setProbabilities(probabilities);
             Map<String, Double> foldAUC = ((EnsembleEndpoint) e).validate(validate).getAucs();
@@ -265,6 +246,24 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             aucs.put(key, aucs.get(key) / count.get(key));
         }
         return aucs;
+    }
+
+    private List<double[]> classify(List<double[]> probabilities, CreateEnsembleRequest req,
+                                    Map<String, String> bayesNets)
+            throws Exception {
+        ClassifyRequest classify = new ClassifyRequest();
+        String encryptionName = String.valueOf(System.currentTimeMillis());
+        classify.setTarget(req.getTarget());
+        classify.setNetworks(bayesNets);
+        classify.setKey(getPublicPaillierKey(encryptionName));
+        classify.setPrecision(PRECISION);
+
+        Map<String, Integer> count = new HashedMap();
+        Map<String, Double> aucs = new HashedMap();
+        for (ServerEndpoint e : getEndpoints()) {
+            sumProbabilities(classify, probabilities, encryptionName);
+        }
+        return probabilities;
     }
 
     private PublicPaillierKey getPublicPaillierKey(String encryptionName) {
@@ -316,6 +315,10 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             }
         }
         for (int i = 0; i < summed.length; i++) {
+            if (i >= probabilities.size()) {
+                //put in a dummy
+                probabilities.add(new double[0]);
+            }
             if (summed[i].isActive()) {
                 DecryptionRequest decrypt = new DecryptionRequest();
                 double[] d = new double[summed[i].getEncryptedProbability().length];
@@ -325,9 +328,10 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                     d[j] = ((EnsembleEndpoint) getEndpoints().get(getEndpoints().size() - 1)).decrypt(decrypt)
                             .doubleValue() / Math.pow(TEN, PRECISION);
                 }
-                probabilities.add(d);
+
                 for (int j = 0; j < summed[i].getEncryptedProbability().length; j++) {
                     summed[i].getProbability()[j] = d[j] / count[i];
+                    probabilities.set(i, summed[i].getProbability());
                 }
             }
         }

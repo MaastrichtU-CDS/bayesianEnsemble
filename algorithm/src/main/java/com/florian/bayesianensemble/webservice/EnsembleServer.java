@@ -132,7 +132,7 @@ public class EnsembleServer extends BayesServer {
                 for (int i = 0; i < p.getProbability().length; i++) {
                     encrypted[i] = req.getKey()
                             .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
-                    p.getProbability()[i] = -1;
+                    //p.getProbability()[i] = -1;
                 }
                 p.setEncryptedProbability(encrypted);
             }
@@ -202,7 +202,6 @@ public class EnsembleServer extends BayesServer {
     }
 
     private double calculateAUC(List<double[]> probabilities, List<String> labels, int classLabel, String target) {
-
         Set uniqueProbs = new HashSet();
         for (int i = 0; i < probabilities.size(); i++) {
             if (probabilities.get(i) == null) {
@@ -297,7 +296,6 @@ public class EnsembleServer extends BayesServer {
                 }
             }
         }
-        System.out.println(count);
         return req.getKey().encrypt(setPrecision(req.getPrecision(), weighted));
     }
 }
