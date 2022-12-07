@@ -432,9 +432,9 @@ public class EnsembleCentralServerTest {
 
         //this is the only model to correctly identify the data is random. Probably due to the fact that the others
         // have only 10 individuals
-        assertEquals(response.getAucs().get("1"), 0.5, 0.01);
-        assertEquals(response.getAucs().get("0"), 0.5, 0.01);
-        assertEquals(response.getWeightedAUC(), 0.5, 0.01);
+        assertEquals(response.getAucs().get("1"), 0.5, 0.05);
+        assertEquals(response.getAucs().get("0"), 0.5, 0.05);
+        assertEquals(response.getWeightedAUC(), 0.5, 0.05);
 
     }
 

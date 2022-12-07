@@ -26,17 +26,20 @@ public class PerformanceTestBase {
     private final String SOURCE;
     private final String TARGET;
     private final List<WebNode> NODES;
+    private final int ROUNDS;
+    private final int FOLDS;
     private static final String LEFT = "resources/Experiments/left.arff";
     private static final String LEFT_LOCAL = "resources/Experiments/leftlocal.arff";
     private static final String RIGHT = "resources/Experiments/right.arff";
     private static final String RIGHT_LOCAL = "resources/Experiments/rightlocal.arff";
-    private static final int ROUNDS = 1;
-    private static final int FOLDS = 10;
 
-    public PerformanceTestBase(String source, String target, List<WebNode> nodes) {
+
+    public PerformanceTestBase(String source, String target, List<WebNode> nodes, int rounds, int folds) {
         this.SOURCE = source;
         this.TARGET = target;
         this.NODES = nodes;
+        this.ROUNDS = rounds;
+        this.FOLDS = folds;
     }
 
     public Performance tests() throws Exception {
@@ -72,8 +75,9 @@ public class PerformanceTestBase {
         for (String key : aucs.keySet()) {
             aucs.put(key, aucs.get(key) / ROUNDS);
         }
-        p.normalize(FOLDS);
+        p.normalize(ROUNDS);
         p.setEnsembleAuc(aucs);
+
         EnsembleResponse central = validateAgainstLocal(SOURCE);
         weightedAUCCentral = central.getWeightedAUC();
         p.setCentralAuc(central.getAucs());
@@ -82,7 +86,7 @@ public class PerformanceTestBase {
 
         weightedAUCLeft /= ROUNDS;
         weightedAUCRight /= ROUNDS;
-        weightedAUCCentral /= ROUNDS;
+        weightedAUCEnsemble /= ROUNDS;
 
         p.setWeightedAUCCentral(weightedAUCCentral);
         p.setWeightedAUCRight(weightedAUCRight);
