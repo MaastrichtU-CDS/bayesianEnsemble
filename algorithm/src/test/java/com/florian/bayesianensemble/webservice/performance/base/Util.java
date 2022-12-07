@@ -2,6 +2,7 @@ package com.florian.bayesianensemble.webservice.performance.base;
 
 import com.florian.nscalarproduct.data.Attribute;
 import com.florian.nscalarproduct.data.Data;
+import com.florian.vertibayes.webservice.domain.external.WebNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,5 +62,13 @@ public class Util {
         }
 
         printARFF(data, path);
+    }
+
+    public static WebNode createWebNode(String name, Attribute.AttributeType type, List<String> parents) {
+        WebNode n = new WebNode();
+        n.setType(type);
+        n.setName(name);
+        n.setParents(parents);
+        return n;
     }
 }

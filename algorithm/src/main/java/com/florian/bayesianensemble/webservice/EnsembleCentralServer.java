@@ -4,6 +4,7 @@ import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.CreateEnsembleRequest;
 import com.florian.bayesianensemble.webservice.domain.EnsembleResponse;
 import com.florian.bayesianensemble.webservice.domain.internal.*;
+import com.florian.nscalarproduct.encryption.Paillier;
 import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Network;
@@ -74,7 +75,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
 
         //create response
-        EnsembleResponse response = createEnsembleResponse(aucs, bayesNets);
+        EnsembleResponse response = createEnsembleResponse(aucs, bayesNets, req.getTarget());
         return response;
     }
 
@@ -85,7 +86,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Map<String, Double> aucs = validateEnsembleOpenMarkov(req, bayesNets);
 
         //create response
-        EnsembleResponse response = createEnsembleResponse(aucs, bayesNets);
+        EnsembleResponse response = createEnsembleResponse(aucs, bayesNets, req.getTarget());
         return response;
     }
 
@@ -200,11 +201,32 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return n.getNodes();
     }
 
-    private EnsembleResponse createEnsembleResponse(Map<String, Double> aucs, Map<String, String> bayesNets)
+    private EnsembleResponse createEnsembleResponse(Map<String, Double> aucs, Map<String, String> bayesNets,
+                                                    String target)
             throws Exception {
+        //create weighted AUC
+        double weightedAUC = 0;
+
+        Paillier p = new Paillier();
+        p.generateKeyPair();
+        for (String key : aucs.keySet()) {
+            WeightedAUCReq r = new WeightedAUCReq();
+            r.setAttributeName(target);
+            r.setAttributeValue(key);
+            r.setAuc(aucs.get(key));
+            r.setKey(p.getPublicKey());
+            r.setPrecision(PRECISION);
+            for (ServerEndpoint e : getEndpoints()) {
+                weightedAUC += p.decrypt(((EnsembleEndpoint) e).getWeightedAUC(r)).doubleValue() / Math.pow(TEN,
+                                                                                                            PRECISION);
+            }
+        }
+        weightedAUC /= getEndpoints().get(0).getPopulation();
+
         EnsembleResponse response = new EnsembleResponse();
         response.setAucs(aucs);
         response.setNetworks(bayesNets.values().stream().collect(Collectors.toList()));
+        response.setWeightedAUC(weightedAUC);
         return response;
     }
 

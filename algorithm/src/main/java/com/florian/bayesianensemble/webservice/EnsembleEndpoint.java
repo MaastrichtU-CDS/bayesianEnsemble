@@ -55,6 +55,15 @@ public class EnsembleEndpoint extends VertiBayesEndpoint {
         }
     }
 
+    public BigInteger getWeightedAUC(WeightedAUCReq req) throws Exception {
+        if (testing) {
+            return ((EnsembleServer) (server)).getWeightedAUC(req);
+        } else {
+            return REST_TEMPLATE.postForEntity(serverUrl + "/getWeightedAUC", req, BigInteger.class)
+                    .getBody();
+        }
+    }
+
     public ValidateResponse validate(ValidateRequest req) throws Exception {
         if (testing) {
             return ((EnsembleServer) (server)).validate(req);

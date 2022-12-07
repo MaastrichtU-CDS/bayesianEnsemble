@@ -191,10 +191,11 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2.get(1).getNode2().getName(), "label");
         assertEquals(links_2.get(1).getNode2().getParents().size(), 1);
         assertEquals(links_2.get(1).getNode2().getParents().get(0).getName(), "petallength");
-        
+
         assertEquals(response.getAucs().get("Iris-setosa"), 0.95, 0.05);
         assertEquals(response.getAucs().get("Iris-versicolor"), 0.89, 0.05);
         assertEquals(response.getAucs().get("Iris-virginica"), 0.99, 0.05);
+        assertEquals(response.getWeightedAUC(), 0.93, 0.05);
     }
 
     @Test
@@ -268,6 +269,7 @@ public class EnsembleCentralServerTest {
 
         assertEquals(response.getAucs().get("1"), 0.78, 0.01);
         assertEquals(response.getAucs().get("0"), 0.78, 0.01);
+        assertEquals(response.getWeightedAUC(), 0.78, 0.01);
 
     }
 
@@ -351,6 +353,7 @@ public class EnsembleCentralServerTest {
 
         assertEquals(response.getAucs().get("1"), 0.78, 0.01);
         assertEquals(response.getAucs().get("0"), 0.78, 0.01);
+        assertEquals(response.getWeightedAUC(), 0.78, 0.01);
 
     }
 
@@ -431,6 +434,7 @@ public class EnsembleCentralServerTest {
         // have only 10 individuals
         assertEquals(response.getAucs().get("1"), 0.5, 0.01);
         assertEquals(response.getAucs().get("0"), 0.5, 0.01);
+        assertEquals(response.getWeightedAUC(), 0.5, 0.01);
 
     }
 
@@ -514,6 +518,7 @@ public class EnsembleCentralServerTest {
 
         assertEquals(response.getAucs().get("1"), 0.78, 0.01);
         assertEquals(response.getAucs().get("0"), 0.78, 0.01);
+        assertEquals(response.getWeightedAUC(), 0.78, 0.01);
 
     }
 
@@ -701,6 +706,7 @@ public class EnsembleCentralServerTest {
         //assert the AUCS are correctly calculate for this small dataset with little to no internal logic
         assertEquals(response.getAucs().get("1"), 0.85, 0.025);
         assertEquals(response.getAucs().get("0"), 0.85, 0.025);
+        assertEquals(response.getWeightedAUC(), 0.86, 0.025);
     }
 
     @Test

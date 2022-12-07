@@ -10,60 +10,62 @@ import com.florian.nscalarproduct.data.Data;
 import com.florian.nscalarproduct.data.Parser;
 import com.florian.nscalarproduct.error.InvalidDataFormatException;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
-import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.BayesNet;
-import weka.classifiers.bayes.net.estimate.SimpleEstimator;
-import weka.core.Instances;
+import com.florian.vertibayes.webservice.BayesServer;
+import com.florian.vertibayes.webservice.VertiBayesCentralServer;
+import com.florian.vertibayes.webservice.VertiBayesEndpoint;
+import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
+import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
+import com.florian.vertibayes.webservice.domain.external.WebNode;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-import static com.florian.bayesianensemble.webservice.performance.base.Performance.compare;
 import static com.florian.bayesianensemble.webservice.performance.base.Util.dataToArff;
 
 public class PerformanceTestBase {
-    private String source;
-    private static final String LEFT = "resources/Experiments/left.arff";
-    private static final String LEFT_WEKA = "resources/Experiments/leftweka.arff";
-    private static final String RIGHT = "resources/Experiments/right.arff";
-    private static final String RIGHT_WEKA = "resources/Experiments/rightweka.arff";
+    private final String SOURCE;
     private final String TARGET;
-    private static final int ROUNDS = 10;
+    private final List<WebNode> NODES;
+    private static final String LEFT = "resources/Experiments/left.arff";
+    private static final String LEFT_LOCAL = "resources/Experiments/leftlocal.arff";
+    private static final String RIGHT = "resources/Experiments/right.arff";
+    private static final String RIGHT_LOCAL = "resources/Experiments/rightlocal.arff";
+    private static final int ROUNDS = 1;
     private static final int FOLDS = 10;
 
-    public PerformanceTestBase(String source, String target) {
-        this.source = source;
+    public PerformanceTestBase(String source, String target, List<WebNode> nodes) {
+        this.SOURCE = source;
         this.TARGET = target;
+        this.NODES = nodes;
     }
 
     public Performance tests() throws Exception {
         Map<String, Double> aucs = new HashMap<>();
+        double weightedAUCEnsemble = 0;
+        double weightedAUCLeft = 0;
+        double weightedAUCRight = 0;
+        double weightedAUCCentral = 0;
+
         Performance p = new Performance();
+        long time = 0;
         for (int i = 0; i < ROUNDS; i++) {
             splitSource();
-            Map<String, Double> results = trainModel();
+            long start = System.currentTimeMillis();
+            EnsembleResponse e = trainModel();
+            time += System.currentTimeMillis() - start;
+            weightedAUCEnsemble += e.getWeightedAUC();
+            EnsembleResponse left = validateAgainstLocal(LEFT_LOCAL);
+            weightedAUCLeft += left.getWeightedAUC();
+            p.addLeftAuc(left.getAucs());
+            EnsembleResponse right = validateAgainstLocal(RIGHT_LOCAL);
+            weightedAUCRight += right.getWeightedAUC();
+            p.addRightAuc(right.getAucs());
 
-            p.addLeftAuc(validateAgainstWeka(LEFT_WEKA));
-            p.addRightAuc(validateAgainstWeka(RIGHT_WEKA));
-            if (p.getEnsembleAucMax() == null) {
-                p.setEnsembleAucMax(results);
-                p.setEnsembleAucMin(results);
-            } else {
-                if (compare(results, p.getEnsembleAucMax()) > 0) {
-                    p.setEnsembleAucMax(results);
-                }
-                if (compare(results, p.getEnsembleAucMin()) < 0) {
-                    p.setEnsembleAucMin(results);
-                }
-            }
-
-            for (String key : results.keySet()) {
+            for (String key : e.getAucs().keySet()) {
                 if (aucs.containsKey(key)) {
-                    aucs.put(key, aucs.get(key) + results.get(key));
+                    aucs.put(key, aucs.get(key) + e.getAucs().get(key));
                 } else {
-                    aucs.put(key, results.get(key));
+                    aucs.put(key, e.getAucs().get(key));
                 }
             }
         }
@@ -72,37 +74,81 @@ public class PerformanceTestBase {
         }
         p.normalize(FOLDS);
         p.setEnsembleAuc(aucs);
+        EnsembleResponse central = validateAgainstLocal(SOURCE);
+        weightedAUCCentral = central.getWeightedAUC();
+        p.setCentralAuc(central.getAucs());
+        p.setAverageTime(time / ROUNDS);
+
+
+        weightedAUCLeft /= ROUNDS;
+        weightedAUCRight /= ROUNDS;
+        weightedAUCCentral /= ROUNDS;
+
+        p.setWeightedAUCCentral(weightedAUCCentral);
+        p.setWeightedAUCRight(weightedAUCRight);
+        p.setWeightedAUCLeft(weightedAUCLeft);
+        p.setWeightedAUCEnsemble(weightedAUCEnsemble);
+
+        long start = System.currentTimeMillis();
+        vertiBayesComparison();
+        p.setVertibayesTime(System.currentTimeMillis() - start);
         return p;
     }
 
-    public Map<String, Double> validateAgainstWeka(String source) throws Exception {
-        Performance p = new Performance();
+    private void vertiBayesComparison() throws Exception {
+        BayesServer station1 = new BayesServer(LEFT, "1");
+        BayesServer station2 = new BayesServer(RIGHT, "2");
+        VertiBayesEndpoint endpoint1 = new VertiBayesEndpoint(station1);
+        VertiBayesEndpoint endpoint2 = new VertiBayesEndpoint(station2);
+        BayesServer secret = new BayesServer("4", Arrays.asList(endpoint1, endpoint2));
 
-        BayesNet network = new BayesNet();
-        Instances data = new Instances(
-                new BufferedReader(new FileReader(source)));
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
 
-        for (int i = 0; i < data.numAttributes(); i++) {
-            if (data.attribute(i).name().equals(TARGET)) {
-                data.setClassIndex(i);
-                break;
-            }
-        }
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
 
-        network.setEstimator(new SimpleEstimator());
-        network.buildClassifier(data);
+        VertiBayesCentralServer central = new VertiBayesCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
 
-        Evaluation eval = new Evaluation(data);
-        eval.crossValidateModel(network, data, FOLDS, new Random(1));
+        WebBayesNetwork req = new WebBayesNetwork();
+        req.setNodes(NODES);
+        req.setTarget(TARGET);
+        req.setFolds(FOLDS);
 
-        Map<String, Double> aucs = new HashMap<>();
-        for (int i = 0; i < data.attribute(data.classIndex()).numValues(); i++) {
-            aucs.put(data.attribute(data.classIndex()).value(i), eval.areaUnderROC(i));
-        }
-        return aucs;
+        ExpectationMaximizationResponse response = central.expectationMaximization(req);
     }
 
-    private Map<String, Double> trainModel() throws Exception {
+    public EnsembleResponse validateAgainstLocal(String source) throws Exception {
+        Performance p = new Performance();
+        EnsembleServer station1 = new EnsembleServer(source, "1");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        req.setTarget(TARGET);
+        req.setFolds(FOLDS);
+
+        EnsembleResponse response = central.createEnsemble(req);
+        return response;
+    }
+
+    private EnsembleResponse trainModel() throws Exception {
         EnsembleServer station1 = new EnsembleServer(LEFT, "1");
         EnsembleServer station2 = new EnsembleServer(RIGHT, "2");
         EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
@@ -124,13 +170,14 @@ public class PerformanceTestBase {
 
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         req.setTarget(TARGET);
+        req.setFolds(FOLDS);
 
         EnsembleResponse response = central.createEnsemble(req);
-        return response.getAucs();
+        return response;
     }
 
     private void splitSource() throws IOException, InvalidDataFormatException {
-        Data data = Parser.parseData(source, 0);
+        Data data = Parser.parseData(SOURCE, 0);
 
         List<List<Attribute>> left = new ArrayList<>();
         List<List<Attribute>> right = new ArrayList<>();
@@ -158,10 +205,10 @@ public class PerformanceTestBase {
         dataToArff(new Data(0, -1, left), LEFT);
         dataToArff(new Data(0, -1, right), RIGHT);
 
-        createWEKA(left, right);
+        createLocal(left, right);
     }
 
-    private void createWEKA(List<List<Attribute>> left, List<List<Attribute>> right) {
+    private void createLocal(List<List<Attribute>> left, List<List<Attribute>> right) {
         int leftTarget = -1;
         int rightTarget = -1;
         for (int i = 0; i < left.size(); i++) {
@@ -181,7 +228,7 @@ public class PerformanceTestBase {
             right.add(left.get(leftTarget));
         }
 
-        dataToArff(new Data(0, -1, left), LEFT_WEKA);
-        dataToArff(new Data(0, -1, right), RIGHT_WEKA);
+        dataToArff(new Data(0, -1, left), LEFT_LOCAL);
+        dataToArff(new Data(0, -1, right), RIGHT_LOCAL);
     }
 }

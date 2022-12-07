@@ -14,3 +14,6 @@
 /algorithm/resources/Experiments/leftweka.arff
 /algorithm/resources/Experiments/right.arff
 /algorithm/resources/Experiments/rightweka.arff
+/algorithm/resources/Experiments/rightlocal.arff
+/algorithm/resources/Experiments/leftlocal.arff
+/algorithm/validate.arff

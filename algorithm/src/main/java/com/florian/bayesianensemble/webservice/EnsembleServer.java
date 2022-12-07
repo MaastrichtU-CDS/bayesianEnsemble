@@ -282,4 +282,22 @@ public class EnsembleServer extends BayesServer {
         }
         return new ArrayList<>();
     }
+
+    @PostMapping ("getWeightedAUC")
+    public BigInteger getWeightedAUC(WeightedAUCReq req) {
+        double weighted = 0;
+        Integer column = getData().getAttributeCollumn(req.getAttributeName());
+        int count = 0;
+        if (column != null) {
+            for (int i = 0; i < population; i++) {
+                if (recordIsLocallyPresent(i) && getData().getData().get(column).get(i).getValue()
+                        .equals(req.getAttributeValue())) {
+                    count++;
+                    weighted += req.getAuc();
+                }
+            }
+        }
+        System.out.println(count);
+        return req.getKey().encrypt(setPrecision(req.getPrecision(), weighted));
+    }
 }
