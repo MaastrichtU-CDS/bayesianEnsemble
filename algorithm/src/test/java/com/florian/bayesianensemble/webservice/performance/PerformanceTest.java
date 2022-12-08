@@ -10,18 +10,17 @@ public class PerformanceTest {
 
     @Test
     public void testPerformance() throws Exception {
-        Performance p = SmallIrisTest.testPerformance();
-        printPerformance(p);
+        printPerformance(SmallIrisTest.testPerformance());
+
         if (!SMALLTEST) {
-            p = IrisTest.testPerformance();
-            printPerformance(p);
+            printPerformance(IrisTest.testPerformance());
         }
     }
 
     private void printPerformance(Performance p) {
-        System.out.println("EnsembleAUC, LeftAUC, RightAUC, CentralAUC, VertiBayesTime, EnsembleTime");
+        System.out.println("EnsembleAUC, LeftAUC, RightAUC, CentralAUC, VertiBayesAUC, VertiBayesTime, EnsembleTime");
         System.out.println(
                 p.getWeightedAUCEnsemble() + ", " + p.getWeightedAUCLeft() + ", " + p.getWeightedAUCRight() + ", " +
-                        p.getWeightedAUCCentral() + ", " + p.getAverageTime() + ", " + p.getVertibayesTime());
+                        p.getWeightedAUCCentral() + ", " + p.getVertibayesPerformance() + ", " + p.getAverageTime() + ", " + p.getVertibayesTime());
     }
 }

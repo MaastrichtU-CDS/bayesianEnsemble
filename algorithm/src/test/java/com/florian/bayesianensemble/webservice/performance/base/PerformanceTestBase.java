@@ -13,6 +13,7 @@ import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.webservice.BayesServer;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
+import com.florian.vertibayes.webservice.domain.CreateNetworkRequest;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
 import com.florian.vertibayes.webservice.domain.external.WebNode;
@@ -94,12 +95,13 @@ public class PerformanceTestBase {
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
 
         long start = System.currentTimeMillis();
-        vertiBayesComparison();
+        ExpectationMaximizationResponse res = vertiBayesComparison();
         p.setVertibayesTime(System.currentTimeMillis() - start);
+        p.setVertibayesPerformance(res.getSvdgAuc());
         return p;
     }
 
-    private void vertiBayesComparison() throws Exception {
+    private ExpectationMaximizationResponse vertiBayesComparison() throws Exception {
         BayesServer station1 = new BayesServer(LEFT, "1");
         BayesServer station2 = new BayesServer(RIGHT, "2");
         VertiBayesEndpoint endpoint1 = new VertiBayesEndpoint(station1);
@@ -119,12 +121,16 @@ public class PerformanceTestBase {
         VertiBayesCentralServer central = new VertiBayesCentralServer();
         central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
 
+
+        CreateNetworkRequest r = new CreateNetworkRequest();
+        r.setMinPercentage(10);
+
         WebBayesNetwork req = new WebBayesNetwork();
-        req.setNodes(NODES);
+        req.setNodes(central.buildNetwork(r).getNodes());
         req.setTarget(TARGET);
         req.setFolds(FOLDS);
 
-        ExpectationMaximizationResponse response = central.expectationMaximization(req);
+        return central.expectationMaximization(req);
     }
 
     public EnsembleResponse validateAgainstLocal(String source) throws Exception {

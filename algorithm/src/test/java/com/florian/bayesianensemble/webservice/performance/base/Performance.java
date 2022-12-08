@@ -9,13 +9,23 @@ public class Performance {
     private Map<String, Double> ensembleAuc = new HashMap<>();
     private Map<String, Double> centralAuc = new HashMap<>();
 
+
     private double weightedAUCEnsemble;
     private double weightedAUCLeft;
     private double weightedAUCRight;
     private double weightedAUCCentral;
+    private double vertibayesPerformance;
 
     private long averageTime;
     private long vertibayesTime;
+
+    public double getVertibayesPerformance() {
+        return vertibayesPerformance;
+    }
+
+    public void setVertibayesPerformance(double vertibayesPerformance) {
+        this.vertibayesPerformance = vertibayesPerformance;
+    }
 
     public double getWeightedAUCEnsemble() {
         return weightedAUCEnsemble;
