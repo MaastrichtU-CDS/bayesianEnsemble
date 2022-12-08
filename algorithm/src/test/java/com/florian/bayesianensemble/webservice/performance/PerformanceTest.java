@@ -18,9 +18,9 @@ public class PerformanceTest {
     }
 
     private void printPerformance(Performance p) {
-        System.out.println("EnsembleAUC, LeftAUC, RightAUC, CentralAUC, VertiBayesAUC, VertiBayesTime, EnsembleTime");
+        System.out.println("EnsembleAUC; LeftAUC; RightAUC; CentralAUC; VertiBayesAUC; VertiBayesTime; EnsembleTime");
         System.out.println(
-                p.getWeightedAUCEnsemble() + ", " + p.getWeightedAUCLeft() + ", " + p.getWeightedAUCRight() + ", " +
-                        p.getWeightedAUCCentral() + ", " + p.getVertibayesPerformance() + ", " + p.getAverageTime() + ", " + p.getVertibayesTime());
+                p.getWeightedAUCEnsemble() + "; " + p.getWeightedAUCLeft() + "; " + p.getWeightedAUCRight() + "; " +
+                        p.getWeightedAUCCentral() + "; " + p.getVertibayesPerformance() + "; " + p.getAverageTime() + "; " + p.getVertibayesTime());
     }
 }
