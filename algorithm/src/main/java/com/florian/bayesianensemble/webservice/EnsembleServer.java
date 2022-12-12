@@ -22,19 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import weka.classifiers.bayes.BayesNet;
 import weka.core.Instances;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier.loadModel;
-import static com.florian.bayesianensemble.util.Util.createArrf;
+import static com.florian.bayesianensemble.util.Util.createArrfString;
 
 @RestController
 public class EnsembleServer extends BayesServer {
-    private static final String ARFF = "individuals.arff";
     private Map<String, Paillier> encryption = new HashMap();
     private static final int TEN = 10;
 
@@ -126,19 +124,21 @@ public class EnsembleServer extends BayesServer {
         }
         ClassificationResponse res = new ClassificationResponse();
 
-        for (Probability p : probabilities) {
-            if (p.getProbability() != null) {
-                BigInteger[] encrypted = new BigInteger[p.getProbability().length];
-                for (int i = 0; i < p.getProbability().length; i++) {
-                    encrypted[i] = req.getKey()
-                            .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
-                    //p.getProbability()[i] = -1;
-                }
-                p.setEncryptedProbability(encrypted);
-            }
-        }
+        probabilities.parallelStream().forEach(p -> encrypt(req, p));
         res.setProbabilities(probabilities);
         return res;
+    }
+
+    private void encrypt(ClassifyRequest req, Probability p) {
+        if (p.getProbability() != null) {
+            BigInteger[] encrypted = new BigInteger[p.getProbability().length];
+            for (int i = 0; i < p.getProbability().length; i++) {
+                encrypted[i] = req.getKey()
+                        .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
+                //p.getProbability()[i] = -1;
+            }
+            p.setEncryptedProbability(encrypted);
+        }
     }
 
     private BigInteger setPrecision(int precision, double v) {
@@ -181,8 +181,7 @@ public class EnsembleServer extends BayesServer {
     }
 
     private Instances makeInstances(String target) throws IOException {
-        createArrf(getData(), target, ARFF);
-        Instances data = new Instances(new BufferedReader(new FileReader(ARFF)));
+        Instances data = new Instances(new StringReader(createArrfString(getData(), target)));
         for (int i = 0; i < data.numAttributes(); i++) {
             if (data.attribute(i).name().equals(target)) {
                 data.setClassIndex(i);

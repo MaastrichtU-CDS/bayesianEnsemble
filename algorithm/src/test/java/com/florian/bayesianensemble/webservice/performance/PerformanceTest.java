@@ -7,11 +7,10 @@ import com.florian.bayesianensemble.webservice.performance.tests.SmallIrisTest;
 import org.junit.jupiter.api.Test;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = false;
+    public static final boolean SMALLTEST = true;
 
     @Test
-    public void test() throws Exception {
-        printPerformance("autism automatic", AutismTest.testPerformanceAutomatic());
+    public void blub() throws Exception {
         printPerformance("autism manual", AutismTest.testPerformanceManual());
     }
 

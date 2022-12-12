@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.florian.bayesianensemble.util.Util.findNode;
 import static com.florian.vertibayes.webservice.mapping.WebNodeMapper.mapWebNodeFromNode;
@@ -265,11 +266,8 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         classify.setKey(getPublicPaillierKey(encryptionName));
         classify.setPrecision(PRECISION);
 
-        Map<String, Integer> count = new HashedMap();
-        Map<String, Double> aucs = new HashedMap();
-        for (ServerEndpoint e : getEndpoints()) {
-            sumProbabilities(classify, probabilities, encryptionName);
-        }
+        sumProbabilities(classify, probabilities, encryptionName);
+
         return probabilities;
     }
 
@@ -282,11 +280,17 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private void sumProbabilities(ClassifyRequest req, List<double[]> probabilities, String encryptionName)
             throws Exception {
         List<List<Probability>> res = new ArrayList<>();
-        for (ServerEndpoint e : getEndpoints()) {
-            if (e instanceof EnsembleEndpoint) {
-                res.add(((EnsembleEndpoint) e).classify(req).getProbabilities());
+        Object y = getEndpoints().stream().map(x -> {
+            try {
+                return (((EnsembleEndpoint) x).classify(req).getProbabilities());
+            } catch (Exception e) {
+                // this needs to exist for java to be happy, technically it should never happen
+                return e;
             }
-        }
+        }).collect(
+                Collectors.toList());
+        res = (List<List<Probability>>) y;
+
         Probability[] summed = new Probability[res.get(0).size()];
         double[] count = new double[res.get(0).size()];
         for (List<Probability> p : res) {
@@ -321,25 +325,32 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                 }
             }
         }
+
+        IntStream.range(0, summed.length).parallel().forEach(i -> decrypt(summed[i], encryptionName, count[i]));
         for (int i = 0; i < summed.length; i++) {
             if (i >= probabilities.size()) {
                 //put in a dummy
                 probabilities.add(new double[0]);
             }
             if (summed[i].isActive()) {
-                DecryptionRequest decrypt = new DecryptionRequest();
-                double[] d = new double[summed[i].getEncryptedProbability().length];
-                for (int j = 0; j < d.length; j++) {
-                    decrypt.setValue(summed[i].getEncryptedProbability()[j]);
-                    decrypt.setName(encryptionName);
-                    d[j] = ((EnsembleEndpoint) getEndpoints().get(getEndpoints().size() - 1)).decrypt(decrypt)
-                            .doubleValue() / Math.pow(TEN, PRECISION);
-                }
+                probabilities.set(i, summed[i].getProbability());
+            }
+        }
+    }
 
-                for (int j = 0; j < summed[i].getEncryptedProbability().length; j++) {
-                    summed[i].getProbability()[j] = d[j] / count[i];
-                    probabilities.set(i, summed[i].getProbability());
-                }
+    private void decrypt(Probability p, String encryptionName, double count) {
+        if (p.isActive()) {
+            DecryptionRequest decrypt = new DecryptionRequest();
+            double[] d = new double[p.getEncryptedProbability().length];
+            for (int j = 0; j < d.length; j++) {
+                decrypt.setValue(p.getEncryptedProbability()[j]);
+                decrypt.setName(encryptionName);
+                d[j] = ((EnsembleEndpoint) getEndpoints().get(getEndpoints().size() - 1)).decrypt(decrypt)
+                        .doubleValue() / Math.pow(TEN, PRECISION);
+            }
+
+            for (int j = 0; j < p.getEncryptedProbability().length; j++) {
+                p.getProbability()[j] = d[j] / count;
             }
         }
     }

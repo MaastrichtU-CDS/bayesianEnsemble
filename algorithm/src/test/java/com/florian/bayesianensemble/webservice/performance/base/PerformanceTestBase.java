@@ -83,6 +83,7 @@ public class PerformanceTestBase {
         p.setWeightedAUCLeft(weightedAUCLeft);
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
 
+        System.out.println("Vertibayes");
         start = System.currentTimeMillis();
         ExpectationMaximizationResponse res = vertiBayesComparison();
         p.setVertibayesTime(System.currentTimeMillis() - start);

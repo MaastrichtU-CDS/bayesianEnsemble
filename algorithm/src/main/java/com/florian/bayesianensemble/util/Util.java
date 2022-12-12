@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.florian.vertibayes.util.PrintingPress.printARFF;
-
 public final class Util {
 
     private Util() {
@@ -34,7 +32,7 @@ public final class Util {
         return null;
     }
 
-    public static void createArrf(Data d, String target, String path) {
+    public static String createArrfString(Data d, String target) {
         List<String> data = new ArrayList<>();
         String s = "@Relation genericBIFF";
         data.add(s);
@@ -95,6 +93,10 @@ public final class Util {
             data.add(ind);
         }
 
-        printARFF(data, path);
+        String arff = "";
+        for (String dataString : data) {
+            arff += dataString + "\n";
+        }
+        return arff;
     }
 }
