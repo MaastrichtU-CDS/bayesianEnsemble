@@ -86,10 +86,14 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Map<String, String> bayesNets = new HashMap<>();
 
         Map<String, List<Node>> structures = generateStructures(req);
-        for (String key : structures.keySet()) {
-            bayesNets.put(key, trainStructure(key, structures, target, req.isHybrid()));
-        }
 
+        structures.keySet().parallelStream().forEach(x -> {
+            try {
+                bayesNets.put(x, trainStructure(x, structures, target, req.isHybrid()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         return bayesNets;
     }
 
@@ -113,20 +117,23 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private Map<String, List<Node>> generateStructures(CreateEnsembleRequest req) {
         Node target = getTargetNode(req.getTarget());
         Map<String, List<Node>> networks = new HashMap<>();
-        
-        for (ServerEndpoint e : getEndpoints()) {
-            if (req.getNetworks() != null && req.getNetworks().containsKey(e.getServerId())) {
-                List<Node> network = mapWebNodeToNode(req.getNetworks().get(e.getServerId()));
-                networks.put(e.getServerId(), network);
-            } else {
-                List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
-                setBins(network, req);
-                setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
-                network = learnStructure(network, req.getMinPercentage());
-                networks.put(e.getServerId(), network);
-            }
-        }
+
+        getEndpoints().stream().forEach(x -> networks.put(x.getServerId(), generateStructure(req, target, x)));
+
         return networks;
+    }
+
+    private List<Node> generateStructure(CreateEnsembleRequest req, Node target, ServerEndpoint e) {
+        if (req.getNetworks() != null && req.getNetworks().containsKey(e.getServerId())) {
+            List<Node> network = mapWebNodeToNode(req.getNetworks().get(e.getServerId()));
+            return network;
+        } else {
+            List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
+            setBins(network, req);
+            setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
+            network = learnStructure(network, req.getMinPercentage());
+            return network;
+        }
     }
 
     private void setBins(List<Node> network, CreateEnsembleRequest req) {
