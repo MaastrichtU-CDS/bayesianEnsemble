@@ -46,7 +46,6 @@ public class PerformanceTestBase {
         double weightedAUCEnsemble = 0;
         double weightedAUCLeft = 0;
         double weightedAUCRight = 0;
-        double weightedAUCCentral = 0;
 
         Performance p = new Performance();
         long time = 0;
@@ -73,21 +72,11 @@ public class PerformanceTestBase {
 
         p.setEnsembleAuc(aucs);
 
-        EnsembleResponse central = validateAgainstLocal(SOURCE);
-        weightedAUCCentral = central.getWeightedAUC();
-        p.setCentralAuc(central.getAucs());
         p.setAverageTime(time);
 
-        p.setWeightedAUCCentral(weightedAUCCentral);
         p.setWeightedAUCRight(weightedAUCRight);
         p.setWeightedAUCLeft(weightedAUCLeft);
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
-
-        System.out.println("Vertibayes");
-        start = System.currentTimeMillis();
-        ExpectationMaximizationResponse res = vertiBayesComparison();
-        p.setVertibayesTime(System.currentTimeMillis() - start);
-        p.setVertibayesPerformance(res.getSvdgAuc());
         return p;
     }
 
