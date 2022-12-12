@@ -51,9 +51,14 @@ public final class OpenMarkovClassifier {
         for (String key : evidence.keySet()) {
             Variable v = network.getVariable(key);
             if (v.getVariableType() == VariableType.FINITE_STATES) {
-                int index = v.getStateIndex(v.getState(evidence.get(key)));
-                Finding f = new Finding(v, index);
-                postResolutionEvidence.addFinding(f);
+                try {
+                    int index = v.getStateIndex(v.getState(evidence.get(key)));
+                    Finding f = new Finding(v, index);
+                    postResolutionEvidence.addFinding(f);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+
             } else if (v.getVariableType() == VariableType.DISCRETIZED) {
                 try {
                     Finding f = new Finding(v, Double.valueOf(evidence.get(key)));

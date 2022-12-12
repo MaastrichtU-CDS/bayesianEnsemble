@@ -113,7 +113,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private Map<String, List<Node>> generateStructures(CreateEnsembleRequest req) {
         Node target = getTargetNode(req.getTarget());
         Map<String, List<Node>> networks = new HashMap<>();
-
+        
         for (ServerEndpoint e : getEndpoints()) {
             if (req.getNetworks() != null && req.getNetworks().containsKey(e.getServerId())) {
                 List<Node> network = mapWebNodeToNode(req.getNetworks().get(e.getServerId()));
@@ -216,7 +216,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
         EnsembleResponse response = new EnsembleResponse();
         response.setAucs(aucs);
-        response.setNetworks(bayesNets.values().stream().collect(Collectors.toList()));
+        response.setNetworks(bayesNets.values().parallelStream().collect(Collectors.toList()));
         response.setWeightedAUC(weightedAUC);
         return response;
     }

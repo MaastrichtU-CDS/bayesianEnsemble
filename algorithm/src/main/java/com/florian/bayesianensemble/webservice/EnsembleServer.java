@@ -154,7 +154,8 @@ public class EnsembleServer extends BayesServer {
                     || a.getAttributeName().equals("locallyPresent") || a.getAttributeName().equals(target)) {
                 continue;
             }
-            evidence.put(a.getAttributeName(), a.getValue());
+            // manually remove any "'" from the value, cuz openMarkov removes them
+            evidence.put(a.getAttributeName(), a.getValue().replaceAll("'", ""));
         }
         return evidence;
     }

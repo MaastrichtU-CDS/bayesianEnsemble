@@ -16,17 +16,16 @@ import com.florian.vertibayes.webservice.VertiBayesEndpoint;
 import com.florian.vertibayes.webservice.domain.CreateNetworkRequest;
 import com.florian.vertibayes.webservice.domain.external.ExpectationMaximizationResponse;
 import com.florian.vertibayes.webservice.domain.external.WebBayesNetwork;
-import com.florian.vertibayes.webservice.domain.external.WebNode;
 
 import java.io.IOException;
 import java.util.*;
 
 import static com.florian.bayesianensemble.webservice.performance.base.Util.dataToArff;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PerformanceTestBase {
     private final String SOURCE;
     private final String TARGET;
-    private final List<WebNode> NODES;
     private final int ROUNDS;
     private final int FOLDS;
     private static final String LEFT = "resources/Experiments/left.arff";
@@ -35,15 +34,63 @@ public class PerformanceTestBase {
     private static final String RIGHT_LOCAL = "resources/Experiments/rightlocal.arff";
 
 
-    public PerformanceTestBase(String source, String target, List<WebNode> nodes, int rounds, int folds) {
+    public PerformanceTestBase(String source, String target, int rounds, int folds) {
         this.SOURCE = source;
         this.TARGET = target;
-        this.NODES = nodes;
         this.ROUNDS = rounds;
         this.FOLDS = folds;
     }
 
-    public Performance tests() throws Exception {
+    public Performance manualSplit(Set<String> leftManual, Set<String> rightManual) throws Exception {
+        Map<String, Double> aucs = new HashMap<>();
+        double weightedAUCEnsemble = 0;
+        double weightedAUCLeft = 0;
+        double weightedAUCRight = 0;
+        double weightedAUCCentral = 0;
+
+        Performance p = new Performance();
+        long time = 0;
+        splitSourceManually(leftManual, rightManual);
+
+        long start = System.currentTimeMillis();
+        EnsembleResponse e = trainModel();
+        time += System.currentTimeMillis() - start;
+        weightedAUCEnsemble += e.getWeightedAUC();
+        EnsembleResponse left = validateAgainstLocal(LEFT_LOCAL);
+        weightedAUCLeft += left.getWeightedAUC();
+        p.addLeftAuc(left.getAucs());
+        EnsembleResponse right = validateAgainstLocal(RIGHT_LOCAL);
+        weightedAUCRight += right.getWeightedAUC();
+        p.addRightAuc(right.getAucs());
+
+        for (String key : e.getAucs().keySet()) {
+            if (aucs.containsKey(key)) {
+                aucs.put(key, aucs.get(key) + e.getAucs().get(key));
+            } else {
+                aucs.put(key, e.getAucs().get(key));
+            }
+        }
+
+        p.setEnsembleAuc(aucs);
+
+        EnsembleResponse central = validateAgainstLocal(SOURCE);
+        weightedAUCCentral = central.getWeightedAUC();
+        p.setCentralAuc(central.getAucs());
+        p.setAverageTime(time);
+
+        p.setWeightedAUCCentral(weightedAUCCentral);
+        p.setWeightedAUCRight(weightedAUCRight);
+        p.setWeightedAUCLeft(weightedAUCLeft);
+        p.setWeightedAUCEnsemble(weightedAUCEnsemble);
+
+        start = System.currentTimeMillis();
+        ExpectationMaximizationResponse res = vertiBayesComparison();
+        p.setVertibayesTime(System.currentTimeMillis() - start);
+        p.setVertibayesPerformance(res.getSvdgAuc());
+        return p;
+    }
+
+    public Performance automaticSplit() throws Exception {
         Map<String, Double> aucs = new HashMap<>();
         double weightedAUCEnsemble = 0;
         double weightedAUCLeft = 0;
@@ -184,6 +231,33 @@ public class PerformanceTestBase {
 
         EnsembleResponse response = central.createEnsemble(req);
         return response;
+    }
+
+    private void splitSourceManually(Set<String> leftManual, Set<String> rightManual)
+            throws IOException, InvalidDataFormatException {
+        Data data = Parser.parseData(SOURCE, 0);
+
+        List<List<Attribute>> left = new ArrayList<>();
+        List<List<Attribute>> right = new ArrayList<>();
+
+
+        for (int i = 0; i < data.getData().size(); i++) {
+            if (i == data.getIdColumn()) {
+                left.add(0, data.getData().get(i));
+                right.add(0, data.getData().get(i));
+            } else if (leftManual.contains(data.getData().get(i).get(0).getAttributeName())) {
+                left.add(data.getData().get(i));
+            } else if (rightManual.contains(data.getData().get(i).get(0).getAttributeName())) {
+                right.add(data.getData().get(i));
+            }
+        }
+        assertEquals(left.size() + right.size(), data.getData().size() + 1);
+
+        dataToArff(new Data(0, -1, left), LEFT);
+        dataToArff(new Data(0, -1, right), RIGHT);
+
+
+        createLocal(left, right);
     }
 
     private void splitSource() throws IOException, InvalidDataFormatException {

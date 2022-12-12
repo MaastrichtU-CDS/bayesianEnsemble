@@ -1,23 +1,33 @@
 package com.florian.bayesianensemble.webservice.performance;
 
 import com.florian.bayesianensemble.webservice.performance.base.Performance;
+import com.florian.bayesianensemble.webservice.performance.tests.AutismTest;
 import com.florian.bayesianensemble.webservice.performance.tests.IrisTest;
 import com.florian.bayesianensemble.webservice.performance.tests.SmallIrisTest;
 import org.junit.jupiter.api.Test;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = true;
+    public static final boolean SMALLTEST = false;
+
+    @Test
+    public void test() throws Exception {
+        printPerformance("autism automatic", AutismTest.testPerformanceAutomatic());
+        printPerformance("autism manual", AutismTest.testPerformanceManual());
+    }
 
     @Test
     public void testPerformance() throws Exception {
-        printPerformance(SmallIrisTest.testPerformance());
+        printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic());
+        printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual());
 
         if (!SMALLTEST) {
-            printPerformance(IrisTest.testPerformance());
+            printPerformance("Iris automatic", IrisTest.testPerformanceAutomatic());
+            printPerformance("Iris manual", IrisTest.testPerformanceManual());
         }
     }
 
-    private void printPerformance(Performance p) {
+    private void printPerformance(String name, Performance p) {
+        System.out.println(name);
         System.out.println("EnsembleAUC; LeftAUC; RightAUC; CentralAUC; VertiBayesAUC; VertiBayesTime; EnsembleTime");
         System.out.println(
                 p.getWeightedAUCEnsemble() + "; " + p.getWeightedAUCLeft() + "; " + p.getWeightedAUCRight() + "; " +
