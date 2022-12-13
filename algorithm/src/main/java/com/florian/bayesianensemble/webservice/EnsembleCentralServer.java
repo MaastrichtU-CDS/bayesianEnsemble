@@ -277,18 +277,12 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return key;
     }
 
-    private void sumProbabilities(ClassifyRequest req, List<double[]> probabilities, String encryptionName) {
+    private void sumProbabilities(ClassifyRequest req, List<double[]> probabilities, String encryptionName)
+            throws Exception {
         List<List<Probability>> res = new ArrayList<>();
-        Object y = getEndpoints().stream().map(x -> {
-            try {
-                return (((EnsembleEndpoint) x).classify(req).getProbabilities());
-            } catch (Exception e) {
-                // this needs to exist for java to be happy, technically it should never happen
-                return e;
-            }
-        }).collect(
-                Collectors.toList());
-        res = (List<List<Probability>>) y;
+        for (ServerEndpoint e : getEndpoints()) {
+            res.add(((EnsembleEndpoint) e).classify(req).getProbabilities());
+        }
 
         Probability[] summed = new Probability[res.get(0).size()];
         double[] count = new double[res.get(0).size()];

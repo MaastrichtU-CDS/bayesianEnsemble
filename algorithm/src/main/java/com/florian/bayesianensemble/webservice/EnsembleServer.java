@@ -11,7 +11,7 @@ import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.BayesServer;
 import org.apache.commons.collections.map.HashedMap;
-import org.openmarkov.core.exception.NodeNotFoundException;
+import org.openmarkov.core.exception.*;
 import org.openmarkov.core.model.network.ProbNet;
 import org.openmarkov.core.model.network.Variable;
 import org.openmarkov.core.model.network.potential.TablePotential;
@@ -20,16 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import weka.classifiers.bayes.BayesNet;
-import weka.core.Instances;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.florian.bayesianensemble.openmarkov.OpenMarkovClassifier.loadModel;
-import static com.florian.bayesianensemble.util.Util.createArrfString;
 
 @RestController
 public class EnsembleServer extends BayesServer {
@@ -92,41 +89,54 @@ public class EnsembleServer extends BayesServer {
 
     @PostMapping ("classify")
     public ClassificationResponse classify(@RequestBody ClassifyRequest req) throws Exception {
-        Instances data = makeInstances(req.getTarget());
-        List<Probability> probabilities = new ArrayList<>();
-
         ProbNet network = null;
         if (req.getNetworks() != null) {
             network = loadModel(req.getNetworks().get(this.serverId));
         }
-        for (int i = 0; i < data.numInstances(); i++) {
-            Probability p = new Probability();
-            probabilities.add(p);
-            if (recordIsActive(i)) {
-                p.setActive(true);
-            }
-            if (recordIsLocallyPresent(i) && recordIsActive(i)) {
-                p.setLocallyPresent(true);
-                Map<String, String> evidence = createIndividual(getData(), i, req.getTarget());
-                HashMap<Variable, TablePotential> posteriorValues = OpenMarkovClassifier.classify(evidence,
-                                                                                                  req.getTarget(),
-                                                                                                  network);
-                for (Variable key : posteriorValues.keySet()) {
-                    String name = key.getName();
-                    TablePotential potential = posteriorValues.get(key);
-                    for (int k = 0; k < potential.values.length; k++) {
-                        if (name.equals(req.getTarget())) {
-                            p.setProbability(potential.getValues());
-                        }
-                    }
-                }
-            }
-        }
-        ClassificationResponse res = new ClassificationResponse();
 
-        probabilities.parallelStream().forEach(p -> encrypt(req, p));
+        ProbNet finalNetwork = network;
+        List<Probability> probabilities = IntStream.range(0, getPopulation()).parallel().mapToObj(i -> {
+            try {
+                Probability probability = classifyInstance(i,
+                                                           req,
+                                                           finalNetwork);
+                return probability;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList());
+
+        ClassificationResponse res = new ClassificationResponse();
         res.setProbabilities(probabilities);
         return res;
+    }
+
+    private Probability classifyInstance(int i, ClassifyRequest req, ProbNet network)
+            throws NodeNotFoundException, NotEvaluableNetworkException, IncompatibleEvidenceException,
+                   InvalidStateException, UnexpectedInferenceException {
+        Probability p = new Probability();
+        if (recordIsActive(i)) {
+            p.setActive(true);
+        }
+        if (recordIsLocallyPresent(i) && recordIsActive(i)) {
+            p.setLocallyPresent(true);
+            Map<String, String> evidence = createIndividual(getData(), i, req.getTarget());
+            HashMap<Variable, TablePotential> posteriorValues = OpenMarkovClassifier.classify(evidence,
+                                                                                              req.getTarget(),
+                                                                                              network);
+            for (Variable key : posteriorValues.keySet()) {
+                String name = key.getName();
+                TablePotential potential = posteriorValues.get(key);
+                for (int k = 0; k < potential.values.length; k++) {
+                    if (name.equals(req.getTarget())) {
+                        p.setProbability(potential.getValues());
+                    }
+                }
+                encrypt(req, p);
+            }
+        }
+        return p;
     }
 
     private void encrypt(ClassifyRequest req, Probability p) {
@@ -180,17 +190,6 @@ public class EnsembleServer extends BayesServer {
 
     private boolean isLocallyPresent(String target) {
         return getData().getAttributeCollumn(target) != null;
-    }
-
-    private Instances makeInstances(String target) throws IOException {
-        Instances data = new Instances(new StringReader(createArrfString(getData(), target)));
-        for (int i = 0; i < data.numAttributes(); i++) {
-            if (data.attribute(i).name().equals(target)) {
-                data.setClassIndex(i);
-                break;
-            }
-        }
-        return data;
     }
 
     private Map<String, Double> calculateAUCOpenMarkov(List<double[]> probabilities, String target, String net) {
