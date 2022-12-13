@@ -130,14 +130,16 @@ public class EnsembleServer extends BayesServer {
     }
 
     private void encrypt(ClassifyRequest req, Probability p) {
-        if (p.getProbability() != null) {
-            BigInteger[] encrypted = new BigInteger[p.getProbability().length];
-            for (int i = 0; i < p.getProbability().length; i++) {
-                encrypted[i] = req.getKey()
-                        .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
-                //p.getProbability()[i] = -1;
+        if (p.isActive()) {
+            if (p.getProbability() != null) {
+                BigInteger[] encrypted = new BigInteger[p.getProbability().length];
+                for (int i = 0; i < p.getProbability().length; i++) {
+                    encrypted[i] = req.getKey()
+                            .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
+                    p.getProbability()[i] = -1;
+                }
+                p.setEncryptedProbability(encrypted);
             }
-            p.setEncryptedProbability(encrypted);
         }
     }
 
