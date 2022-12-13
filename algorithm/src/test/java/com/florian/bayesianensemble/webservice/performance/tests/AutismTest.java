@@ -17,14 +17,14 @@ public class AutismTest {
     public static Performance testPerformanceAutomatic() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.05);
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.1);
         return p;
     }
 
     public static Performance testPerformanceManual() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.manualSplit(leftManual(), rightManual());
-        assertEquals(p.getWeightedAUCEnsemble(), 0.90, 0.075);
+        assertEquals(p.getWeightedAUCEnsemble(), 0.90, 0.1);
         return p;
     }
 

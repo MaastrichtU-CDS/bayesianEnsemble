@@ -167,7 +167,8 @@ public class EnsembleServer extends BayesServer {
                 continue;
             }
             // manually remove any "'" from the value, cuz openMarkov removes them
-            evidence.put(a.getAttributeName(), a.getValue().replaceAll("'", ""));
+            String value = a.getValue().replaceAll("'", "");
+            evidence.put(a.getAttributeName(), value);
         }
         return evidence;
     }

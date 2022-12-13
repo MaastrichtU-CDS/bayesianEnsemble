@@ -5,24 +5,24 @@ import com.florian.bayesianensemble.webservice.performance.tests.*;
 import org.junit.jupiter.api.Test;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = true;
+    public static final boolean SMALLTEST = false;
 
     @Test
     public void testPerformance() throws Exception {
-        printHeader();
-        printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic());
-        printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual());
+        printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic(), true);
+        printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual(), false);
 
         if (!SMALLTEST) {
-            printPerformance("Iris automatic", IrisTest.testPerformanceAutomatic());
-            printPerformance("Iris manual", IrisTest.testPerformanceManual());
-            printPerformance("Autism automatic", AutismTest.testPerformanceAutomatic());
-            printPerformance("Autism manual", AutismTest.testPerformanceManual());
-            printPerformance("Mushroom automatic", MushroomTest.testPerformanceAutomatic());
-            printPerformance("Mushroom manual", MushroomTest.testPerformanceManual());
-            printPerformance("Asia automatic", AsiaTest.testPerformanceAutomatic());
-            printPerformance("Alarm automatic", AlarmTest.testPerformanceAutomatic());
-            printPerformance("Diabetes automatic", DiabetesTest.testPerformanceAutomatic());
+
+            printPerformance("Diabetes automatic", DiabetesTest.testPerformanceAutomatic(), false);
+            printPerformance("Iris automatic", IrisTest.testPerformanceAutomatic(), false);
+            printPerformance("Iris manual", IrisTest.testPerformanceManual(), false);
+            printPerformance("Autism automatic", AutismTest.testPerformanceAutomatic(), false);
+            printPerformance("Autism manual", AutismTest.testPerformanceManual(), false);
+            printPerformance("Mushroom automatic", MushroomTest.testPerformanceAutomatic(), false);
+            printPerformance("Mushroom manual", MushroomTest.testPerformanceManual(), false);
+            printPerformance("Asia automatic", AsiaTest.testPerformanceAutomatic(), false);
+            printPerformance("Alarm automatic", AlarmTest.testPerformanceAutomatic(), false);
         }
     }
 
@@ -32,7 +32,10 @@ public class PerformanceTest {
                         "VertiBayesTime");
     }
 
-    private void printPerformance(String name, Performance p) {
+    private void printPerformance(String name, Performance p, boolean printheader) {
+        if (printheader) {
+            printHeader();
+        }
         System.out.println(
                 name + "; " + p.getWeightedAUCEnsemble() + "; " + p.getWeightedAUCLeft() + "; " + p.getWeightedAUCRight()
                         + "; " + p.getWeightedAUCCentral() + "; " + p.getVertibayesPerformance() + "; " + p.getAverageTime()

@@ -56,7 +56,21 @@ public final class OpenMarkovClassifier {
                     Finding f = new Finding(v, index);
                     postResolutionEvidence.addFinding(f);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    //check if openMarkov hasn't randomly decided to change the case of the word
+                    //this sometimes happens with True/False. Unclear when or why.
+                    try {
+                        int index = v.getStateIndex(v.getState(evidence.get(key).toLowerCase()));
+                        Finding f = new Finding(v, index);
+                        postResolutionEvidence.addFinding(f);
+                    } catch (Exception e2) {
+                        try {
+                            int index = v.getStateIndex(v.getState(evidence.get(key).toUpperCase()));
+                            Finding f = new Finding(v, index);
+                            postResolutionEvidence.addFinding(f);
+                        } catch (Exception e3) {
+                            System.out.println(e);
+                        }
+                    }
                 }
 
             } else if (v.getVariableType() == VariableType.DISCRETIZED) {
