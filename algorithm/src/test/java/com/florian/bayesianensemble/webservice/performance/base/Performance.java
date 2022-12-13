@@ -17,7 +17,25 @@ public class Performance {
     private double vertibayesPerformance;
 
     private long averageTime;
+    private long minTime;
+    private long maxTime;
     private long vertibayesTime;
+
+    public long getMinTime() {
+        return minTime;
+    }
+
+    public void setMinTime(long minTime) {
+        this.minTime = minTime;
+    }
+
+    public long getMaxTime() {
+        return maxTime;
+    }
+
+    public void setMaxTime(long maxTime) {
+        this.maxTime = maxTime;
+    }
 
     public double getVertibayesPerformance() {
         return vertibayesPerformance;

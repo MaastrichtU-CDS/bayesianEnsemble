@@ -93,7 +93,15 @@ public class PerformanceTestBase {
             splitSource();
             long start = System.currentTimeMillis();
             EnsembleResponse e = trainModel();
-            time += System.currentTimeMillis() - start;
+            long duration = System.currentTimeMillis() - start;
+            time += duration;
+            if (duration > p.getMaxTime()) {
+                p.setMaxTime(duration);
+            }
+            if (p.getMinTime() == 0 || duration < p.getMinTime()) {
+                p.setMinTime(duration);
+            }
+
             weightedAUCEnsemble += e.getWeightedAUC();
             EnsembleResponse left = validateAgainstLocal(LEFT_LOCAL);
             weightedAUCLeft += left.getWeightedAUC();
