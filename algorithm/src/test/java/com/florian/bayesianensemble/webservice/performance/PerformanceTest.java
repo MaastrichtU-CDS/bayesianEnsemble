@@ -5,10 +5,11 @@ import com.florian.bayesianensemble.webservice.performance.tests.*;
 import org.junit.jupiter.api.Test;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = false;
+    public static final boolean SMALLTEST = true;
 
     @Test
     public void testPerformance() throws Exception {
+        printHeader();
         printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic());
         printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual());
 
@@ -25,14 +26,16 @@ public class PerformanceTest {
         }
     }
 
-    private void printPerformance(String name, Performance p) {
-        System.out.println(name);
+    private void printHeader() {
         System.out.println(
-                "EnsembleAUC; LeftAUC; RightAUC; CentralAUC; VertiBayesAUC; EnsembleTime; MinTime; MaxTime; " +
+                "Name; EnsembleAUC; LeftAUC; RightAUC; CentralAUC; VertiBayesAUC; EnsembleTime; MinTime; MaxTime; " +
                         "VertiBayesTime");
+    }
+
+    private void printPerformance(String name, Performance p) {
         System.out.println(
-                p.getWeightedAUCEnsemble() + "; " + p.getWeightedAUCLeft() + "; " + p.getWeightedAUCRight() + "; "
-                        + p.getWeightedAUCCentral() + "; " + p.getVertibayesPerformance() + "; " + p.getAverageTime()
+                name + "; " + p.getWeightedAUCEnsemble() + "; " + p.getWeightedAUCLeft() + "; " + p.getWeightedAUCRight()
+                        + "; " + p.getWeightedAUCCentral() + "; " + p.getVertibayesPerformance() + "; " + p.getAverageTime()
                         + "; " + p.getMinTime() + "; " + p.getMaxTime() + "; " + p.getVertibayesTime());
     }
 }
