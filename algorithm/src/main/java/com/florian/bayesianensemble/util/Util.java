@@ -46,7 +46,7 @@ public final class Util {
                 s = "";
                 s += "@Attribute";
                 s += " " + a.getAttributeName() + " ";
-                if (a.getType() == Attribute.AttributeType.string) {
+                if (a.getType() == Attribute.AttributeType.string || a.getType() == Attribute.AttributeType.bool) {
                     s += "{";
                     int count = 0;
                     Set<String> uniqueValues =
@@ -94,9 +94,10 @@ public final class Util {
         }
 
         String arff = "";
-        for (String dataString : data) {
-            arff += dataString + "\n";
+        for (int i = 0; i < data.size() - 1; i++) {
+            arff += data.get(i) + "\n";
         }
+        arff += data.get(data.size() - 1);
         return arff;
     }
 }

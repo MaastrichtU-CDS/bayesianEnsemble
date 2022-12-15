@@ -15,6 +15,24 @@ public class AlarmTest {
     private static final int FOLDS = 10;
     private static final int ROUNDS = 10;
 
+    public static Performance testPerformanceAutomaticUnknown(double treshold) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.automaticSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.3);
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayAutomaticUnknown(double treshold) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.automaticSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.3);
+        return p;
+    }
+
     public static Performance testPerformanceAutomatic() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();

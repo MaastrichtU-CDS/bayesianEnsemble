@@ -1,0 +1,727 @@
+@Relation genericBIFF
+@Attribute A1_Score {0,1}
+@Attribute A2_Score {0,1}
+@Attribute A3_Score {0,1}
+@Attribute A4_Score {0,1}
+@Attribute A5_Score {0,1}
+@Attribute A6_Score {0,1}
+@Attribute A7_Score {0,1}
+@Attribute A8_Score {0,1}
+@Attribute A9_Score {0,1}
+@Attribute A10_Score {0,1}
+@Attribute age numeric
+@Attribute gender {f,m}
+@Attribute ethnicity {'South Asian',Others,'Middle Eastern ',Latino,Black,Asian,Hispanic,others,White-European,Pasifika,Turkish}
+@Attribute jundice {no,yes}
+@Attribute austim {no,yes}
+@Attribute contry_of_res {'Sri Lanka','New Zealand',Malaysia,Kazakhstan,Portugal,Iceland,Bahamas,Armenia,Austria,Iran,'United States','South Africa',Brazil,'United Kingdom',Tonga,Nepal,Ecuador,Argentina,Ukraine,'Costa Rica',India,Canada,Turkey,Belgium,'Sierra Leone','United Arab Emirates',Italy,AmericanSamoa,Germany,Ethiopia,Burundi,Afghanistan,'Saudi Arabia',Egypt,Aruba,Bolivia,Russia,Sweden,Netherlands,Pakistan,Ireland,China,'Czech Republic',Jordan,France,Serbia,Romania,Uruguay,Philippines,Spain,Azerbaijan,Bangladesh,Mexico,Australia,'Viet Nam'}
+@Attribute used_app_before {no,yes}
+@Attribute age_desc {'18 and more'}
+@Attribute relation {Others,Relative,Parent,Self,'Health care professional'}
+@Attribute Class/ASD {NO,YES}
+
+@DATA
+?,?,?,1,0,0,1,?,0,0,26,?,White-European,no,no,?,no,'18 and more',Self,NO
+1,?,0,1,0,0,0,1,0,1,24,m,Latino,?,yes,Brazil,no,'18 and more',Self,NO
+?,1,0,?,?,0,?,1,1,?,27,m,Latino,yes,yes,Spain,no,?,?,YES
+?,1,0,?,0,0,1,1,0,1,35,?,White-European,no,?,?,?,?,Self,NO
+1,0,?,0,0,0,0,1,0,0,40,f,?,?,no,?,no,'18 and more',?,NO
+1,1,1,?,1,0,1,?,?,1,36,m,Others,?,no,'United States',no,?,Self,YES
+0,?,?,0,0,0,0,?,0,0,17,f,Black,no,no,'United States',no,'18 and more',Self,NO
+?,1,1,?,0,0,?,0,1,?,64,m,White-European,?,no,?,no,'18 and more',?,NO
+1,?,?,0,1,0,0,1,1,1,?,m,?,?,?,'United States',?,'18 and more',Self,NO
+1,1,?,1,0,1,1,1,1,0,17,m,?,yes,yes,Bahamas,no,?,'Health care professional',?
+?,?,1,1,1,?,?,1,?,1,?,m,?,no,?,'United States',no,'18 and more',Relative,YES
+0,?,0,1,1,?,1,?,0,1,?,f,'Middle Eastern ',no,no,Burundi,?,'18 and more',Parent,NO
+?,1,?,1,?,1,?,0,1,0,17,f,?,no,?,Bahamas,no,'18 and more',?,NO
+?,0,0,0,0,?,1,1,?,1,?,m,?,no,no,Austria,no,?,?,?
+?,0,0,0,?,?,1,1,?,1,17,?,?,?,no,?,no,'18 and more',?,NO
+1,1,0,1,1,?,?,1,0,1,18,m,'Middle Eastern ',no,yes,'New Zealand',no,?,Parent,NO
+?,0,0,0,0,0,1,?,1,1,31,m,?,no,?,Jordan,?,'18 and more',?,?
+0,0,0,0,?,?,?,1,0,1,30,m,?,no,no,Ireland,no,'18 and more',Self,NO
+0,0,1,0,1,1,?,?,0,0,?,?,'Middle Eastern ',?,yes,?,no,'18 and more',Self,NO
+0,0,0,0,?,0,1,1,?,1,?,m,?,yes,?,'United Arab Emirates',no,'18 and more',?,NO
+0,?,?,?,0,?,0,?,0,?,38,m,?,no,?,'United Arab Emirates',no,'18 and more',?,?
+0,0,?,0,?,0,0,0,0,0,27,f,Black,no,no,?,no,'18 and more',Self,?
+?,0,?,?,?,0,?,1,1,?,27,?,'Middle Eastern ',no,?,Afghanistan,no,'18 and more',?,?
+?,?,0,0,0,0,0,?,0,?,?,m,?,yes,no,'United Arab Emirates',no,'18 and more',?,NO
+?,?,1,?,0,?,0,1,?,0,?,m,?,no,?,?,no,?,?,NO
+0,1,1,0,0,?,?,?,0,?,24,f,?,yes,no,?,no,'18 and more',?,NO
+0,0,0,?,?,?,0,1,?,0,40,m,Pasifika,yes,?,'United Arab Emirates',no,'18 and more',Self,NO
+?,0,?,0,?,0,?,1,0,0,?,m,?,?,yes,?,no,?,?,NO
+0,0,0,?,0,0,?,1,?,0,48,m,Black,?,?,'New Zealand',?,'18 and more',Self,?
+?,1,1,?,0,0,?,0,?,1,31,m,'Middle Eastern ',no,no,'United Kingdom',?,'18 and more',?,NO
+0,0,0,?,0,0,0,0,?,0,?,m,White-European,no,?,?,?,?,?,NO
+?,0,0,?,1,?,1,1,?,1,37,?,?,?,yes,'United States',no,'18 and more',Self,?
+1,1,?,0,?,0,1,0,0,1,?,f,Others,no,?,?,no,'18 and more',Self,?
+1,1,1,?,1,?,1,1,?,1,18,f,?,yes,no,'South Africa',no,'18 and more',Self,?
+1,1,?,?,1,?,1,?,1,1,18,?,White-European,no,?,?,?,'18 and more',Self,?
+?,0,?,0,?,0,?,?,0,0,55,?,?,no,no,'New Zealand',no,'18 and more',?,?
+?,1,1,0,?,0,?,1,1,1,50,m,'Middle Eastern ',no,no,'United Arab Emirates',no,?,Self,NO
+1,?,1,?,1,1,?,0,1,0,?,f,White-European,?,no,'New Zealand',no,'18 and more',?,?
+?,0,?,?,?,1,1,0,1,1,?,f,?,no,no,'New Zealand',no,'18 and more',Self,?
+1,0,1,1,0,1,1,1,1,1,?,?,White-European,no,yes,?,no,'18 and more',?,YES
+1,0,1,1,?,?,1,?,0,1,?,f,Latino,?,?,?,no,'18 and more',Self,YES
+0,?,0,0,?,1,0,0,0,0,28,f,?,no,?,?,no,?,?,NO
+0,?,1,1,0,?,0,?,0,1,?,f,'Middle Eastern ',no,yes,Egypt,?,'18 and more',?,?
+0,1,1,1,0,0,0,?,?,1,36,f,White-European,yes,yes,'United States',?,'18 and more',Self,NO
+?,1,1,1,?,1,0,?,0,1,?,?,White-European,no,no,?,no,'18 and more',Self,YES
+1,?,1,?,?,1,?,1,1,0,?,f,White-European,?,no,'New Zealand',no,?,Relative,YES
+1,1,1,1,0,?,?,0,0,?,24,f,Pasifika,no,no,?,no,'18 and more',?,NO
+0,0,1,?,1,0,1,0,?,?,24,m,Pasifika,?,?,'New Zealand',?,'18 and more',?,NO
+0,?,1,0,0,1,?,0,?,?,?,m,White-European,no,no,'New Zealand',no,'18 and more',Relative,NO
+?,1,?,0,0,1,1,?,?,1,?,?,?,?,no,?,no,'18 and more',Self,?
+1,0,?,1,0,0,?,?,0,?,21,?,?,no,no,?,?,'18 and more',Self,NO
+?,1,1,1,?,1,1,1,1,?,?,?,Black,no,no,France,no,'18 and more',Parent,?
+?,?,0,?,?,?,0,?,0,0,?,f,Pasifika,no,no,'New Zealand',?,'18 and more',?,?
+1,?,?,1,?,1,1,?,0,1,?,m,Latino,no,yes,Brazil,no,?,?,YES
+?,1,1,?,?,1,1,?,?,?,47,?,White-European,?,no,?,no,'18 and more',?,YES
+1,?,1,1,1,1,0,?,1,?,30,?,Asian,no,no,China,?,'18 and more',Self,YES
+1,?,1,1,1,1,0,1,?,?,28,?,White-European,no,no,Australia,no,?,Self,YES
+1,?,1,?,?,1,0,1,1,1,?,f,White-European,no,no,Australia,no,?,Self,YES
+1,0,0,0,1,0,0,1,?,?,?,f,'South Asian',no,?,?,?,'18 and more',?,NO
+?,1,?,1,0,?,0,1,0,0,44,f,White-European,no,no,?,?,'18 and more',?,?
+1,?,1,1,1,1,1,1,0,?,20,f,Others,no,no,Canada,no,'18 and more',Self,YES
+?,?,?,1,0,1,1,1,0,1,20,f,?,no,no,?,yes,'18 and more',?,?
+0,0,0,?,0,0,?,0,0,?,?,?,?,?,no,'Saudi Arabia',?,?,?,NO
+?,0,0,1,1,0,0,1,1,0,?,m,?,no,no,Australia,?,'18 and more',?,NO
+?,1,1,?,?,1,1,?,?,1,29,?,White-European,no,no,?,no,'18 and more',?,YES
+1,0,1,0,?,0,0,1,0,0,?,?,?,no,no,?,no,?,?,NO
+0,1,0,?,0,?,?,?,0,0,27,m,'Middle Eastern ',?,?,France,no,'18 and more',?,NO
+?,0,1,0,?,1,1,1,0,0,21,m,?,no,no,?,no,'18 and more',Self,NO
+1,0,0,0,1,0,?,0,0,1,?,m,?,no,no,'Saudi Arabia',no,'18 and more',Self,NO
+0,0,0,0,?,0,0,0,0,0,42,m,?,no,no,'New Zealand',?,?,Self,?
+?,1,0,0,0,0,1,1,0,?,?,f,?,?,?,'New Zealand',no,?,Self,NO
+0,0,?,1,0,?,0,?,0,0,58,m,?,no,no,'New Zealand',no,'18 and more',Self,NO
+1,0,1,1,0,?,1,1,0,1,21,?,Others,no,no,'United States',no,'18 and more',Self,?
+1,1,1,0,0,?,0,1,?,?,21,?,Others,?,no,'United States',?,'18 and more',Self,NO
+0,?,1,?,1,0,0,?,?,1,37,f,?,?,yes,?,no,'18 and more',Self,?
+1,1,0,1,1,1,1,1,0,0,?,m,Hispanic,no,no,'United States',no,'18 and more',Self,YES
+1,0,0,0,?,0,1,?,0,0,20,m,'Middle Eastern ',no,no,'United States',?,'18 and more',Self,?
+?,1,?,?,1,1,1,?,?,0,33,f,Black,no,yes,'United States',no,?,?,YES
+1,?,0,1,?,?,0,?,0,1,20,?,?,no,no,'United States',no,?,Self,?
+1,1,0,?,?,?,0,0,0,0,45,f,?,yes,no,Jordan,no,'18 and more',?,NO
+0,?,1,1,0,0,?,1,?,1,32,m,?,yes,yes,?,no,?,?,NO
+1,0,0,0,0,0,1,0,0,1,?,?,?,no,no,Jordan,no,'18 and more',?,?
+1,1,1,1,1,1,?,1,1,?,33,f,White-European,no,yes,?,no,?,Self,YES
+0,0,1,?,1,?,?,1,0,1,?,?,?,no,no,Jordan,no,?,Self,NO
+1,?,0,0,0,0,0,0,0,0,17,f,White-European,no,no,'New Zealand',?,?,Self,NO
+1,0,0,?,0,0,0,?,0,?,27,f,?,?,no,'United States',no,'18 and more',Self,NO
+1,0,0,1,1,1,?,1,1,1,35,?,'Middle Eastern ',no,yes,Afghanistan,no,'18 and more',Parent,?
+1,0,0,?,?,0,0,0,0,0,?,?,White-European,no,?,'United Kingdom',no,'18 and more',?,NO
+1,0,0,0,0,?,0,1,1,1,30,?,White-European,no,yes,'United Kingdom',?,'18 and more',Self,NO
+1,1,?,1,1,1,0,1,1,1,29,f,?,?,no,?,?,?,Self,?
+?,0,1,1,0,0,0,0,0,1,17,f,White-European,no,yes,?,no,'18 and more',Self,NO
+0,1,0,?,?,?,1,0,0,?,?,?,?,no,no,Jordan,no,?,?,NO
+?,0,0,1,1,1,?,?,0,1,22,f,Pasifika,no,no,'New Zealand',no,'18 and more',Self,NO
+1,1,1,0,1,1,1,0,1,1,19,f,Latino,no,yes,Brazil,no,'18 and more',Self,YES
+1,1,1,1,?,0,0,1,1,?,42,f,?,no,yes,Sweden,no,'18 and more',Self,YES
+?,1,0,?,?,0,0,1,0,?,37,?,?,?,no,'United Kingdom',no,'18 and more',Self,NO
+1,?,0,0,1,?,1,?,?,0,28,f,White-European,no,no,Australia,no,'18 and more',Self,?
+1,0,0,1,1,0,1,0,0,0,22,m,?,?,?,'New Zealand',?,?,?,NO
+1,?,0,0,0,0,0,1,0,?,?,f,Pasifika,no,no,Tonga,?,'18 and more',Self,NO
+0,?,0,0,0,0,0,?,1,0,21,m,?,no,no,?,no,'18 and more',Self,NO
+?,1,1,0,0,0,0,1,0,0,26,f,'South Asian',?,no,India,no,'18 and more',?,NO
+1,?,0,0,0,0,0,1,?,0,?,?,?,no,no,Philippines,no,'18 and more',?,?
+1,0,0,0,0,0,0,0,?,1,26,m,Asian,no,no,'New Zealand',no,'18 and more',Self,NO
+1,1,0,0,1,?,?,1,0,0,?,m,Asian,no,?,?,?,?,Self,?
+0,?,?,0,?,1,0,?,0,1,21,m,?,no,?,India,no,?,Self,?
+0,?,?,?,?,?,0,0,0,0,25,m,Asian,no,no,?,?,'18 and more',Self,NO
+0,0,?,0,1,1,?,1,0,1,?,m,'South Asian',no,no,?,?,'18 and more',Self,?
+?,1,?,?,1,0,?,1,0,1,30,f,White-European,?,no,'United States',no,'18 and more',?,YES
+?,0,?,?,1,?,?,?,0,0,19,f,Asian,?,no,?,no,'18 and more',Parent,?
+1,0,0,0,0,1,1,?,?,0,?,f,Asian,no,?,India,no,'18 and more',Parent,?
+?,0,1,1,1,?,1,1,1,1,?,f,?,no,yes,?,no,?,?,YES
+0,0,1,1,0,1,0,1,1,1,23,m,White-European,no,no,'United Kingdom',?,?,Self,NO
+1,?,0,0,1,0,?,?,0,?,31,?,?,no,no,'Sri Lanka',no,'18 and more',?,NO
+0,1,0,0,0,?,?,1,1,1,?,?,Asian,no,no,'New Zealand',no,?,Self,NO
+1,1,?,?,1,?,1,1,?,?,29,f,'Middle Eastern ',no,no,?,?,'18 and more',?,?
+?,0,?,?,1,1,?,?,?,?,38,?,White-European,no,no,?,no,'18 and more',?,YES
+?,1,?,1,1,1,0,1,?,1,?,?,White-European,no,no,?,no,?,Self,?
+?,1,1,0,?,?,1,1,0,0,27,m,White-European,no,?,'United States',no,?,Self,NO
+1,?,1,?,1,1,0,1,?,?,27,f,White-European,no,no,Canada,no,'18 and more',?,?
+1,1,1,?,?,1,0,0,1,0,42,?,White-European,no,no,?,no,?,Self,YES
+1,?,1,1,?,?,?,1,1,1,20,?,White-European,no,?,?,no,'18 and more',?,YES
+?,0,1,?,1,?,?,?,?,1,?,?,White-European,?,?,'United States',no,'18 and more',Self,YES
+1,?,0,0,0,?,?,0,0,0,20,f,Black,no,no,Spain,no,?,Self,?
+1,0,0,1,1,?,?,?,0,1,30,?,Asian,yes,?,'Sierra Leone',?,'18 and more',Self,YES
+1,0,?,1,1,1,1,?,?,?,28,f,White-European,no,?,?,no,'18 and more',Self,?
+?,?,?,?,1,?,1,1,0,1,26,f,White-European,no,no,?,?,?,Self,YES
+0,0,0,0,0,?,0,0,?,?,26,f,White-European,no,?,Australia,no,'18 and more',Self,NO
+1,0,?,?,1,1,?,1,?,1,?,m,'Middle Eastern ',no,yes,Canada,no,'18 and more',Self,NO
+1,0,1,1,0,?,1,0,0,?,?,f,White-European,no,no,'United Kingdom',no,'18 and more',Self,NO
+1,?,0,0,1,0,0,?,?,?,39,f,White-European,no,yes,Ireland,no,'18 and more',Relative,NO
+1,1,0,?,0,0,0,?,?,0,?,f,White-European,no,no,'United States',?,'18 and more',Self,NO
+1,0,?,0,0,0,0,1,0,1,24,?,?,no,no,?,no,'18 and more',?,NO
+1,?,?,?,0,?,0,?,0,?,?,m,?,no,no,?,no,'18 and more',Self,?
+?,?,1,1,0,?,?,1,?,1,24,m,Asian,?,no,?,no,'18 and more',?,NO
+0,?,0,0,1,1,?,1,1,0,24,?,?,?,no,?,no,?,Self,?
+1,?,1,?,?,0,?,?,?,1,27,m,Asian,no,no,'New Zealand',?,'18 and more',Self,NO
+?,?,1,?,0,1,0,0,1,1,?,m,Asian,?,no,'New Zealand',no,?,Self,NO
+0,0,?,0,1,0,?,0,0,1,25,m,Asian,no,no,India,no,?,Self,NO
+1,?,?,?,0,0,1,0,?,1,?,m,Asian,no,no,?,no,?,Self,?
+0,1,?,?,0,?,0,0,?,1,?,f,Asian,no,?,?,?,?,Self,NO
+?,0,1,?,0,?,0,1,0,1,23,?,?,no,no,India,no,?,?,NO
+1,0,0,?,?,?,0,?,0,0,?,m,'South Asian',?,?,?,no,'18 and more',Self,NO
+?,0,1,0,0,?,?,1,0,?,25,m,Asian,?,?,India,?,'18 and more',?,NO
+1,0,0,1,1,0,0,?,?,0,27,m,Asian,?,no,?,?,'18 and more',Self,NO
+0,0,0,0,0,0,0,?,0,0,?,?,'South Asian',no,?,'New Zealand',no,?,Self,NO
+?,0,0,?,1,1,1,?,1,1,28,m,White-European,no,no,'United States',no,'18 and more',Parent,YES
+?,0,?,1,?,?,?,?,1,1,20,m,White-European,?,no,?,no,?,Self,YES
+?,1,1,1,1,1,1,1,1,?,19,f,?,no,?,Romania,no,'18 and more',?,YES
+?,?,0,0,1,1,1,?,0,1,?,f,?,no,?,?,?,?,Self,YES
+?,1,?,1,?,0,?,1,1,?,35,m,?,yes,yes,?,?,?,?,?
+0,0,?,?,1,0,0,1,?,0,26,m,Asian,no,?,'New Zealand',?,'18 and more',Self,NO
+0,1,?,1,1,?,1,?,0,?,23,?,Asian,no,no,'Viet Nam',no,?,Self,YES
+?,?,0,0,1,?,0,0,0,?,32,?,'South Asian',no,no,'New Zealand',no,'18 and more',?,NO
+0,0,1,0,1,?,1,?,1,1,?,m,Asian,?,no,'Sri Lanka',?,'18 and more',Self,?
+1,0,0,0,1,?,?,0,0,1,31,?,?,no,no,'Sri Lanka',no,?,?,NO
+0,0,?,0,0,0,1,1,0,?,?,f,?,no,no,'New Zealand',?,?,Self,NO
+?,0,0,0,0,1,0,1,0,1,29,f,Asian,no,?,'Sri Lanka',no,'18 and more',?,NO
+0,?,0,?,?,0,0,?,0,1,29,?,?,no,no,'Sri Lanka',no,'18 and more',?,NO
+1,?,0,?,0,0,0,?,1,1,29,f,?,no,no,India,no,'18 and more',Self,NO
+1,0,0,0,0,0,1,1,0,0,31,?,Asian,no,no,?,no,'18 and more',Self,NO
+0,0,0,0,0,0,0,0,0,0,36,m,Asian,no,no,India,no,'18 and more',Parent,NO
+?,1,?,0,0,?,0,?,?,0,32,f,'South Asian',?,no,India,no,'18 and more',Self,?
+?,?,0,0,0,0,0,?,0,0,?,f,?,?,no,'New Zealand',no,?,Self,NO
+1,?,?,?,0,0,0,1,0,0,24,m,Asian,no,no,'Sri Lanka',?,'18 and more',Self,NO
+1,0,1,0,1,0,?,?,?,1,24,?,?,no,no,?,?,'18 and more',Self,NO
+1,?,?,0,1,?,?,1,0,1,42,m,Asian,no,?,?,no,'18 and more',Self,NO
+?,?,1,?,?,0,0,?,?,1,26,f,?,no,no,India,?,'18 and more',Self,NO
+?,0,?,0,1,0,1,?,?,?,27,?,Asian,no,no,?,?,'18 and more',Self,?
+0,0,?,1,?,0,?,1,?,?,?,?,Latino,no,yes,?,?,?,Self,NO
+1,1,1,1,?,0,0,1,?,?,36,?,Latino,no,yes,Brazil,no,?,?,?
+?,?,1,?,0,0,1,?,0,1,55,m,Hispanic,no,?,'United States',no,'18 and more',?,?
+1,1,0,1,0,?,?,?,0,0,23,f,Asian,no,no,?,?,?,Self,?
+0,?,1,?,?,0,?,?,0,1,22,f,?,?,?,'Sri Lanka',no,?,Self,?
+1,0,0,?,?,0,0,1,0,0,42,f,'Middle Eastern ',no,?,?,no,?,?,NO
+1,0,?,1,0,?,0,1,?,0,54,m,White-European,no,no,Canada,?,'18 and more',Self,NO
+1,1,0,0,0,0,1,1,?,1,43,f,?,?,?,?,no,?,Self,NO
+1,1,1,1,?,?,0,?,?,1,43,f,Black,?,no,?,yes,'18 and more',?,?
+0,0,1,1,1,0,0,1,1,1,29,m,'Middle Eastern ',?,no,Iran,no,'18 and more',Self,?
+?,0,?,0,1,0,0,1,0,1,?,?,?,?,no,Iran,no,?,Self,NO
+1,0,1,0,?,?,1,?,0,0,?,m,?,no,?,?,no,?,?,NO
+1,0,0,0,?,?,?,0,0,?,?,?,White-European,no,?,?,no,'18 and more',Self,NO
+1,?,1,?,?,0,?,0,0,0,18,?,Asian,no,no,'Viet Nam',no,'18 and more',Self,NO
+0,?,0,1,1,1,0,1,?,?,31,m,White-European,no,?,'United States',no,'18 and more',?,NO
+0,0,1,1,?,?,0,?,0,1,34,m,Asian,no,no,?,no,'18 and more',Self,NO
+0,0,1,1,1,?,1,?,0,1,22,m,White-European,no,no,'United States',?,'18 and more',Self,NO
+1,0,1,1,1,1,1,0,?,0,?,m,'South Asian',no,no,India,no,'18 and more',Self,YES
+?,0,0,0,0,0,?,1,0,?,38,m,Others,no,yes,Netherlands,no,'18 and more',Self,NO
+1,0,0,0,?,?,1,?,0,?,28,f,White-European,no,no,Australia,no,'18 and more',?,NO
+1,1,?,1,1,?,?,1,1,?,53,f,White-European,no,yes,'United States',no,'18 and more',?,?
+?,?,?,0,1,0,?,0,0,?,?,m,White-European,no,no,'United Kingdom',?,?,?,NO
+?,1,?,?,?,1,?,1,1,1,37,m,?,no,no,'United Kingdom',no,'18 and more',?,YES
+1,1,0,1,0,0,0,?,0,?,?,m,?,?,?,'Costa Rica',?,?,Parent,NO
+?,0,?,0,?,?,0,?,0,?,?,m,Hispanic,no,no,'United States',no,?,Self,NO
+?,0,0,?,?,0,?,?,0,0,?,f,Asian,no,?,?,no,'18 and more',?,?
+0,1,0,?,?,?,0,?,0,0,?,?,?,no,yes,'United Kingdom',?,'18 and more',Self,NO
+1,?,1,?,1,?,1,?,1,1,?,f,White-European,?,no,'United States',no,'18 and more',?,YES
+1,1,1,1,1,?,1,1,?,1,28,?,?,no,no,'United States',no,?,Self,YES
+1,0,1,?,?,1,1,1,1,?,38,m,?,no,no,Germany,no,'18 and more',?,YES
+1,?,1,?,1,1,0,?,?,0,31,m,White-European,?,?,?,no,'18 and more',Self,YES
+1,?,1,?,0,?,0,?,0,?,31,f,Pasifika,?,yes,?,?,?,Self,NO
+1,1,1,1,1,?,?,1,1,?,21,?,White-European,?,no,Australia,no,'18 and more',?,?
+1,1,?,1,?,0,0,0,1,1,25,f,?,no,no,?,no,?,Self,NO
+?,?,0,?,1,0,0,1,?,1,?,?,White-European,no,no,'United States',?,?,?,YES
+?,?,1,1,?,1,1,0,1,1,60,f,White-European,no,?,'United States',no,'18 and more',Relative,YES
+?,0,1,?,0,0,0,0,0,0,39,?,White-European,no,yes,'United States',no,'18 and more',?,?
+?,?,1,?,1,1,?,1,?,1,53,m,White-European,no,no,'United States',no,'18 and more',Self,YES
+1,1,1,1,?,1,?,?,?,1,20,m,'Middle Eastern ',?,yes,?,no,'18 and more',?,YES
+1,1,?,?,?,?,0,1,1,?,?,f,White-European,no,?,'United States',yes,'18 and more',Self,?
+1,1,1,?,0,0,?,1,0,0,50,m,?,?,?,'United Kingdom',?,'18 and more',Self,NO
+1,?,0,1,1,1,?,1,?,?,28,f,White-European,no,no,'United States',no,'18 and more',?,?
+1,?,1,1,?,1,?,1,1,1,37,?,White-European,no,?,?,no,?,?,YES
+0,0,0,1,?,1,?,?,1,?,30,m,Asian,no,yes,?,?,'18 and more',?,NO
+1,1,0,0,0,1,?,1,0,?,?,?,?,no,?,'United Kingdom',no,'18 and more',Self,NO
+1,0,1,1,0,0,0,0,0,1,?,?,White-European,no,no,'United States',?,?,Self,NO
+1,1,1,1,?,0,?,0,0,1,42,?,White-European,no,no,?,?,'18 and more',?,NO
+1,?,0,?,?,1,?,?,?,1,?,f,Black,?,no,Spain,no,?,Self,YES
+1,0,0,0,0,0,1,1,0,1,37,f,?,?,no,?,no,'18 and more',?,NO
+?,1,0,0,0,0,0,1,0,1,39,m,White-European,no,yes,'United States',no,'18 and more',Parent,?
+?,?,0,1,?,0,1,1,0,?,18,m,White-European,?,no,Bangladesh,no,'18 and more',?,YES
+1,0,0,1,0,?,0,0,0,0,54,f,White-European,?,yes,'United States',?,'18 and more',Parent,NO
+1,?,?,?,0,0,0,1,?,0,?,?,White-European,no,no,'United Kingdom',no,'18 and more',Self,?
+0,0,1,0,0,0,0,?,0,0,?,f,?,?,no,Afghanistan,?,'18 and more',?,NO
+1,1,1,1,1,0,0,?,0,0,22,?,?,no,no,'United Kingdom',no,'18 and more',?,NO
+?,0,1,1,0,1,1,1,?,?,22,?,White-European,?,?,'United Kingdom',no,'18 and more',?,YES
+1,?,1,1,1,1,1,0,?,?,?,f,White-European,no,?,?,no,'18 and more',Self,?
+0,?,?,1,0,0,0,1,0,?,28,f,White-European,no,no,?,no,'18 and more',Self,NO
+1,1,1,1,1,1,?,?,1,1,?,m,Asian,yes,no,?,?,?,Relative,YES
+0,1,?,0,0,?,0,0,0,?,28,?,White-European,no,no,'United States',?,'18 and more',?,NO
+0,0,0,1,1,?,?,1,0,?,21,?,Latino,?,?,?,no,?,Self,NO
+1,1,1,1,1,?,1,?,?,?,31,f,Asian,?,?,'New Zealand',?,'18 and more',?,YES
+1,0,?,?,0,0,1,1,?,0,20,m,'South Asian',?,no,'New Zealand',no,'18 and more',Self,NO
+?,?,0,1,0,0,0,0,0,?,?,m,White-European,no,no,'United Kingdom',?,'18 and more',Self,NO
+1,?,?,0,?,?,0,0,0,0,22,m,White-European,no,?,'New Zealand',no,'18 and more',Self,NO
+0,1,?,?,?,0,0,?,1,?,21,m,?,no,?,'New Zealand',no,'18 and more',Self,NO
+0,?,1,0,?,0,?,0,0,0,?,?,?,?,no,'New Zealand',?,?,Self,?
+1,0,0,0,0,0,0,?,0,0,?,m,'South Asian',no,no,India,no,?,?,NO
+1,?,0,?,1,?,1,1,0,1,?,?,?,no,?,?,no,'18 and more',Self,NO
+1,?,0,0,0,0,0,0,0,?,17,?,?,?,no,'New Zealand',no,'18 and more',Self,NO
+0,1,?,0,?,?,0,1,1,0,?,m,?,no,no,?,no,'18 and more',?,NO
+1,0,?,0,?,0,0,?,0,0,23,m,?,no,no,?,?,?,Self,?
+1,?,0,1,?,?,1,1,?,0,?,m,Asian,no,no,?,?,'18 and more',Self,NO
+1,0,0,?,1,0,1,1,?,1,22,?,?,no,no,'New Zealand',?,'18 and more',Self,?
+?,0,0,0,1,0,0,1,0,1,24,f,Asian,no,?,?,no,'18 and more',?,NO
+0,?,?,0,?,1,0,0,1,1,34,m,Others,no,no,'New Zealand',no,?,Self,NO
+1,0,1,0,1,?,?,1,0,?,30,?,?,no,no,'New Zealand',?,'18 and more',Self,NO
+?,?,0,?,?,?,?,1,0,?,?,f,Asian,no,no,India,no,'18 and more',?,NO
+1,0,?,1,1,?,?,?,0,0,?,?,Pasifika,no,?,'New Zealand',?,?,Self,NO
+?,?,?,1,?,?,0,1,?,1,23,m,?,no,?,?,no,?,Self,?
+?,0,0,?,0,0,0,1,0,?,26,m,Asian,?,?,India,no,?,Self,NO
+1,?,0,1,1,1,?,1,?,1,?,m,'South Asian',no,no,?,no,?,?,YES
+1,?,0,?,0,0,1,1,?,0,?,m,?,?,no,?,?,'18 and more',Self,?
+?,0,0,?,?,0,?,1,0,0,24,m,Asian,no,no,India,no,?,Self,NO
+0,0,0,1,0,0,0,1,0,?,35,m,Asian,?,no,India,no,?,Self,NO
+0,0,?,1,0,0,1,?,0,0,?,m,'South Asian',?,no,?,no,'18 and more',?,?
+?,0,?,?,0,0,1,0,0,0,36,m,White-European,no,no,'New Zealand',no,'18 and more',?,?
+?,1,0,?,1,0,0,?,?,0,33,m,Turkish,no,?,Armenia,?,'18 and more',Self,NO
+1,0,0,0,?,1,0,1,?,?,24,m,'South Asian',no,no,?,?,'18 and more',Self,NO
+?,?,1,0,1,0,?,?,0,0,?,?,?,?,no,'New Zealand',no,'18 and more',?,NO
+1,0,0,0,?,1,?,1,?,1,25,m,Asian,no,no,India,no,?,Self,?
+1,0,0,0,0,0,?,1,?,1,25,m,Asian,no,no,India,no,?,?,?
+0,0,0,?,0,0,1,1,0,1,24,m,?,no,?,India,?,?,Self,?
+1,0,?,0,1,0,?,1,0,?,27,?,'South Asian',?,no,India,?,'18 and more',Self,NO
+?,?,0,0,0,0,1,?,0,?,?,?,Asian,no,no,India,no,?,?,NO
+0,0,?,0,0,0,0,0,0,0,26,m,Others,no,no,'New Zealand',?,?,Self,?
+1,0,?,?,1,0,0,1,1,0,?,f,?,?,?,?,no,?,Self,NO
+1,1,?,0,1,?,1,1,0,1,30,m,Asian,?,no,?,no,'18 and more',?,?
+1,?,?,1,?,0,0,0,1,0,25,m,Asian,no,no,Iceland,no,?,Self,?
+1,0,?,?,0,?,0,?,0,1,?,m,Pasifika,no,no,?,no,?,Self,NO
+?,0,1,?,1,0,0,?,?,?,34,f,White-European,?,?,?,no,?,Self,?
+1,0,?,1,1,?,1,1,0,?,20,?,Asian,no,no,'New Zealand',?,'18 and more',Self,NO
+?,0,1,1,1,1,?,0,?,1,22,f,?,?,yes,?,?,'18 and more',?,YES
+1,?,1,1,0,0,0,1,?,?,33,?,Black,no,yes,France,no,'18 and more',Parent,YES
+1,1,1,1,1,1,1,1,1,1,46,m,?,?,?,Netherlands,no,'18 and more',Self,?
+?,?,0,0,0,?,0,0,0,0,17,?,?,no,no,'United Kingdom',?,'18 and more',Others,NO
+1,1,1,?,0,0,0,1,?,?,45,?,White-European,no,?,'United States',no,?,Self,NO
+0,1,1,1,0,0,0,0,?,0,26,m,Asian,?,no,India,no,'18 and more',Others,?
+?,?,?,?,1,0,0,0,1,?,?,m,?,no,no,Jordan,no,?,?,?
+1,1,?,?,?,0,0,0,0,0,32,f,?,no,?,Jordan,?,?,?,NO
+1,?,1,1,1,?,1,?,1,?,38,f,White-European,?,no,'United Kingdom',?,'18 and more',Self,YES
+0,1,1,?,?,0,0,0,0,?,?,m,Hispanic,?,no,?,no,?,Self,NO
+1,?,0,0,?,0,0,?,?,0,29,f,?,?,?,?,no,'18 and more',Self,NO
+1,1,1,?,1,?,?,1,1,1,?,m,?,no,no,Australia,no,?,?,YES
+?,?,1,0,1,?,1,0,1,1,32,?,Black,?,no,?,no,?,?,?
+?,1,1,1,1,?,?,?,1,1,?,f,White-European,no,no,'United States',no,'18 and more',Self,YES
+0,1,0,0,?,0,1,0,0,1,47,?,?,yes,no,'United Kingdom',no,?,Self,?
+0,?,0,?,1,?,1,?,1,?,32,f,?,?,no,?,no,'18 and more',?,NO
+0,0,?,0,0,0,0,0,0,0,40,m,White-European,no,?,?,no,'18 and more',Self,NO
+1,0,0,?,?,0,0,1,?,1,40,?,White-European,no,no,'United States',?,'18 and more',?,?
+0,0,?,?,0,?,0,0,0,?,44,f,White-European,no,no,'New Zealand',?,'18 and more',Self,NO
+1,1,1,0,1,1,1,0,1,1,?,?,White-European,yes,no,'United Kingdom',no,?,?,YES
+?,1,1,0,1,1,1,?,1,1,23,f,White-European,no,no,Ireland,no,?,Self,YES
+1,1,0,?,1,?,0,?,1,?,32,?,Black,?,no,?,no,'18 and more',?,YES
+0,?,?,1,?,0,0,?,0,1,27,m,White-European,no,yes,?,?,?,Self,NO
+1,0,?,0,1,?,1,?,0,1,28,f,White-European,no,yes,'United Kingdom',no,'18 and more',?,?
+0,?,0,0,0,0,0,0,0,?,40,f,'Middle Eastern ',?,no,Afghanistan,no,?,?,NO
+1,0,1,?,?,1,?,0,?,1,?,f,White-European,no,no,Canada,no,'18 and more',Self,YES
+?,?,1,1,?,1,0,0,1,1,19,f,?,yes,no,'United Kingdom',?,'18 and more',?,YES
+1,1,1,?,0,1,0,1,?,?,?,?,?,no,?,'United States',?,'18 and more',Others,?
+1,0,?,1,0,?,?,1,0,?,27,f,White-European,yes,no,Australia,no,'18 and more',Self,?
+?,1,1,1,1,1,?,0,1,1,19,f,White-European,yes,?,'United Kingdom',no,?,Self,YES
+1,0,?,1,0,0,?,1,0,?,?,m,White-European,no,no,Ireland,no,'18 and more',?,NO
+1,1,1,1,1,?,1,?,?,1,?,f,White-European,yes,no,?,?,'18 and more',?,?
+?,0,1,?,?,?,1,1,?,?,?,f,White-European,no,no,?,no,?,?,NO
+0,0,0,0,0,0,0,1,1,?,37,f,Others,no,?,'United Kingdom',no,'18 and more',?,NO
+?,1,?,1,?,0,0,0,1,?,30,m,Asian,no,?,Afghanistan,no,'18 and more',?,NO
+?,1,0,1,0,0,0,0,?,1,37,f,White-European,?,no,?,no,'18 and more',Self,?
+1,0,0,?,?,0,1,1,?,1,28,f,?,no,?,'Saudi Arabia',no,'18 and more',?,YES
+?,?,0,1,1,1,?,1,1,1,?,?,?,?,?,Austria,no,?,?,YES
+?,?,1,1,?,?,?,0,1,1,25,f,Others,no,no,'United States',no,?,Self,YES
+1,1,1,1,?,1,0,?,0,?,?,f,'Middle Eastern ',no,no,'United Kingdom',no,?,?,?
+1,?,1,?,0,?,0,?,0,?,36,f,White-European,no,no,'United States',no,'18 and more',Self,?
+0,?,1,1,1,?,?,1,0,?,?,m,White-European,?,no,?,?,'18 and more',Self,NO
+1,0,1,0,1,?,1,?,?,0,?,?,Hispanic,?,?,?,no,?,?,?
+1,0,1,1,1,1,0,1,1,0,?,?,Hispanic,?,no,'United States',yes,'18 and more',Self,YES
+?,0,0,?,?,?,0,1,0,?,?,?,White-European,?,?,'New Zealand',no,'18 and more',?,NO
+1,?,?,?,0,0,0,1,0,?,?,?,?,no,no,?,no,?,?,?
+0,1,0,0,0,0,1,1,0,1,24,f,'Middle Eastern ',no,?,'United Arab Emirates',no,'18 and more',Self,?
+0,?,0,1,1,?,?,1,1,?,?,m,?,no,?,?,?,'18 and more',Self,?
+1,1,1,0,1,0,0,1,?,?,21,m,?,no,no,'United Arab Emirates',no,'18 and more',Self,NO
+0,0,0,0,0,?,?,0,?,0,20,?,'Middle Eastern ',no,?,'United Arab Emirates',no,'18 and more',Self,NO
+?,?,0,0,0,?,?,0,0,?,?,f,?,?,?,'United Arab Emirates',?,'18 and more',Self,?
+0,?,1,0,0,0,?,1,?,1,23,f,'Middle Eastern ',no,no,'United Arab Emirates',no,'18 and more',Self,NO
+1,1,1,?,1,?,1,?,0,1,22,?,?,?,no,?,no,'18 and more',Self,YES
+1,1,0,1,?,?,0,?,0,0,18,f,'South Asian',no,yes,?,?,'18 and more',Self,NO
+?,0,0,0,0,0,0,?,?,1,37,f,?,no,no,'United Arab Emirates',no,'18 and more',?,NO
+1,?,?,0,?,0,?,?,0,0,18,m,'Middle Eastern ',no,no,'United Arab Emirates',?,'18 and more',Relative,?
+1,?,?,?,?,0,?,1,0,0,18,?,'Middle Eastern ',?,?,?,no,?,?,NO
+0,0,0,?,?,?,0,1,0,0,18,m,?,no,no,'United Arab Emirates',no,'18 and more',Relative,NO
+1,1,1,?,0,0,0,?,?,0,?,m,'Middle Eastern ',no,no,'United Arab Emirates',no,'18 and more',Relative,NO
+0,1,?,?,?,0,1,?,0,?,18,m,'Middle Eastern ',no,?,?,?,'18 and more',Relative,?
+1,1,1,0,0,0,0,?,?,?,?,m,'Middle Eastern ',no,?,'United Arab Emirates',?,?,?,?
+1,1,1,1,?,?,1,1,?,1,?,m,White-European,?,?,Austria,no,'18 and more',Self,YES
+1,0,0,1,1,1,1,?,1,?,55,m,White-European,no,no,'United Kingdom',no,'18 and more',?,?
+1,0,0,0,?,1,1,0,1,?,32,f,?,no,no,?,no,'18 and more',?,NO
+1,?,0,1,?,0,1,?,0,?,50,m,White-European,yes,no,'United Kingdom',?,?,?,?
+1,1,1,1,0,?,1,?,0,0,?,m,White-European,?,?,'United Kingdom',no,'18 and more',Self,NO
+1,0,0,1,?,1,?,?,0,?,47,m,'Middle Eastern ',no,?,Jordan,?,'18 and more',Self,?
+?,1,?,0,0,0,?,0,0,1,?,m,?,no,no,Jordan,no,'18 and more',?,?
+1,0,?,?,0,0,1,1,?,?,22,f,?,no,?,?,no,?,?,NO
+1,0,0,0,?,0,1,0,0,?,21,f,?,?,no,Jordan,?,?,?,?
+1,0,1,1,0,?,?,1,1,0,21,f,?,no,?,?,no,'18 and more',?,NO
+1,1,1,1,1,0,?,1,0,0,19,m,?,?,no,?,?,?,?,NO
+1,0,1,1,0,0,?,0,0,0,21,f,?,no,no,Jordan,?,?,?,?
+1,?,?,1,0,?,0,0,0,?,21,m,?,?,no,Jordan,no,'18 and more',?,?
+0,1,0,1,0,?,0,?,0,1,23,?,?,no,no,Jordan,?,'18 and more',?,NO
+?,0,0,?,0,0,?,0,0,0,21,?,?,no,no,Jordan,no,'18 and more',?,NO
+1,?,0,?,1,?,1,?,?,?,21,m,?,no,no,Jordan,no,'18 and more',?,?
+?,0,?,0,?,0,0,1,?,0,23,m,?,no,?,Jordan,no,'18 and more',?,?
+1,0,1,1,0,1,1,1,1,?,20,f,?,?,?,Jordan,no,'18 and more',?,YES
+1,1,?,?,?,0,0,?,0,1,21,f,?,?,no,?,no,'18 and more',?,NO
+?,1,1,0,?,?,1,1,1,?,?,?,?,no,?,Argentina,no,'18 and more',?,YES
+1,?,?,?,0,0,1,1,0,0,19,?,?,no,no,?,no,?,?,NO
+0,1,0,0,0,0,0,1,0,?,21,?,?,no,no,Jordan,?,'18 and more',?,NO
+1,?,1,0,0,0,1,0,0,0,?,m,?,no,yes,?,?,'18 and more',?,NO
+?,0,?,?,?,?,?,1,0,0,?,?,?,no,no,Jordan,?,'18 and more',?,NO
+?,0,0,0,1,?,0,?,0,0,?,m,?,no,?,?,no,?,?,NO
+1,?,?,1,0,0,0,1,0,1,22,m,?,no,no,'United Arab Emirates',?,'18 and more',Parent,NO
+?,0,?,0,0,0,0,1,0,?,19,?,'Middle Eastern ',no,no,'United Arab Emirates',no,'18 and more',Self,?
+?,0,0,1,?,0,1,0,0,1,22,m,'Middle Eastern ',?,no,'United Arab Emirates',no,'18 and more',Self,NO
+?,0,1,0,0,0,0,?,0,?,?,?,'Middle Eastern ',no,no,'United Arab Emirates',?,'18 and more',Self,NO
+1,?,1,0,1,0,0,1,0,0,23,?,?,no,no,?,no,'18 and more',?,NO
+0,0,0,0,0,1,?,1,0,0,?,?,?,no,no,Ukraine,no,'18 and more',?,?
+0,0,0,?,1,0,0,1,0,1,20,m,?,no,no,'United Arab Emirates',no,'18 and more',Parent,NO
+0,1,0,1,0,0,0,?,?,?,24,?,'Middle Eastern ',no,no,?,?,'18 and more',Self,?
+0,1,?,0,0,0,?,1,0,?,19,m,'Middle Eastern ',no,?,'United Arab Emirates',no,?,?,NO
+1,?,0,0,0,?,?,1,0,?,20,m,?,?,no,?,?,'18 and more',?,NO
+?,0,?,0,1,0,0,1,0,1,?,m,?,?,?,?,no,'18 and more',Self,NO
+0,0,?,1,0,0,?,0,0,1,20,?,Others,?,?,Russia,no,?,?,NO
+1,0,1,0,1,?,0,1,0,?,20,m,'Middle Eastern ',no,no,?,?,'18 and more',Self,NO
+0,0,0,0,0,0,?,1,?,0,?,?,?,yes,?,'United Arab Emirates',no,'18 and more',?,NO
+1,0,1,?,?,0,0,?,0,?,?,f,?,no,?,'United Arab Emirates',no,'18 and more',?,NO
+1,?,0,1,1,0,?,1,0,1,?,?,?,no,no,?,no,?,?,NO
+0,1,?,?,0,0,?,?,0,1,?,m,?,no,no,Kazakhstan,no,?,?,NO
+?,0,?,0,?,0,0,?,0,?,20,f,'Middle Eastern ',no,no,?,no,?,?,NO
+?,0,?,1,1,?,1,0,?,1,20,m,?,no,no,'Saudi Arabia',?,'18 and more',Self,NO
+1,?,0,?,0,1,0,0,1,0,25,m,?,yes,yes,Armenia,?,'18 and more',Relative,?
+1,?,0,0,?,?,0,1,0,?,20,f,?,no,?,?,?,'18 and more',Self,NO
+1,0,0,0,0,1,1,?,0,1,22,m,'Middle Eastern ',?,no,AmericanSamoa,?,'18 and more',Self,NO
+1,0,?,?,0,0,?,1,?,0,20,f,?,no,?,'United Arab Emirates',no,'18 and more',?,NO
+0,?,0,0,1,?,?,0,0,0,20,?,?,?,?,'United Arab Emirates',no,'18 and more',?,NO
+?,0,0,1,0,0,1,0,0,?,20,f,?,no,no,Jordan,?,'18 and more',?,NO
+1,?,0,0,0,?,?,1,0,?,23,f,?,?,no,Jordan,no,'18 and more',?,NO
+1,1,1,?,1,0,1,?,1,?,21,f,?,?,no,?,no,?,?,YES
+1,0,0,0,?,0,1,?,?,1,?,m,?,?,no,?,no,'18 and more',?,?
+1,1,0,0,0,0,0,1,0,0,?,f,?,?,no,Jordan,no,'18 and more',?,?
+?,0,1,?,?,?,0,0,0,?,20,f,?,no,no,Jordan,?,'18 and more',?,NO
+?,0,0,1,0,?,0,0,0,?,22,f,?,no,no,?,?,'18 and more',?,?
+1,0,1,1,?,0,1,1,0,0,21,f,?,?,?,Jordan,no,?,?,NO
+1,1,?,0,?,0,0,1,?,0,20,f,?,?,no,?,?,'18 and more',?,?
+0,1,0,0,?,?,?,?,0,0,20,f,'Middle Eastern ',?,?,?,?,'18 and more',Self,NO
+1,0,0,0,1,0,0,1,0,0,21,m,?,no,no,Jordan,no,?,?,?
+1,0,?,?,1,0,0,0,1,1,?,m,'Middle Eastern ',no,no,'United Arab Emirates',no,'18 and more',Self,?
+0,?,?,0,?,1,?,1,0,1,?,f,'Middle Eastern ',?,no,'United Arab Emirates',?,?,Self,NO
+?,?,?,0,?,?,0,1,?,?,21,f,Turkish,no,no,'United Arab Emirates',no,'18 and more',Self,NO
+?,0,0,0,1,1,0,1,0,1,22,?,Black,no,no,?,no,?,Self,?
+0,?,?,?,0,1,0,1,0,0,19,?,?,no,?,'United Arab Emirates',no,'18 and more',?,NO
+1,1,1,?,1,?,?,0,?,?,20,f,?,no,no,'United Arab Emirates',?,'18 and more',Self,?
+0,1,0,0,0,?,0,1,?,1,21,?,Others,no,no,?,?,?,Self,NO
+0,1,1,?,0,0,0,?,0,0,26,m,'Middle Eastern ',no,no,'United Arab Emirates',no,'18 and more',Self,?
+1,0,0,?,?,0,0,0,0,?,19,f,?,no,?,?,no,'18 and more',?,?
+1,0,0,1,0,?,1,1,0,1,20,f,?,no,?,'United Arab Emirates',no,?,?,NO
+?,0,0,0,0,0,0,1,0,1,26,?,?,?,?,'United Arab Emirates',no,?,?,NO
+?,?,?,1,0,0,1,0,?,?,23,f,Black,?,no,'United Arab Emirates',no,'18 and more',Self,NO
+?,0,0,1,0,?,?,0,0,1,28,f,?,no,?,'United Arab Emirates',?,?,?,NO
+0,1,?,1,1,0,0,0,0,0,?,f,?,no,?,'United Arab Emirates',no,?,?,NO
+1,?,0,0,0,?,1,1,0,?,20,?,'Middle Eastern ',no,no,?,?,?,Self,NO
+?,1,?,?,1,0,?,1,?,1,19,?,Black,?,?,?,no,'18 and more',?,?
+?,?,1,1,1,1,1,1,1,0,24,m,Asian,no,no,India,no,'18 and more',Self,YES
+1,?,?,1,1,0,0,1,?,1,19,f,'South Asian',no,no,'United Arab Emirates',no,?,Self,NO
+?,?,0,0,?,0,0,0,0,?,22,f,'Middle Eastern ',no,?,?,no,'18 and more',Self,NO
+1,1,?,?,0,0,0,?,0,1,20,f,?,no,?,?,no,'18 and more',Self,NO
+0,1,0,?,?,0,0,?,0,?,?,?,?,no,?,?,no,'18 and more',?,NO
+0,?,?,1,1,0,0,1,0,0,24,?,Others,no,no,'United Arab Emirates',no,'18 and more',Self,?
+0,0,1,?,1,0,?,0,0,1,18,f,?,no,no,'United Arab Emirates',no,?,Self,NO
+1,0,?,1,?,?,?,?,?,1,19,f,'Middle Eastern ',no,no,?,?,'18 and more',Self,YES
+1,0,1,?,0,?,0,?,0,0,?,f,'Middle Eastern ',no,no,'United Arab Emirates',no,'18 and more',Self,NO
+1,?,?,?,0,0,1,1,?,?,31,m,?,?,no,?,no,?,Self,NO
+1,1,?,?,0,0,1,1,?,0,19,m,'Middle Eastern ',no,?,?,no,'18 and more',?,NO
+1,0,0,?,0,0,1,0,1,1,?,f,?,?,no,'United Arab Emirates',no,'18 and more',Self,NO
+1,0,0,0,1,0,1,0,0,1,20,m,'Middle Eastern ',no,no,?,no,?,Self,NO
+?,0,1,0,1,0,1,?,?,1,26,f,'Middle Eastern ',no,?,'United Arab Emirates',no,'18 and more',Self,NO
+0,?,?,0,0,0,?,0,0,0,27,m,'Middle Eastern ',?,no,?,no,'18 and more',Self,NO
+1,0,?,0,0,1,?,?,0,0,?,f,'Middle Eastern ',no,no,?,no,'18 and more',?,NO
+0,?,0,1,0,0,0,0,0,0,29,f,?,no,?,'United Arab Emirates',no,'18 and more',?,NO
+?,1,1,1,0,?,1,0,?,0,?,m,?,no,no,'United Arab Emirates',no,'18 and more',?,NO
+1,0,0,0,?,0,1,?,0,?,?,m,Turkish,no,?,?,no,'18 and more',?,NO
+1,0,1,1,1,?,0,1,1,1,24,m,Asian,?,yes,India,no,?,Self,YES
+1,?,?,1,?,?,1,?,?,0,21,?,?,no,no,?,no,'18 and more',?,NO
+0,0,0,0,1,0,?,0,0,0,?,f,?,?,no,Brazil,yes,?,?,NO
+?,0,1,?,?,0,1,1,1,0,20,m,?,no,?,?,no,'18 and more',?,?
+1,?,?,1,1,1,?,?,?,1,32,f,?,no,no,France,no,'18 and more',Parent,YES
+1,1,?,1,?,1,1,1,1,?,61,m,?,yes,yes,Uruguay,no,'18 and more',?,YES
+1,?,0,?,1,?,0,0,0,?,?,m,?,no,no,Jordan,?,'18 and more',?,?
+1,?,?,1,1,1,0,1,?,0,?,?,White-European,?,no,Italy,no,'18 and more',Self,YES
+1,0,0,0,0,?,?,0,0,?,34,f,?,no,?,?,?,'18 and more',?,?
+0,?,?,1,0,0,0,0,0,0,23,?,'Middle Eastern ',?,no,?,yes,'18 and more',Self,NO
+?,1,?,1,?,0,0,0,?,?,?,f,White-European,?,no,Serbia,no,?,Self,NO
+?,?,0,?,1,?,0,1,?,?,36,f,Others,no,?,Philippines,no,'18 and more',Parent,NO
+1,1,0,0,0,0,?,1,?,1,21,f,?,?,no,Jordan,?,'18 and more',?,NO
+0,1,0,0,0,0,0,1,?,?,23,m,White-European,?,no,?,no,'18 and more',Self,NO
+1,?,?,1,?,?,1,0,0,1,17,m,Black,no,?,'United States',?,?,Relative,NO
+1,0,1,?,0,?,?,0,0,?,22,m,White-European,?,no,Portugal,no,?,Self,NO
+0,1,?,1,?,?,?,0,?,1,33,?,White-European,no,yes,?,no,?,Relative,NO
+?,?,?,1,?,0,?,1,0,1,23,f,Asian,no,?,?,no,'18 and more',Self,YES
+0,?,?,?,1,1,0,1,0,1,?,?,White-European,no,?,Sweden,no,'18 and more',Self,?
+1,0,0,0,?,0,?,1,?,1,21,?,?,?,yes,Australia,no,'18 and more',Self,NO
+1,0,?,?,1,?,1,1,1,1,20,f,White-European,no,no,Austria,?,'18 and more',Self,YES
+1,0,?,0,0,?,0,1,0,0,29,m,White-European,?,no,?,no,?,'Health care professional',NO
+1,1,1,1,1,?,1,0,?,1,59,m,White-European,no,?,?,no,'18 and more',Self,YES
+?,?,1,0,0,0,?,1,?,1,18,?,White-European,no,no,?,no,'18 and more',Self,NO
+1,?,0,?,?,0,0,?,?,0,19,f,?,?,no,?,?,'18 and more',?,NO
+?,?,1,1,0,0,0,?,0,0,?,m,?,no,?,'United Arab Emirates',?,?,Self,?
+?,1,1,1,1,0,0,?,?,?,36,f,White-European,no,?,Italy,no,'18 and more',?,?
+?,0,1,1,1,0,?,?,0,1,?,f,?,yes,?,Jordan,?,'18 and more',?,NO
+1,1,0,0,0,0,1,0,?,?,17,f,Black,?,?,'United Arab Emirates',no,'18 and more',?,NO
+1,0,0,?,0,?,?,?,0,1,?,m,White-European,yes,no,'United Kingdom',no,'18 and more',Self,NO
+1,1,0,1,1,0,?,0,0,0,?,m,'Middle Eastern ',?,no,'United Arab Emirates',no,?,Self,NO
+?,0,?,0,?,0,1,?,0,0,30,?,Asian,?,no,Philippines,?,'18 and more',?,?
+0,?,?,1,?,1,0,1,1,1,18,m,'Middle Eastern ',yes,?,?,no,'18 and more',Self,YES
+1,?,1,?,1,0,0,?,0,?,27,?,?,no,no,Ecuador,no,'18 and more',Self,?
+0,0,0,?,0,0,0,?,?,?,52,?,White-European,?,no,?,no,?,Self,NO
+0,0,0,0,0,?,?,1,?,?,?,f,Asian,?,no,'Viet Nam',no,'18 and more',?,NO
+?,1,1,1,1,1,?,?,1,?,?,f,Others,?,no,Afghanistan,no,?,?,NO
+0,0,0,1,0,0,?,0,?,1,29,f,?,no,no,'United Kingdom',?,'18 and more',Self,?
+1,1,0,1,1,?,1,1,0,1,29,?,White-European,yes,?,'United States',?,'18 and more',Self,YES
+?,0,0,?,0,1,0,0,0,?,?,m,?,no,yes,Netherlands,no,?,Self,NO
+?,0,1,?,0,?,1,1,1,1,?,m,White-European,no,?,Netherlands,no,'18 and more',Relative,?
+?,0,1,1,0,1,?,?,?,1,?,m,White-European,?,no,Netherlands,?,'18 and more',Relative,NO
+1,?,1,?,1,1,1,1,1,?,?,?,Asian,no,?,'United States',no,'18 and more',Self,YES
+0,?,0,?,0,?,0,1,0,?,?,f,Asian,yes,no,Malaysia,?,'18 and more',Self,NO
+0,?,0,0,0,?,0,1,?,0,23,?,?,no,no,India,no,'18 and more',Self,?
+?,?,1,?,?,?,1,1,?,0,25,?,Latino,no,?,'United Kingdom',no,'18 and more',Self,YES
+1,0,1,1,?,?,0,?,0,?,?,f,'South Asian',no,no,'New Zealand',no,?,?,NO
+1,?,0,?,0,0,0,?,0,1,29,m,Asian,?,no,India,?,'18 and more',Self,NO
+?,0,?,1,1,0,1,0,0,?,27,f,?,?,no,'Sri Lanka',?,?,?,NO
+1,?,0,0,0,1,0,1,?,?,?,f,Asian,no,?,India,?,?,Self,NO
+0,0,?,0,0,?,?,?,0,0,43,?,?,no,no,India,no,'18 and more',?,?
+1,?,?,?,0,0,0,?,?,?,?,f,?,no,no,?,no,'18 and more',Self,NO
+1,0,0,0,?,0,0,1,0,?,?,f,?,?,no,?,no,'18 and more',Self,NO
+?,?,?,0,?,0,0,?,0,?,23,?,White-European,?,?,India,no,?,Self,NO
+?,0,0,0,?,0,1,1,0,0,29,f,?,no,no,'Sri Lanka',no,?,Self,NO
+0,0,0,0,0,0,0,1,0,1,37,m,White-European,no,no,?,no,'18 and more',Parent,NO
+?,?,0,?,?,0,?,?,0,1,28,f,White-European,no,?,?,no,'18 and more',Self,?
+1,?,1,1,0,0,1,1,0,0,?,m,'South Asian',no,no,'United States',no,'18 and more',?,NO
+1,?,1,1,0,?,?,1,0,?,25,?,Others,no,no,?,?,'18 and more',Self,?
+0,1,0,0,?,?,0,1,?,?,21,m,?,?,no,Jordan,?,'18 and more',?,NO
+1,1,1,1,1,?,?,?,1,1,43,m,White-European,no,no,?,no,'18 and more',Self,YES
+1,1,?,1,1,?,?,?,1,1,30,f,?,no,no,'United States',?,?,Self,?
+0,?,1,0,?,0,1,?,0,1,?,?,Black,no,?,?,no,'18 and more',Self,NO
+1,1,1,?,?,?,0,1,?,?,18,?,White-European,no,no,Romania,?,?,?,?
+1,1,1,1,0,0,1,1,1,?,?,?,Others,no,no,?,?,'18 and more',Self,?
+0,0,0,?,0,0,?,0,0,0,?,f,White-European,no,no,?,?,'18 and more',Self,NO
+1,?,?,0,1,0,1,?,0,1,?,m,Latino,no,no,Mexico,no,'18 and more',Self,NO
+1,?,?,1,1,1,1,?,1,1,33,m,Latino,no,?,?,no,'18 and more',Self,?
+1,1,1,1,0,?,1,?,0,1,26,m,?,?,no,?,no,?,Self,?
+1,0,?,1,?,0,?,?,0,0,61,f,White-European,no,no,'United States',?,'18 and more',?,NO
+0,?,?,1,0,0,?,1,0,?,46,m,Others,no,no,'Viet Nam',?,'18 and more',?,NO
+?,1,1,?,1,?,?,0,?,1,33,m,?,no,?,India,no,'18 and more',Self,?
+?,?,?,1,1,?,1,1,0,?,38,?,Black,?,?,Canada,?,?,Self,YES
+1,1,0,0,0,0,0,1,0,?,?,m,?,no,?,?,no,?,Parent,?
+0,1,1,?,?,0,0,0,1,0,48,?,Black,no,?,?,no,'18 and more',Parent,?
+1,1,0,1,1,1,0,1,1,1,?,f,?,yes,no,Mexico,no,'18 and more',?,YES
+?,?,0,0,?,0,1,1,?,0,?,m,White-European,no,?,?,no,'18 and more',Self,NO
+1,0,1,?,?,0,0,?,0,1,23,f,White-European,no,yes,?,no,'18 and more',?,?
+?,0,1,1,1,?,?,?,1,1,24,?,?,?,yes,'United Kingdom',no,'18 and more',?,YES
+1,0,1,?,?,0,?,?,0,?,41,m,?,yes,?,'United Kingdom',no,?,?,NO
+1,0,?,0,0,0,?,0,?,1,41,m,Asian,no,?,'United Kingdom',?,'18 and more',Self,?
+0,?,?,0,?,?,0,1,0,0,27,?,White-European,no,?,Belgium,no,'18 and more',Self,NO
+1,1,1,1,1,?,1,1,?,1,46,?,?,yes,yes,'United Kingdom',no,'18 and more',?,YES
+0,1,0,?,0,0,?,0,?,1,40,?,White-European,yes,no,'United States',?,?,Self,?
+0,1,?,?,1,1,1,1,0,1,22,f,White-European,?,no,'United States',no,'18 and more',Self,YES
+1,?,?,?,1,?,1,?,1,1,42,?,?,no,?,'United Kingdom',no,?,Self,YES
+1,1,1,0,?,0,?,?,0,1,18,?,?,no,no,'Viet Nam',no,?,?,?
+1,0,1,?,?,0,?,0,0,0,?,f,White-European,no,?,'United Kingdom',no,'18 and more',Self,?
+1,?,1,1,1,0,1,1,1,1,30,f,White-European,no,?,?,no,'18 and more',Self,?
+1,?,?,?,?,1,0,?,1,?,42,?,White-European,?,no,Australia,no,?,Self,YES
+?,?,?,?,?,?,1,0,0,0,?,f,White-European,?,yes,?,no,'18 and more',Parent,?
+1,?,1,1,1,0,1,?,1,1,?,?,?,?,no,AmericanSamoa,?,?,Self,YES
+0,1,0,0,0,0,0,0,1,?,?,?,?,no,?,'New Zealand',no,?,?,?
+0,0,1,1,0,0,0,?,?,?,38,m,?,no,no,?,?,'18 and more',?,?
+1,?,?,1,1,0,?,1,?,1,26,f,White-European,no,yes,?,no,?,Self,?
+1,?,1,?,1,?,?,1,0,1,?,?,White-European,no,no,?,no,'18 and more',?,YES
+1,1,1,?,1,0,1,?,?,0,47,f,White-European,yes,yes,'United States',no,'18 and more',Self,?
+?,1,0,1,?,1,?,0,?,1,21,?,Black,yes,yes,?,?,'18 and more',Parent,NO
+1,?,?,1,0,1,?,?,1,1,37,m,White-European,?,no,'United Kingdom',no,'18 and more',?,?
+1,0,?,0,0,0,1,1,0,1,?,f,Others,?,no,?,no,'18 and more',Self,NO
+0,0,?,1,?,?,?,1,0,1,32,?,Asian,no,no,'United Arab Emirates',?,?,?,?
+0,?,0,0,?,0,?,1,0,1,26,f,?,no,?,Iran,no,?,?,NO
+1,1,?,?,1,?,1,1,1,1,46,?,White-European,yes,yes,Australia,no,'18 and more',?,YES
+0,1,?,0,0,0,0,?,0,0,29,m,Black,no,no,France,no,?,?,?
+1,0,0,0,1,0,?,0,0,0,?,f,Black,?,?,?,?,'18 and more',Self,?
+?,1,0,0,0,0,1,1,?,0,32,f,Latino,no,no,Bolivia,no,?,Relative,NO
+0,1,1,1,?,0,?,0,0,1,?,?,White-European,?,no,?,?,?,Self,?
+0,?,1,?,1,1,1,?,?,1,22,m,White-European,?,no,'United Kingdom',no,'18 and more',Self,YES
+0,0,0,?,?,?,?,0,0,?,19,f,?,no,no,?,no,?,?,NO
+?,1,0,?,?,?,?,0,0,1,?,m,?,no,?,Iran,no,'18 and more',?,NO
+0,1,0,?,1,?,0,?,0,0,?,?,?,?,?,?,?,?,?,NO
+?,1,?,0,1,?,0,0,1,1,52,m,?,no,no,Iran,?,'18 and more',?,NO
+1,?,1,?,0,1,0,1,?,0,32,f,?,?,no,'United States',no,'18 and more',?,NO
+0,?,1,1,?,?,0,0,0,?,24,m,White-European,?,?,?,?,'18 and more',Relative,NO
+?,?,1,1,1,1,0,1,1,?,24,m,White-European,no,no,'United States',no,?,Relative,?
+0,1,0,0,0,0,0,0,?,?,49,?,'Middle Eastern ',yes,no,?,no,'18 and more',Parent,?
+0,1,1,1,1,1,1,1,?,?,30,f,Asian,?,no,Malaysia,no,'18 and more',Self,YES
+?,1,1,?,1,1,1,?,1,1,?,f,Asian,no,?,?,?,'18 and more',Self,?
+1,0,1,?,1,1,1,1,?,1,?,f,White-European,yes,no,'United Kingdom',no,'18 and more',Self,YES
+1,0,?,1,1,?,?,0,0,1,35,?,White-European,?,?,'United Kingdom',no,'18 and more',?,YES
+1,0,?,1,0,0,?,?,0,1,37,?,White-European,no,yes,?,no,?,Self,NO
+?,1,1,1,0,?,0,1,0,1,43,m,White-European,no,no,'United Kingdom',?,'18 and more',Self,NO
+1,1,1,1,?,0,?,0,0,?,52,?,White-European,no,no,'United Kingdom',no,?,Self,?
+1,1,1,?,1,?,?,1,1,?,44,m,White-European,no,yes,'United Kingdom',no,'18 and more',Self,YES
+?,1,0,0,0,?,0,0,0,0,?,f,White-European,no,yes,'United Kingdom',no,'18 and more',Self,?
+1,0,0,0,1,?,0,0,0,1,42,f,White-European,no,yes,Australia,no,'18 and more',Self,NO
+?,0,1,?,0,0,0,0,0,0,?,m,?,?,?,Aruba,?,'18 and more',?,NO
+1,?,?,0,1,0,1,?,1,?,18,m,'Middle Eastern ',no,?,'New Zealand',no,'18 and more',?,YES
+1,1,?,1,1,?,?,1,?,1,38,m,White-European,no,no,?,no,'18 and more',?,YES
+1,0,0,1,?,0,0,1,0,0,24,?,?,?,?,Mexico,no,?,?,?
+?,?,0,0,0,0,0,1,?,0,?,?,?,?,no,Jordan,no,'18 and more',?,?
+1,1,0,1,1,0,0,0,?,0,29,m,Turkish,no,?,'United States',no,?,?,?
+?,1,?,1,?,1,1,1,0,1,?,f,?,no,no,'United States',no,'18 and more',?,?
+?,1,1,1,1,?,?,0,?,?,?,f,?,yes,no,?,no,'18 and more',?,?
+?,1,1,1,?,?,?,0,1,?,39,?,White-European,?,yes,?,no,'18 and more',Self,YES
+1,0,0,?,1,?,?,1,1,1,17,m,Black,no,no,?,?,?,Self,YES
+0,1,0,1,0,1,?,0,1,1,19,f,'Middle Eastern ',no,no,Iceland,?,'18 and more',?,?
+?,0,0,0,?,0,1,1,1,0,18,?,White-European,no,no,?,?,?,Parent,NO
+0,1,0,0,1,1,?,?,1,0,19,m,?,no,no,Kazakhstan,?,?,?,NO
+?,1,?,0,0,0,0,1,?,0,28,f,Turkish,?,?,Turkey,no,?,?,NO
+0,?,0,?,0,?,0,0,0,1,29,m,Asian,?,?,'New Zealand',no,'18 and more',Self,NO
+1,1,?,0,?,0,1,1,0,?,?,m,White-European,no,no,Australia,?,?,Self,NO
+1,1,1,1,1,?,?,1,?,1,27,f,White-European,?,yes,Netherlands,?,'18 and more',Self,YES
+1,?,1,?,?,0,0,?,0,0,?,f,?,no,no,'United Kingdom',no,'18 and more',?,?
+1,1,?,1,?,?,0,?,0,?,31,m,White-European,?,no,Australia,no,?,?,NO
+1,0,0,0,0,?,?,1,?,?,47,m,?,no,?,?,?,'18 and more',?,NO
+1,?,?,1,0,?,0,1,0,?,?,m,?,no,no,Jordan,no,'18 and more',?,NO
+?,1,1,1,?,1,1,1,?,1,44,m,White-European,no,yes,'United Kingdom',no,'18 and more',?,YES
+1,?,0,0,?,?,1,1,0,0,?,f,White-European,no,no,'United States',?,?,Self,NO
+1,?,0,?,1,0,?,1,0,0,25,?,White-European,no,?,'United States',no,'18 and more',Self,NO
+1,?,?,0,1,?,?,1,1,1,?,m,White-European,no,no,'United Kingdom',no,'18 and more',?,YES
+?,1,1,1,?,0,?,1,1,?,43,m,White-European,?,no,?,no,'18 and more',?,YES
+?,1,1,1,1,0,0,?,1,1,?,f,White-European,no,yes,'United Kingdom',no,'18 and more',Self,?
+?,1,0,0,0,0,0,1,0,0,30,f,Asian,?,yes,'United States',?,?,Self,?
+0,?,1,1,0,0,0,?,?,0,?,m,Black,?,?,?,no,'18 and more',Self,?
+?,1,0,?,1,0,?,0,0,1,40,f,?,?,no,'United Kingdom',no,'18 and more',Parent,?
+1,1,0,0,1,1,0,1,1,0,40,f,Black,yes,no,'United Kingdom',no,?,Relative,NO
+1,?,0,1,1,1,0,?,?,0,40,f,Black,yes,?,?,no,'18 and more',Relative,?
+1,?,1,1,1,0,0,?,0,1,?,m,Others,no,no,'United States',no,?,Self,YES
+1,0,1,?,0,0,1,0,0,1,47,f,?,no,no,'United Kingdom',no,'18 and more',Self,NO
+1,1,1,?,1,?,1,?,?,?,21,m,Black,no,no,Brazil,no,'18 and more',Self,?
+1,1,1,?,1,1,0,?,1,1,?,m,Black,no,no,Brazil,no,'18 and more',Self,?
+1,0,1,?,1,?,1,?,1,?,31,f,?,?,no,'New Zealand',no,'18 and more',?,YES
+1,1,1,0,0,0,0,?,0,?,?,f,Asian,no,no,'New Zealand',?,'18 and more',Self,NO
+?,1,1,1,0,?,?,?,1,0,29,f,Asian,?,?,?,?,?,Self,NO
+0,1,1,1,?,0,1,0,?,0,22,m,?,?,?,Afghanistan,?,'18 and more',?,NO
+1,1,1,?,1,1,?,1,?,1,?,m,White-European,yes,?,?,?,'18 and more',?,?
+1,?,0,0,0,0,0,0,0,?,23,m,?,no,no,?,no,?,?,NO
+1,0,0,0,1,0,0,0,1,1,?,?,Asian,no,no,India,no,'18 and more',Self,NO
+1,1,0,0,?,0,0,1,?,0,22,m,?,no,no,India,no,'18 and more',Self,?
+1,?,0,0,?,0,0,1,?,1,22,m,Asian,no,no,?,?,'18 and more',Self,NO
+?,0,0,0,1,?,1,1,0,1,?,m,Asian,no,no,?,no,?,Self,NO
+?,0,0,0,?,0,0,1,0,?,26,f,'South Asian',no,no,India,no,'18 and more',?,NO
+1,0,1,1,0,0,0,?,1,?,33,f,Asian,no,?,India,no,'18 and more',?,NO
+1,0,0,0,0,0,?,1,?,0,23,m,Asian,no,no,India,no,'18 and more',Self,NO
+?,0,1,0,0,0,?,1,?,0,?,f,Asian,no,no,India,no,'18 and more',?,NO
+1,0,1,0,0,?,0,?,0,0,26,f,Asian,no,no,India,no,'18 and more',Self,NO
+?,0,?,0,?,0,0,1,?,0,29,f,Asian,no,no,'New Zealand',no,'18 and more',?,NO
+?,0,?,0,?,0,1,0,0,1,35,?,Asian,no,?,India,?,'18 and more',Self,NO
+1,?,0,0,?,1,0,1,0,0,?,f,'South Asian',no,?,India,?,'18 and more',Self,NO
+1,0,0,0,0,0,1,1,0,0,25,?,Asian,?,?,'Sri Lanka',no,?,Self,?
+0,?,?,0,0,0,?,1,0,0,28,f,Asian,?,?,India,no,'18 and more',Self,?
+?,0,0,0,0,0,?,?,0,?,33,m,White-European,?,no,Germany,no,'18 and more',Self,NO
+?,0,0,?,0,?,1,1,0,0,?,m,?,no,no,India,?,'18 and more',Self,NO
+0,0,1,0,?,?,?,1,0,1,?,m,Asian,no,no,India,no,'18 and more',?,NO
+1,?,0,0,1,0,1,1,0,?,?,m,Asian,?,?,India,?,'18 and more',Self,NO
+1,?,1,?,?,?,?,0,0,1,27,f,'South Asian',no,no,India,?,'18 and more',Self,NO
+1,?,0,0,0,0,?,0,0,?,22,m,'South Asian',?,no,?,?,'18 and more',Self,?
+1,1,0,1,?,?,0,1,0,1,?,f,?,?,no,India,?,'18 and more',Self,NO
+1,0,1,1,?,?,?,1,0,?,27,f,?,?,no,?,no,'18 and more',Self,NO
+1,0,0,0,1,0,1,0,0,0,23,?,'South Asian',no,no,India,no,'18 and more',Self,?
+0,?,?,?,1,0,?,?,0,1,22,m,?,no,no,India,?,'18 and more',Self,NO
+0,1,0,0,0,0,0,0,0,1,23,f,'South Asian',no,no,?,no,'18 and more',Self,NO
+1,0,0,1,0,0,0,1,0,1,30,?,?,no,no,India,no,'18 and more',?,NO
+?,1,?,0,1,0,1,?,0,0,33,m,Asian,no,?,India,?,?,Self,?
+1,0,?,?,1,0,?,1,?,0,24,f,'South Asian',no,no,?,no,'18 and more',Self,YES
+?,0,?,0,?,0,1,1,0,0,22,f,Asian,no,?,?,no,?,Self,NO
+1,0,0,1,?,0,1,1,1,?,?,m,Asian,no,?,'New Zealand',no,'18 and more',Self,YES
+1,0,0,?,0,?,?,1,0,1,?,?,'South Asian',no,?,India,no,?,Self,NO
+1,0,1,0,1,0,1,1,0,1,?,f,?,no,no,?,no,?,?,?
+?,0,1,?,0,0,?,1,?,0,?,m,Asian,yes,no,?,?,'18 and more',Self,NO
+?,?,?,0,?,?,1,?,?,?,23,m,?,no,no,?,no,'18 and more',?,NO
+1,?,0,0,1,0,1,?,0,1,23,f,Others,no,no,?,?,?,Self,NO
+1,0,0,0,1,0,?,?,1,1,23,?,?,?,no,?,no,?,Self,NO
+1,?,?,1,?,?,1,1,0,0,?,m,Asian,no,no,'Sri Lanka',no,'18 and more',?,NO
+0,0,?,0,0,0,?,0,0,?,27,?,?,?,no,'Sri Lanka',no,'18 and more',Self,NO
+?,0,?,0,?,0,0,?,0,?,?,?,Asian,no,?,India,?,'18 and more',?,?
+?,1,?,0,1,?,0,?,1,1,25,?,'Middle Eastern ',no,no,?,?,'18 and more',Self,NO
+?,0,1,?,1,0,?,1,1,1,22,m,Black,?,no,Nepal,no,'18 and more',Self,YES
+0,?,1,0,0,?,1,0,0,1,?,m,White-European,?,no,'United Kingdom',no,'18 and more',?,?
+0,0,0,0,0,0,0,0,?,0,27,f,?,no,no,Russia,no,'18 and more',?,NO
+1,1,1,?,1,?,?,1,?,1,21,f,White-European,no,no,?,no,'18 and more',?,YES
+1,?,0,?,1,?,0,1,0,?,18,m,Black,no,?,'United States',?,'18 and more',Self,?
+?,0,0,0,?,1,1,1,1,1,49,m,Black,no,no,Mexico,no,?,?,YES
+1,?,1,0,0,?,0,1,?,0,18,m,Asian,no,no,?,?,'18 and more',?,NO
+1,?,1,?,1,0,?,1,1,?,29,?,?,no,?,'United States',no,?,?,YES
+0,?,0,0,?,0,0,?,?,0,?,f,?,no,no,'New Zealand',no,'18 and more',?,NO
+1,0,0,0,?,0,0,0,0,0,37,f,'Middle Eastern ',no,no,?,no,'18 and more',Parent,NO
+?,0,1,?,1,0,0,1,?,1,17,m,?,yes,no,'New Zealand',?,?,Parent,NO
+1,0,1,1,0,?,?,1,1,?,?,?,?,no,?,?,?,'18 and more',?,YES
+1,1,?,?,?,0,?,?,0,?,38,?,'Middle Eastern ',?,no,Jordan,no,?,?,?
+1,0,1,?,0,1,0,1,?,?,?,m,?,yes,?,?,no,?,Parent,NO
+?,?,1,1,1,0,?,0,0,0,?,f,'Middle Eastern ',?,no,'United Arab Emirates',?,?,Self,NO
+0,?,1,1,0,0,0,?,?,?,33,m,'Middle Eastern ',yes,no,'United Arab Emirates',yes,'18 and more',Self,NO
+1,?,0,?,0,0,0,?,0,0,?,f,?,?,?,?,no,'18 and more',Self,NO
+1,0,0,0,0,?,1,0,0,1,30,m,?,yes,no,Jordan,no,'18 and more',?,NO
+0,0,0,0,0,0,0,0,0,?,33,f,?,no,?,?,no,?,?,NO
+?,?,1,?,1,1,?,?,1,?,30,?,White-European,?,?,Canada,no,'18 and more',?,YES
+?,?,?,?,1,0,1,1,1,?,?,m,?,no,no,'United States',?,'18 and more',Self,?
+1,0,0,1,1,?,1,0,0,?,38,?,?,no,yes,'United Kingdom',no,'18 and more',?,NO
+1,0,0,0,?,0,?,0,1,?,22,m,Asian,no,no,India,no,'18 and more',?,NO
+1,1,?,?,?,?,?,?,1,0,?,m,others,no,?,'United States',no,'18 and more',Self,NO
+0,?,1,?,?,0,1,0,?,0,43,m,?,no,no,Azerbaijan,?,?,?,?
+?,?,1,1,1,?,?,?,1,?,44,m,?,no,no,Pakistan,no,'18 and more',?,YES
+?,1,?,0,1,1,?,1,1,?,20,f,White-European,?,no,France,no,?,?,?
+1,1,?,1,?,1,0,1,1,?,?,f,Others,yes,yes,?,?,'18 and more',Self,?
+1,0,0,1,1,?,0,0,?,0,25,?,White-European,no,no,Italy,?,'18 and more',Self,?
+1,0,?,0,0,0,1,1,0,1,28,m,White-European,no,no,Australia,no,'18 and more',Self,NO
+0,0,0,0,0,?,1,1,?,1,17,?,White-European,no,no,Canada,?,'18 and more',Self,NO
+1,1,?,?,?,1,1,0,1,1,34,m,White-European,no,no,?,no,'18 and more',?,?
+0,?,0,0,?,0,0,1,0,0,56,m,?,no,no,?,no,?,?,NO
+0,0,1,0,0,?,1,1,0,0,50,f,?,no,no,'New Zealand',?,'18 and more',Parent,NO
+1,?,0,0,0,?,1,1,0,1,38,m,White-European,no,no,'United States',no,'18 and more',Self,NO
+1,1,1,1,1,1,?,?,?,1,?,m,White-European,no,no,'United States',no,'18 and more',Self,YES
+1,1,1,1,?,0,1,1,?,?,?,?,Others,?,no,'United States',no,'18 and more',Self,YES
+1,1,?,1,1,0,?,?,0,1,21,m,?,no,no,'United States',no,?,?,YES
+1,1,1,1,?,?,?,1,0,?,21,m,White-European,?,?,?,?,'18 and more',Self,?
+1,1,1,0,1,0,1,1,1,1,31,m,Latino,?,no,Mexico,no,?,Self,YES
+1,?,?,0,1,?,0,1,0,1,27,f,White-European,yes,no,'Czech Republic',no,'18 and more',Self,NO
+1,1,?,1,0,0,0,0,1,?,?,f,White-European,yes,?,?,no,'18 and more',Self,NO
+1,1,0,0,?,0,?,?,0,1,35,?,White-European,yes,?,'United Kingdom',no,?,Parent,NO
+1,0,?,0,0,0,1,0,?,1,?,?,Black,no,no,Ethiopia,?,'18 and more','Health care professional',NO
+1,1,?,?,1,0,?,1,?,?,43,f,Black,no,no,'United States',?,'18 and more',Self,YES
+1,1,?,?,?,1,1,1,?,?,?,?,?,no,yes,?,no,?,Self,YES
+?,1,1,1,1,?,1,1,1,1,40,m,White-European,?,yes,'United Kingdom',?,'18 and more',?,YES
+1,1,?,1,1,?,1,1,1,1,49,f,Hispanic,?,?,'United States',?,'18 and more',Self,?
+1,1,?,?,0,?,0,1,0,0,?,m,?,?,no,?,?,'18 and more',?,NO
+?,?,?,0,0,?,0,1,1,0,?,f,White-European,?,yes,?,no,'18 and more',Self,NO
+1,0,1,0,0,0,?,1,0,?,53,m,Hispanic,no,no,'United States',no,'18 and more',Relative,NO
+?,0,1,1,1,0,0,1,1,1,?,m,?,?,yes,Belgium,no,?,?,YES
+1,?,0,?,1,0,1,1,0,1,28,m,White-European,?,no,'United States',no,?,Self,NO
+?,1,1,?,1,1,1,1,?,1,28,m,?,no,no,'United States',no,'18 and more',Self,YES
+1,?,1,1,1,1,?,0,1,1,?,m,?,no,no,?,?,?,Self,YES
+1,0,0,?,1,1,1,?,?,?,39,f,White-European,no,no,Canada,no,'18 and more',?,YES
+?,0,?,0,1,0,0,0,0,?,31,f,Asian,yes,no,India,no,'18 and more',Self,NO
+?,0,?,1,0,0,?,1,0,?,24,m,Black,no,no,'United States',no,'18 and more',?,NO
+1,?,1,0,1,1,1,1,?,1,28,m,?,?,no,?,no,'18 and more',Self,YES
+1,0,0,1,?,0,?,1,0,1,31,f,White-European,?,?,'United Kingdom',no,'18 and more',Self,?
+1,?,1,1,1,0,0,1,0,1,27,?,White-European,yes,no,'United States',no,?,Self,YES
+?,0,?,?,0,0,1,1,0,0,?,m,?,no,no,Brazil,yes,'18 and more',Parent,?
+1,1,1,1,1,1,0,?,1,1,31,?,?,no,?,Australia,?,?,Self,YES
+1,1,1,1,1,?,?,?,0,1,46,f,Asian,?,no,Philippines,no,?,?,?
+1,1,1,?,1,1,1,?,1,1,27,f,?,no,no,Australia,?,?,Self,YES
+?,?,?,1,?,0,1,1,1,?,25,f,White-European,no,no,Russia,no,'18 and more',Self,YES
+1,?,0,0,0,0,0,1,0,1,?,?,Hispanic,no,no,Mexico,no,'18 and more',?,NO
+1,0,1,?,1,0,1,1,0,1,?,f,?,no,no,?,no,'18 and more',?,?
+?,0,0,1,1,0,1,?,1,?,35,m,?,?,?,Pakistan,?,?,?,NO
+1,?,1,1,1,?,1,?,?,1,?,?,White-European,no,no,?,no,'18 and more',Self,YES

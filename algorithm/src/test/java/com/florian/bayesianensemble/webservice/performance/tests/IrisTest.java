@@ -2,6 +2,7 @@ package com.florian.bayesianensemble.webservice.performance.tests;
 
 import com.florian.bayesianensemble.webservice.performance.base.Performance;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceTestBase;
+import com.florian.bayesianensemble.webservice.performance.base.PerformanceThreeWayTestBase;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +14,39 @@ public class IrisTest {
     private static final String TARGET = "label";
     private static final int FOLDS = 10;
     private static final int ROUNDS = 10;
+
+    public static Performance testPerformanceAutomaticUnknown(double treshold) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.automaticSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.3);
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayAutomaticUnknown(double treshold) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.automaticSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.3);
+        return p;
+    }
+
+    public static Performance testPerformanceManualUnknown(double treshold) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.manualSplit(leftManual(), rightManual());
+        if (treshold == 0.05) {
+            assertEquals(p.getWeightedAUCEnsemble(), 0.9, 0.1);
+        } else if (treshold == 0.1) {
+            assertEquals(p.getWeightedAUCEnsemble(), 0.7, 0.1);
+        } else if (treshold == 0.3) {
+            assertEquals(p.getWeightedAUCEnsemble(), 0.6, 0.1);
+        }
+        return p;
+    }
 
     public static Performance testPerformanceAutomatic() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
