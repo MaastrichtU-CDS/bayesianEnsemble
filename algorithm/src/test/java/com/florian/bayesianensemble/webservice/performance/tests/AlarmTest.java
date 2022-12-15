@@ -2,6 +2,7 @@ package com.florian.bayesianensemble.webservice.performance.tests;
 
 import com.florian.bayesianensemble.webservice.performance.base.Performance;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceTestBase;
+import com.florian.bayesianensemble.webservice.performance.base.PerformanceThreeWayTestBase;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +19,13 @@ public class AlarmTest {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
         assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.15);
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayAutomatic() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.automaticSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.1);
         return p;
     }
 

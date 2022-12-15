@@ -2,6 +2,7 @@ package com.florian.bayesianensemble.webservice.performance.tests;
 
 import com.florian.bayesianensemble.webservice.performance.base.Performance;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceTestBase;
+import com.florian.bayesianensemble.webservice.performance.base.PerformanceThreeWayTestBase;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,40 @@ public class AutismTest {
         Performance p = test.manualSplit(leftManual(), rightManual());
         assertEquals(p.getWeightedAUCEnsemble(), 0.90, 0.1);
         return p;
+    }
+
+    public static Performance testPerformanceThreeWayAutomatic() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.automaticSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.15);
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayManual() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.manualSplit(leftManual(), rightThreeWayManual(), centerManual());
+        assertEquals(p.getWeightedAUCEnsemble(), 0.90, 0.1);
+        return p;
+    }
+
+    private static Set<String> rightThreeWayManual() {
+        Set<String> right = new HashSet<>();
+        right.add("age");
+        right.add("gender");
+        right.add("ethnicity");
+        right.add("jundice");
+        right.add("austim");
+        return right;
+    }
+
+    private static Set<String> centerManual() {
+        Set<String> center = new HashSet<>();
+        center.add("contry_of_res");
+        center.add("used_app_before");
+        center.add("age_desc");
+        center.add("relation");
+        center.add("Class/ASD");
+        return center;
     }
 
     private static Set<String> leftManual() {

@@ -8,11 +8,13 @@ public class Performance {
     private Map<String, Double> rightAuc = new HashMap<>();
     private Map<String, Double> ensembleAuc = new HashMap<>();
     private Map<String, Double> centralAuc = new HashMap<>();
+    private Map<String, Double> centerAUC = new HashMap<>();
 
 
     private double weightedAUCEnsemble;
     private double weightedAUCLeft;
     private double weightedAUCRight;
+    private double weightedAUCCenter;
     private double weightedAUCCentral;
     private double vertibayesPerformance;
 
@@ -125,12 +127,38 @@ public class Performance {
         this.ensembleAuc = ensembleAuc;
     }
 
+    public Map<String, Double> getCenterAUC() {
+        return centerAUC;
+    }
+
+    public void setCenterAUC(Map<String, Double> centerAUC) {
+        this.centerAUC = centerAUC;
+    }
+
+    public double getWeightedAUCCenter() {
+        return weightedAUCCenter;
+    }
+
+    public void setWeightedAUCCenter(double weightedAUCCenter) {
+        this.weightedAUCCenter = weightedAUCCenter;
+    }
+
     public void addLeftAuc(Map<String, Double> leftAuc) {
         for (String key : leftAuc.keySet()) {
             if (this.leftAuc.get(key) != null) {
                 this.leftAuc.put(key, this.leftAuc.get(key) + leftAuc.get(key));
             } else {
                 this.leftAuc.put(key, leftAuc.get(key));
+            }
+        }
+    }
+
+    public void addCenterAuc(Map<String, Double> secondRightAUC) {
+        for (String key : secondRightAUC.keySet()) {
+            if (this.centerAUC.get(key) != null) {
+                this.centerAUC.put(key, this.centerAUC.get(key) + secondRightAUC.get(key));
+            } else {
+                this.centerAUC.put(key, secondRightAUC.get(key));
             }
         }
     }
@@ -151,6 +179,9 @@ public class Performance {
         }
         for (String k : leftAuc.keySet()) {
             this.leftAuc.put(k, this.leftAuc.get(k) / folds);
+        }
+        for (String k : centerAUC.keySet()) {
+            this.centerAUC.put(k, this.centerAUC.get(k) / folds);
         }
     }
 }

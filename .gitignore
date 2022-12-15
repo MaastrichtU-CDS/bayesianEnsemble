@@ -17,3 +17,5 @@
 /algorithm/resources/Experiments/rightlocal.arff
 /algorithm/resources/Experiments/leftlocal.arff
 /algorithm/validate.arff
+/algorithm/resources/Experiments/center.arff
+/algorithm/resources/Experiments/centerlocal.arff
