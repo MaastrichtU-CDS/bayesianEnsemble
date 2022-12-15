@@ -279,8 +279,8 @@ public class PerformanceTestBase {
                     right.add(data.getData().get(i));
                 }
             }
-            if (left.size() >= 2 && right.size() >= 2) {
-                //check if both slits have at least 1 attribute + ID.
+            if (left.size() > 2 && right.size() > 2) {
+                //check if both slits have at least 2 attribute + ID.
                 valid = true;
             }
         }

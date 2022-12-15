@@ -306,7 +306,7 @@ public class PerformanceThreeWayTestBase {
                 }
             }
             if (left.size() > 2 && right.size() > 2 && center.size() > 2) {
-                //check if both slits have at least 1 attribute + ID.
+                //check if both slits have at least 2 attribute + ID.
                 valid = true;
             }
         }
