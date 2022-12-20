@@ -92,7 +92,7 @@ public class Performance {
     }
 
     public void addVertibayesTime(long vertibayesTime) {
-        this.vertibayesTime = vertibayesTime;
+        this.vertibayesTime += vertibayesTime;
     }
 
     public long getAverageTime() {
