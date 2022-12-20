@@ -77,6 +77,12 @@ public class PerformanceTestBase {
         p.setWeightedAUCRight(weightedAUCRight);
         p.setWeightedAUCLeft(weightedAUCLeft);
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
+
+        long vertibayesTime = System.currentTimeMillis();
+        ExpectationMaximizationResponse res = vertiBayesComparison();
+        p.addVertibayesTime(System.currentTimeMillis() - vertibayesTime);
+        p.addVertibayesPerformance(res.getSvdgAuc());
+
         return p;
     }
 
@@ -101,6 +107,11 @@ public class PerformanceTestBase {
             if (p.getMinTime() == 0 || duration < p.getMinTime()) {
                 p.setMinTime(duration);
             }
+
+            long vertibayesTime = System.currentTimeMillis();
+            ExpectationMaximizationResponse res = vertiBayesComparison();
+            p.addVertibayesTime(System.currentTimeMillis() - vertibayesTime);
+            p.addVertibayesPerformance(res.getSvdgAuc());
 
             weightedAUCEnsemble += e.getWeightedAUC();
             EnsembleResponse left = validateAgainstLocal(LEFT_LOCAL);
@@ -139,10 +150,6 @@ public class PerformanceTestBase {
         p.setWeightedAUCLeft(weightedAUCLeft);
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
 
-        long start = System.currentTimeMillis();
-        ExpectationMaximizationResponse res = vertiBayesComparison();
-        p.setVertibayesTime(System.currentTimeMillis() - start);
-        p.setVertibayesPerformance(res.getSvdgAuc());
         return p;
     }
 

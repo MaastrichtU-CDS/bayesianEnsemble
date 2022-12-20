@@ -13,19 +13,21 @@ public class PerformanceTest {
 
     @Test
     public void testPerformance() throws Exception {
-        printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic(), true);
-        printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual(), false);
+        if (SMALLTEST) {
+            printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic(), true);
+            printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual(), false);
 
-        for (Double treshold : tresholds) {
-            printPerformance("smallIris automatic unknown " + treshold,
-                             SmallIrisTest.testPerformanceAutomaticUnknown(treshold), false);
-            printPerformance("smallIris manual unknown " + treshold,
-                             SmallIrisTest.testPerformanceManualUnknown(treshold), false);
+            for (Double treshold : tresholds) {
+                printPerformance("smallIris automatic unknown " + treshold,
+                                 SmallIrisTest.testPerformanceAutomaticUnknown(treshold), false);
+                printPerformance("smallIris manual unknown " + treshold,
+                                 SmallIrisTest.testPerformanceManualUnknown(treshold), false);
+            }
         }
 
         if (!SMALLTEST) {
             //two-way split
-            printPerformance("Diabetes automatic", DiabetesTest.testPerformanceAutomatic(), false);
+            printPerformance("Diabetes automatic", DiabetesTest.testPerformanceAutomatic(), true);
             printPerformance("Iris automatic", IrisTest.testPerformanceAutomatic(), false);
             printPerformance("Iris manual", IrisTest.testPerformanceManual(), false);
             printPerformance("Autism automatic", AutismTest.testPerformanceAutomatic(), false);
@@ -50,7 +52,7 @@ public class PerformanceTest {
             for (Double treshold : tresholds) {
                 //two-way split
                 printPerformance("Diabetes automatic unknown " + treshold,
-                                 DiabetesTest.testPerformanceAutomaticUnknown(treshold), false);
+                                 DiabetesTest.testPerformanceAutomaticUnknown(treshold), true);
                 printPerformance("Iris automatic unknown " + treshold,
                                  IrisTest.testPerformanceAutomaticUnknown(treshold), false);
                 printPerformance("Iris manual unknown " + treshold, IrisTest.testPerformanceManualUnknown(treshold),

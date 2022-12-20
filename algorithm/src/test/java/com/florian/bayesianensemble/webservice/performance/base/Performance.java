@@ -43,6 +43,10 @@ public class Performance {
         return vertibayesPerformance;
     }
 
+    public void addVertibayesPerformance(double vertibayesPerformance) {
+        this.vertibayesPerformance += vertibayesPerformance;
+    }
+
     public void setVertibayesPerformance(double vertibayesPerformance) {
         this.vertibayesPerformance = vertibayesPerformance;
     }
@@ -84,6 +88,10 @@ public class Performance {
     }
 
     public void setVertibayesTime(long vertibayesTime) {
+        this.vertibayesTime = vertibayesTime;
+    }
+
+    public void addVertibayesTime(long vertibayesTime) {
         this.vertibayesTime = vertibayesTime;
     }
 
@@ -140,7 +148,7 @@ public class Performance {
     }
 
     public void setWeightedAUCCenter(double weightedAUCCenter) {
-        this.weightedAUCCenter = weightedAUCCenter;
+        this.weightedAUCCenter += weightedAUCCenter;
     }
 
     public void addLeftAuc(Map<String, Double> leftAuc) {
@@ -183,5 +191,7 @@ public class Performance {
         for (String k : centerAUC.keySet()) {
             this.centerAUC.put(k, this.centerAUC.get(k) / folds);
         }
+        this.vertibayesPerformance /= folds;
+        this.vertibayesTime /= folds;
     }
 }
