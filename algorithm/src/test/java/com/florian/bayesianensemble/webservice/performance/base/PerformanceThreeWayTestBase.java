@@ -293,6 +293,7 @@ public class PerformanceThreeWayTestBase {
         while (!valid) {
             left = new ArrayList<>();
             right = new ArrayList<>();
+            center = new ArrayList<>();
             for (int i = 0; i < data.getData().size(); i++) {
                 if (i == data.getIdColumn()) {
                     left.add(0, data.getData().get(i));
