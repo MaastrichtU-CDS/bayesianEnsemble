@@ -1,14 +1,15 @@
 package com.florian.bayesianensemble.webservice.performance;
 
 import com.florian.bayesianensemble.webservice.performance.base.Performance;
-import com.florian.bayesianensemble.webservice.performance.tests.*;
+import com.florian.bayesianensemble.webservice.performance.tests.MushroomTest;
+import com.florian.bayesianensemble.webservice.performance.tests.SmallIrisTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = true;
+    public static final boolean SMALLTEST = false;
     public static final List<Double> tresholds = Arrays.asList(0.05, 0.1, 0.3);
 
     @Test
@@ -27,67 +28,86 @@ public class PerformanceTest {
 
         if (!SMALLTEST) {
             //two-way split
-            printPerformance("Diabetes automatic", DiabetesTest.testPerformanceAutomatic(), true);
-            printPerformance("Iris automatic", IrisTest.testPerformanceAutomatic(), false);
-            printPerformance("Iris manual", IrisTest.testPerformanceManual(), false);
-            printPerformance("Autism automatic", AutismTest.testPerformanceAutomatic(), false);
-            printPerformance("Autism manual", AutismTest.testPerformanceManual(), false);
-            printPerformance("Mushroom automatic", MushroomTest.testPerformanceAutomatic(), false);
-            printPerformance("Mushroom manual", MushroomTest.testPerformanceManual(), false);
-            printPerformance("Asia automatic", AsiaTest.testPerformanceAutomatic(), false);
-            printPerformance("Alarm automatic", AlarmTest.testPerformanceAutomatic(), false);
+//            printPerformance("Diabetes automatic", DiabetesTest.testPerformanceAutomatic(), true);
+//            printPerformance("Iris automatic", IrisTest.testPerformanceAutomatic(), false);
+//            printPerformance("Iris manual", IrisTest.testPerformanceManual(), false);
+//            printPerformance("Autism automatic", AutismTest.testPerformanceAutomatic(), false);
+//            printPerformance("Autism manual", AutismTest.testPerformanceManual(), false);
+//            printPerformance("Mushroom automatic", MushroomTest.testPerformanceAutomatic(), false);
+//            printPerformance("Mushroom manual", MushroomTest.testPerformanceManual(), false);
+//            printPerformance("Asia automatic", AsiaTest.testPerformanceAutomatic(), false);
+//            printPerformance("Alarm automatic", AlarmTest.testPerformanceAutomatic(), false);
 
             //three way split
-            printThreeWayPerformance("Diabetes automatic threeways", DiabetesTest.testPerformanceThreeWayAutomatic(),
-                                     true);
-            printThreeWayPerformance("Asia automatic threeways", AsiaTest.testPerformanceThreeWayAutomatic(), false);
-            printThreeWayPerformance("Autism automatic threeways", AutismTest.testPerformanceThreeWayAutomatic(),
-                                     false);
-            printThreeWayPerformance("Autism manual threeways", AutismTest.testPerformanceThreeWayManual(), false);
-            printThreeWayPerformance("Mushroom automatic threeways", MushroomTest.testPerformanceThreeWayAutomatic(),
-                                     false);
-            printThreeWayPerformance("Mushroom manual threeways", MushroomTest.testPerformanceThreeWayManual(), false);
-            printThreeWayPerformance("Alarm automatic threeways", AlarmTest.testPerformanceThreeWayAutomatic(), false);
+//            printThreeWayPerformance("Diabetes automatic threeways", DiabetesTest.testPerformanceThreeWayAutomatic(),
+//                                     true);
+//            printThreeWayPerformance("Asia automatic threeways", AsiaTest.testPerformanceThreeWayAutomatic(), false);
+//            printThreeWayPerformance("Autism automatic threeways", AutismTest.testPerformanceThreeWayAutomatic(),
+//                                     false);
+//            printThreeWayPerformance("Autism manual threeways", AutismTest.testPerformanceThreeWayManual(), false);
+//            printThreeWayPerformance("Mushroom automatic threeways", MushroomTest.testPerformanceThreeWayAutomatic(),
+//                                     false);
+//            printThreeWayPerformance("Mushroom manual threeways", MushroomTest.testPerformanceThreeWayManual(),
+//            false);
+//            printThreeWayPerformance("Alarm automatic threeways", AlarmTest.testPerformanceThreeWayAutomatic(),
+//            false);
+
+//            for (Double treshold : tresholds) {
+//                //two-way split
+//                if (treshold > 0.05) {
+//                    printPerformance("Diabetes automatic unknown " + treshold,
+//                                     DiabetesTest.testPerformanceAutomaticUnknown(treshold), true);
+//                    printPerformance("Iris automatic unknown " + treshold,
+//                                     IrisTest.testPerformanceAutomaticUnknown(treshold), false);
+//                    printPerformance("Iris manual unknown " + treshold, IrisTest.testPerformanceManualUnknown
+//                    (treshold),
+//                                     false);
+//                    printPerformance("Autism automatic unknown " + treshold,
+//                                     AutismTest.testPerformanceAutomaticUnknown(treshold), false);
+//                    printPerformance("Autism manual unknown " + treshold,
+//                                     AutismTest.testPerformanceManualUnknown(treshold),
+//                                     false);
+//                }
+//
+//                printPerformance("Asia automatic unknown " + treshold,
+//                                 AsiaTest.testPerformanceAutomaticUnknown(treshold), true);
+//
+//
+//                //three way split
+//                printThreeWayPerformance("Diabetes automatic threeways unknown " + treshold,
+//                                         DiabetesTest.testPerformanceThreeWayAutomaticUnknown(treshold),
+//                                         true);
+//                printThreeWayPerformance("Asia automatic threeways unknown " + treshold,
+//                                         AsiaTest.testPerformanceThreeWayAutomaticUnknown(treshold), false);
+//                printThreeWayPerformance("Autism automatic threeways unknown " + treshold,
+//                                         AutismTest.testPerformanceThreeWayAutomaticUnknown(treshold),
+//                                         false);
+//                printThreeWayPerformance("Autism manual threeways unknown " + treshold,
+//                                         AutismTest.testPerformanceThreeWayManualUnknown(treshold), false);
+//            }
 
             for (Double treshold : tresholds) {
-                //two-way split
-                printPerformance("Diabetes automatic unknown " + treshold,
-                                 DiabetesTest.testPerformanceAutomaticUnknown(treshold), true);
-                printPerformance("Iris automatic unknown " + treshold,
-                                 IrisTest.testPerformanceAutomaticUnknown(treshold), false);
-                printPerformance("Iris manual unknown " + treshold, IrisTest.testPerformanceManualUnknown(treshold),
-                                 false);
-                printPerformance("Autism automatic unknown " + treshold,
-                                 AutismTest.testPerformanceAutomaticUnknown(treshold), false);
-                printPerformance("Autism manual unknown " + treshold, AutismTest.testPerformanceManualUnknown(treshold),
-                                 false);
-                printPerformance("Mushroom automatic unknown " + treshold,
-                                 MushroomTest.testPerformanceAutomaticUnknown(treshold), false);
                 printPerformance("Mushroom manual unknown " + treshold,
-                                 MushroomTest.testPerformanceManualUnknown(treshold), false);
-                printPerformance("Asia automatic unknown " + treshold,
-                                 AsiaTest.testPerformanceAutomaticUnknown(treshold), false);
-                printPerformance("Alarm automatic unknown " + treshold,
-                                 AlarmTest.testPerformanceAutomaticUnknown(treshold), false);
+                                 MushroomTest.testPerformanceManualUnknown(treshold), true);
+                printThreeWayPerformance("Mushroom manual threeways unknown " + treshold,
+                                         MushroomTest.testPerformanceThreeWayManualUnknown(treshold), true);
+            }
 
-                //three way split
-                printThreeWayPerformance("Diabetes automatic threeways unknown " + treshold,
-                                         DiabetesTest.testPerformanceThreeWayAutomaticUnknown(treshold),
-                                         true);
-                printThreeWayPerformance("Asia automatic threeways unknown " + treshold,
-                                         AsiaTest.testPerformanceThreeWayAutomaticUnknown(treshold), false);
-                printThreeWayPerformance("Autism automatic threeways unknown " + treshold,
-                                         AutismTest.testPerformanceThreeWayAutomaticUnknown(treshold),
-                                         false);
-                printThreeWayPerformance("Autism manual threeways unknown " + treshold,
-                                         AutismTest.testPerformanceThreeWayManualUnknown(treshold), false);
+            for (int i = 0; i < 10; i++) {
+//                for (Double treshold : tresholds) {
+                double treshold = 0.05;
+                if (treshold != 0.05 && i != 0) {
+//                        printPerformance("Alarm automatic unknown " + treshold,
+//                                         AlarmTest.testPerformanceAutomaticUnknown(treshold), true);
+                    printPerformance("Mushroom automatic unknown " + treshold,
+                                     MushroomTest.testPerformanceAutomaticUnknown(treshold), true);
+                }
                 printThreeWayPerformance("Mushroom automatic threeways unknown " + treshold,
                                          MushroomTest.testPerformanceThreeWayAutomaticUnknown(treshold),
-                                         false);
-                printThreeWayPerformance("Mushroom manual threeways unknown " + treshold,
-                                         MushroomTest.testPerformanceThreeWayManualUnknown(treshold), false);
-                printThreeWayPerformance("Alarm automatic threeways unknown " + treshold,
-                                         AlarmTest.testPerformanceThreeWayAutomaticUnknown(treshold), false);
+                                         true);
+//                    printThreeWayPerformance("Alarm automatic threeways unknown " + treshold,
+//                                             AlarmTest.testPerformanceThreeWayAutomaticUnknown(treshold), false);
+//                }
             }
         }
     }

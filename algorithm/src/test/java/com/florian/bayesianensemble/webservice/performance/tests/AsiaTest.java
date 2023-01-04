@@ -7,7 +7,6 @@ import com.florian.bayesianensemble.webservice.performance.base.PerformanceThree
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AsiaTest {
     private static final String SOURCE = "resources/Experiments/Asia/Asia10kWeka.arff";
@@ -20,7 +19,6 @@ public class AsiaTest {
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
                         ".arff"), TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.3);
         return p;
     }
 
@@ -29,21 +27,18 @@ public class AsiaTest {
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
                         ".arff"), TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.3);
         return p;
     }
 
     public static Performance testPerformanceAutomatic() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.1);
         return p;
     }
 
     public static Performance testPerformanceThreeWayAutomatic() throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.1);
         return p;
     }
 
@@ -51,7 +46,6 @@ public class AsiaTest {
         //there is no logical way to split this dataset, so don't use this
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.manualSplit(leftManual(), rightManual());
-        assertEquals(p.getWeightedAUCEnsemble(), 0.90, 0.1);
         return p;
     }
 

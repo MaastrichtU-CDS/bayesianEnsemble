@@ -82,6 +82,11 @@ public class PerformanceThreeWayTestBase {
         p.setWeightedAUCCenter(weightedAUCCenter);
         p.setWeightedAUCLeft(weightedAUCLeft);
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
+
+        long vertibayesTime = System.currentTimeMillis();
+        ExpectationMaximizationResponse res = vertiBayesComparison();
+        p.addVertibayesTime(System.currentTimeMillis() - vertibayesTime);
+        p.addVertibayesPerformance(res.getSvdgAuc());
         return p;
     }
 

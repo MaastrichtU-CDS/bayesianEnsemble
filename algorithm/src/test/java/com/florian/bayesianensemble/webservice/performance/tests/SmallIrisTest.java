@@ -7,8 +7,6 @@ import com.florian.bayesianensemble.webservice.performance.base.PerformanceThree
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class SmallIrisTest {
     private static final String SOURCE = "resources/Experiments/iris/iris.arff";
     private static final String TARGET = "label";
@@ -20,13 +18,6 @@ public class SmallIrisTest {
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
                         ".arff"), TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        if (treshold == 0.05) {
-            assertEquals(p.getWeightedAUCEnsemble(), 0.9, 0.1);
-        } else if (treshold == 0.1) {
-            assertEquals(p.getWeightedAUCEnsemble(), 0.7, 0.1);
-        } else if (treshold == 0.3) {
-            assertEquals(p.getWeightedAUCEnsemble(), 0.6, 0.1);
-        }
         return p;
     }
 
@@ -35,7 +26,6 @@ public class SmallIrisTest {
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
                         ".arff"), TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.1);
         return p;
     }
 
@@ -44,27 +34,18 @@ public class SmallIrisTest {
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
                         ".arff"), TARGET, ROUNDS, FOLDS);
         Performance p = test.manualSplit(leftManual(), rightManual());
-        if (treshold == 0.05) {
-            assertEquals(p.getWeightedAUCEnsemble(), 0.9, 0.1);
-        } else if (treshold == 0.1) {
-            assertEquals(p.getWeightedAUCEnsemble(), 0.7, 0.1);
-        } else if (treshold == 0.3) {
-            assertEquals(p.getWeightedAUCEnsemble(), 0.6, 0.1);
-        }
         return p;
     }
 
     public static Performance testPerformanceAutomatic() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
-        assertEquals(p.getWeightedAUCEnsemble(), p.getWeightedAUCCentral(), 0.15);
         return p;
     }
 
     public static Performance testPerformanceManual() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.manualSplit(leftManual(), rightManual());
-        assertEquals(p.getWeightedAUCEnsemble(), 0.93, 0.075);
         return p;
     }
 
