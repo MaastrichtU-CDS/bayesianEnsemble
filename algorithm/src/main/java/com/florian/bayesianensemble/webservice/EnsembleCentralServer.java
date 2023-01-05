@@ -50,10 +50,11 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private EnsembleResponse kfoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
 
         List<double[]> probablites = new ArrayList<>();
+        Map<String, List<Node>> structures = generateStructures(req);
         for (int i = 0; i < req.getFolds(); i++) {
             initFold(folds, i);
 
-            Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
+            Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
             initValidationFold(folds, i);
 
             classify(probablites, req, bayesNets);
@@ -61,7 +62,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
         //Train final model
         activateAll(folds);
-        Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
+        Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
 
         Map<String, Double> aucs = calculateAUC(probablites, req.getTarget(), bayesNets);
 
@@ -71,7 +72,9 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     }
 
     private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
-        Map<String, String> bayesNets = performEnsembleOpenMarkov(req);
+        Map<String, List<Node>> structures = generateStructures(req);
+        Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
+
         activateAll(folds);
         List<double[]> probablites = new ArrayList<>();
         classify(probablites, req, bayesNets);
@@ -82,11 +85,10 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return response;
     }
 
-    private Map<String, String> performEnsembleOpenMarkov(CreateEnsembleRequest req) throws Exception {
+    private Map<String, String> performEnsembleOpenMarkov(CreateEnsembleRequest req, Map<String, List<Node>> structures)
+            throws Exception {
         Node target = getTargetNode(req.getTarget());
         Map<String, String> bayesNets = new HashMap<>();
-
-        Map<String, List<Node>> structures = generateStructures(req);
 
         structures.keySet().parallelStream().forEach(x -> {
             try {

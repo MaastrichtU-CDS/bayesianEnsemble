@@ -743,7 +743,7 @@ public class EnsembleCentralServerTest {
         String target = "x1";
         req.setTarget(target);
         req.setHybrid(true);
-        req.setFolds(2);
+        req.setFolds(3);
         EnsembleResponse response = central.createEnsemble(req);
         List<String> networks = response.getNetworks();
 
