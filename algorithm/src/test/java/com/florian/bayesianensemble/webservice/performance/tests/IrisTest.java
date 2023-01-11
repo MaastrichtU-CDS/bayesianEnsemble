@@ -48,6 +48,21 @@ public class IrisTest {
         return p;
     }
 
+    public static Performance testPerformancePopulation() throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+    
+
+    public static Performance testPerformancePopulationUnknown(double treshold) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+
     public static Performance testPerformanceAutomatic() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();

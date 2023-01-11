@@ -22,7 +22,7 @@ public class Util {
             s = "";
             s += "@Attribute";
             s += " " + a.getAttributeName() + " ";
-            if (a.getType() == Attribute.AttributeType.string) {
+            if (a.getType() == Attribute.AttributeType.string || a.getType() == Attribute.AttributeType.bool) {
                 s += "{";
                 int count = 0;
                 Set<String> uniqueValues =

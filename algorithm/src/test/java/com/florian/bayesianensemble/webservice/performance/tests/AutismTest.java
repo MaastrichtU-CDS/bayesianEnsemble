@@ -70,6 +70,34 @@ public class AutismTest {
         return p;
     }
 
+    public static Performance testPerformancePopulationUnknown(double treshold) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayPopulationUnknown(double treshold) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+
+    public static Performance testPerformancePopulation() throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayPopulation() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+
     private static Set<String> rightThreeWayManual() {
         Set<String> right = new HashSet<>();
         right.add("age");
