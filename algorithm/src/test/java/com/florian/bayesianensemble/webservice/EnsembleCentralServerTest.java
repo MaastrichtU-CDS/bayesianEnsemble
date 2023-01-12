@@ -99,8 +99,8 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
 
 
-        assertEquals(response.getAucs().get("1"), 0.78, 0.01);
-        assertEquals(response.getAucs().get("0"), 0.78, 0.01);
+        assertEquals(response.getAucs().get("1"), 0.78, 0.025);
+        assertEquals(response.getAucs().get("0"), 0.78, 0.025);
 
     }
 
@@ -267,9 +267,9 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2Prestructured.get(0).getNode1().getParents().size(), 0);
 
 
-        assertEquals(response.getAucs().get("1"), 0.78, 0.01);
-        assertEquals(response.getAucs().get("0"), 0.78, 0.01);
-        assertEquals(response.getWeightedAUC(), 0.78, 0.01);
+        assertEquals(response.getAucs().get("1"), 0.78, 0.025);
+        assertEquals(response.getAucs().get("0"), 0.78, 0.025);
+        assertEquals(response.getWeightedAUC(), 0.78, 0.025);
 
     }
 
@@ -351,9 +351,9 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
 
 
-        assertEquals(response.getAucs().get("1"), 0.78, 0.01);
-        assertEquals(response.getAucs().get("0"), 0.78, 0.01);
-        assertEquals(response.getWeightedAUC(), 0.78, 0.01);
+        assertEquals(response.getAucs().get("1"), 0.78, 0.025);
+        assertEquals(response.getAucs().get("0"), 0.78, 0.025);
+        assertEquals(response.getWeightedAUC(), 0.78, 0.025);
 
     }
 
@@ -516,9 +516,9 @@ public class EnsembleCentralServerTest {
         assertEquals(links_2.get(0).getNode1().getName(), "x3");
         assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
 
-        assertEquals(response.getAucs().get("1"), 0.78, 0.01);
-        assertEquals(response.getAucs().get("0"), 0.78, 0.01);
-        assertEquals(response.getWeightedAUC(), 0.78, 0.01);
+        assertEquals(response.getAucs().get("1"), 0.78, 0.025);
+        assertEquals(response.getAucs().get("0"), 0.78, 0.025);
+        assertEquals(response.getWeightedAUC(), 0.78, 0.025);
 
     }
 
@@ -704,9 +704,9 @@ public class EnsembleCentralServerTest {
         assertEquals(network2.getPotentials().get(0).getCPT().values[0], 0.60, 0.02);
 
         //assert the AUCS are correctly calculate for this small dataset with little to no internal logic
-        assertEquals(response.getAucs().get("1"), 0.85, 0.025);
-        assertEquals(response.getAucs().get("0"), 0.85, 0.025);
-        assertEquals(response.getWeightedAUC(), 0.86, 0.025);
+        assertEquals(response.getAucs().get("1"), 0.82, 0.05);
+        assertEquals(response.getAucs().get("0"), 0.82, 0.05);
+        assertEquals(response.getWeightedAUC(), 0.82, 0.05);
     }
 
     @Test

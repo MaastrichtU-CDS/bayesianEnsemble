@@ -10,6 +10,8 @@ import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.BayesServer;
+import com.florian.vertibayes.webservice.domain.external.WebNode;
+import com.florian.vertibayes.weka.BifMapper;
 import org.apache.commons.collections.map.HashedMap;
 import org.openmarkov.core.exception.*;
 import org.openmarkov.core.model.network.ProbNet;
@@ -43,6 +45,16 @@ public class EnsembleServer extends BayesServer {
 
     public EnsembleServer(String path, String id) {
         super(path, id);
+    }
+
+    @PostMapping ("isFullyLocal")
+    public boolean isFullyLocal(CheckFullyLocalRequest req) {
+        for (WebNode n : req.getNodes()) {
+            if (getData().getAttributeCollumn(n.getName()) == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @GetMapping ("generatePaillierKey")
@@ -90,25 +102,58 @@ public class EnsembleServer extends BayesServer {
     @PostMapping ("classify")
     public ClassificationResponse classify(@RequestBody ClassifyRequest req) throws Exception {
         ProbNet network = null;
+        List<Probability> probabilities2 = new ArrayList<>();
         if (req.getNetworks() != null) {
-            network = loadModel(req.getNetworks().get(this.serverId));
+
+            int count = 0;
+            for (String key : req.getNetworks().keySet()) {
+                CheckFullyLocalRequest check = new CheckFullyLocalRequest();
+                check.setNodes(BifMapper.fromOpenMarkovBif(req.getNetworks().get(key)));
+                if (key.equals(this.serverId) || isFullyLocal(check)) {
+                    count++;
+                    network = loadModel(req.getNetworks().get(key));
+                    ProbNet finalNetwork = network;
+                    List<Probability> probabilities = IntStream.range(0, getPopulation()).parallel().mapToObj(i -> {
+                        try {
+                            Probability probability = classifyInstance(i,
+                                                                       req,
+                                                                       finalNetwork);
+                            return probability;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }).collect(Collectors.toList());
+                    for (int i = 0; i < probabilities.size(); i++) {
+                        if (i >= probabilities2.size()) {
+                            probabilities2.add(probabilities.get(i));
+                        } else {
+                            if (probabilities2.get(i).getProbability() == null) {
+                                probabilities2.get(i).setProbability(probabilities.get(i).getProbability());
+                            } else {
+                                for (int j = 0; j < probabilities.get(i).getProbability().length; j++) {
+                                    probabilities2.get(i).getProbability()[j] += probabilities.get(i)
+                                            .getProbability()[j];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (Probability p : probabilities2) {
+                if (p.getProbability() != null) {
+                    for (int j = 0; j < p.getProbability().length; j++) {
+                        p.getProbability()[j] = p.getProbability()[j] / count;
+
+                    }
+                    encrypt(req, p);
+                }
+            }
         }
 
-        ProbNet finalNetwork = network;
-        List<Probability> probabilities = IntStream.range(0, getPopulation()).parallel().mapToObj(i -> {
-            try {
-                Probability probability = classifyInstance(i,
-                                                           req,
-                                                           finalNetwork);
-                return probability;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).collect(Collectors.toList());
 
         ClassificationResponse res = new ClassificationResponse();
-        res.setProbabilities(probabilities);
+        res.setProbabilities(probabilities2);
         return res;
     }
 
@@ -133,7 +178,6 @@ public class EnsembleServer extends BayesServer {
                         p.setProbability(potential.getValues());
                     }
                 }
-                encrypt(req, p);
             }
         }
         return p;
@@ -146,7 +190,7 @@ public class EnsembleServer extends BayesServer {
                 for (int i = 0; i < p.getProbability().length; i++) {
                     encrypted[i] = req.getKey()
                             .encrypt(setPrecision(req.getPrecision(), p.getProbability()[i]));
-                    p.getProbability()[i] = -1;
+                    //p.getProbability()[i] = -1;
                 }
                 p.setEncryptedProbability(encrypted);
             }

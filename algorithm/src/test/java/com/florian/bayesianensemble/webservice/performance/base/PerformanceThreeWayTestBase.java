@@ -353,7 +353,6 @@ public class PerformanceThreeWayTestBase {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         req.setTarget(TARGET);
         req.setFolds(FOLDS);
-        req.setHybrid(true);
 
         EnsembleResponse response = central.createEnsemble(req);
         return response;
@@ -455,24 +454,39 @@ public class PerformanceThreeWayTestBase {
         List<Attribute> leftPresent = new ArrayList<>();
         List<Attribute> middlePresent = new ArrayList<>();
         List<Attribute> rightPresent = new ArrayList<>();
-        for (int i = 0; i < data.getNumberOfIndividuals(); i++) {
-            Attribute present = new Attribute(Attribute.AttributeType.bool, "true", "locallyPresent");
-            Attribute absent = new Attribute(Attribute.AttributeType.bool, "false", "locallyPresent");
-            double ran = r.nextDouble();
-            if (ran < 0.33) {
-                leftPresent.add(present);
-                rightPresent.add(absent);
-                middlePresent.add(absent);
-            } else if (ran < 0.66) {
-                leftPresent.add(absent);
-                rightPresent.add(present);
-                middlePresent.add(absent);
-            } else {
-                leftPresent.add(absent);
-                rightPresent.add(absent);
-                middlePresent.add(present);
+        boolean done = false;
+        while (!done) {
+            int leftC = 0;
+            int rightC = 0;
+            int centerC = 0;
+            leftPresent = new ArrayList<>();
+            middlePresent = new ArrayList<>();
+            rightPresent = new ArrayList<>();
+           
+            for (int i = 0; i < data.getNumberOfIndividuals(); i++) {
+                Attribute present = new Attribute(Attribute.AttributeType.bool, "true", "locallyPresent");
+                Attribute absent = new Attribute(Attribute.AttributeType.bool, "false", "locallyPresent");
+                double ran = r.nextDouble();
+                if (ran < 0.33) {
+                    leftC++;
+                    leftPresent.add(present);
+                    rightPresent.add(absent);
+                    middlePresent.add(absent);
+                } else if (ran < 0.66) {
+                    rightC++;
+                    leftPresent.add(absent);
+                    rightPresent.add(present);
+                    middlePresent.add(absent);
+                } else {
+                    centerC++;
+                    leftPresent.add(absent);
+                    rightPresent.add(absent);
+                    middlePresent.add(present);
+                }
             }
+            done = leftC >= 50 && rightC >= 50 && centerC >= 50;
         }
+
         left.add(leftPresent);
         right.add(rightPresent);
         center.add(middlePresent);

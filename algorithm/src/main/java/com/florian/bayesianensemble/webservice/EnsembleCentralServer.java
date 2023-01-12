@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -79,7 +76,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         List<double[]> probablites = new ArrayList<>();
         classify(probablites, req, bayesNets);
         Map<String, Double> aucs = calculateAUC(probablites, req.getTarget(), bayesNets);
-
         //create response
         EnsembleResponse response = createEnsembleResponse(aucs, bayesNets, req.getTarget());
         return response;
@@ -102,40 +98,66 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
     private String trainStructure(String key, Map<String, List<Node>> structures, Node target, boolean isHybrid)
             throws Exception {
+        boolean fullyLocal = false;
+        ServerEndpoint relevantEndpoint = null;
         for (ServerEndpoint e : getEndpoints()) {
             if (e.getServerId().equals(key)) {
                 setUseLocalData(isHybrid, (EnsembleEndpoint) e);
+                fullyLocal = ((EnsembleEndpoint) e).isFullyLocal(structures.get(key));
+                relevantEndpoint = e;
             }
         }
         WebBayesNetwork n = new WebBayesNetwork();
         n.setNodes(mapWebNodeFromNode(structures.get(key)));
         n.setOpenMarkovResponse(true);
         n.setTarget(target.getName());
-        ExpectationMaximizationOpenMarkovResponse res =
-                (ExpectationMaximizationOpenMarkovResponse) expectationMaximization(
-                        n);
-        return res.getOpenMarkov();
+
+        if (!fullyLocal) {
+            ExpectationMaximizationOpenMarkovResponse res =
+                    (ExpectationMaximizationOpenMarkovResponse) expectationMaximization(
+                            n);
+            return res.getOpenMarkov();
+        } else {
+            // fully local model, so set things up in such a way as to use a 1-party scalar product protocol
+            VertiBayesCentralServer dummy = new VertiBayesCentralServer();
+            dummy.initEndpoints(Arrays.asList(relevantEndpoint), getSecretEndpoint());
+
+            ExpectationMaximizationOpenMarkovResponse res =
+                    (ExpectationMaximizationOpenMarkovResponse) dummy.expectationMaximization(
+                            n);
+            return res.getOpenMarkov();
+        }
+
     }
+
 
     private Map<String, List<Node>> generateStructures(CreateEnsembleRequest req) {
         Node target = getTargetNode(req.getTarget());
         Map<String, List<Node>> networks = new HashMap<>();
 
-        getEndpoints().stream().forEach(x -> networks.put(x.getServerId(), generateStructure(req, target, x)));
+        getEndpoints().stream().forEach(x -> {
+            try {
+                networks.put(x.getServerId(), generateStructure(req, target, x));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         return networks;
     }
 
-    private List<Node> generateStructure(CreateEnsembleRequest req, Node target, ServerEndpoint e) {
+    private List<Node> generateStructure(CreateEnsembleRequest req, Node target, ServerEndpoint e) throws Exception {
         if (req.getNetworks() != null && req.getNetworks().containsKey(e.getServerId())) {
             List<Node> network = mapWebNodeToNode(req.getNetworks().get(e.getServerId()));
             return network;
         } else {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
+            boolean fullyLocal = ((EnsembleEndpoint) e).isFullyLocal(network);
             setBins(network, req);
             setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
-            network = learnStructure(network, req.getMinPercentage());
-            return network;
+
+            return learnStructure(network, req.getMinPercentage(), fullyLocal, e);
+
         }
     }
 
@@ -192,8 +214,12 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return null;
     }
 
-    private List<Node> learnStructure(List<Node> nodes, int minpercentage) {
+    private List<Node> learnStructure(List<Node> nodes, int minpercentage, boolean fullyLocal,
+                                      ServerEndpoint endpoint) {
         Network n = new Network(getEndpoints(), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());
+        if (fullyLocal) {
+            n = new Network(Arrays.asList(endpoint), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());
+        }
         n.setNodes(nodes);
         CreateNetworkRequest req = new CreateNetworkRequest();
         req.setNodes(mapWebNodeFromNode(nodes));

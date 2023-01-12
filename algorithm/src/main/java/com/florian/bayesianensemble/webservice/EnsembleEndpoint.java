@@ -4,9 +4,12 @@ import com.florian.bayesianensemble.webservice.domain.CollectNodesRequest;
 import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.Server;
+import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesEndpoint;
+import com.florian.vertibayes.webservice.mapping.WebNodeMapper;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class EnsembleEndpoint extends VertiBayesEndpoint {
 
@@ -78,6 +81,18 @@ public class EnsembleEndpoint extends VertiBayesEndpoint {
             return ((EnsembleServer) (server)).classify(req);
         } else {
             return REST_TEMPLATE.postForEntity(serverUrl + "/classify", req, ClassificationResponse.class)
+                    .getBody();
+        }
+    }
+
+    public boolean isFullyLocal(List<Node> structure) throws Exception {
+        CheckFullyLocalRequest req = new CheckFullyLocalRequest();
+        req.setNodes(WebNodeMapper.mapWebNodeFromNode(structure));
+
+        if (testing) {
+            return ((EnsembleServer) (server)).isFullyLocal(req);
+        } else {
+            return REST_TEMPLATE.postForEntity(serverUrl + "/isFullyLocal", req, boolean.class)
                     .getBody();
         }
     }

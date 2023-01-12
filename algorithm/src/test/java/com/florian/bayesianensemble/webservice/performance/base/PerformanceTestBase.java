@@ -328,7 +328,6 @@ public class PerformanceTestBase {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         req.setTarget(TARGET);
         req.setFolds(FOLDS);
-        req.setHybrid(true);
 
         EnsembleResponse response = central.createEnsemble(req);
         return response;
@@ -390,7 +389,7 @@ public class PerformanceTestBase {
         dataToArff(new Data(0, -1, left), LEFT);
         dataToArff(new Data(0, -1, right), RIGHT);
 
-        createLocalPopulation(left, right);
+        createLocal(left, right);
     }
 
     private void splitPopulation() throws IOException, InvalidDataFormatException {
@@ -404,6 +403,7 @@ public class PerformanceTestBase {
 
         left = new ArrayList<>();
         right = new ArrayList<>();
+
         for (int i = 0; i < data.getData().size(); i++) {
             if (i == data.getIdColumn()) {
                 left.add(0, data.getData().get(i));
@@ -413,19 +413,32 @@ public class PerformanceTestBase {
                 right.add(data.getData().get(i));
             }
         }
+
+
         List<Attribute> leftPresent = new ArrayList<>();
         List<Attribute> rightPresent = new ArrayList<>();
-        for (int i = 0; i < data.getNumberOfIndividuals(); i++) {
-            Attribute present = new Attribute(Attribute.AttributeType.bool, "true", "locallyPresent");
-            Attribute absent = new Attribute(Attribute.AttributeType.bool, "false", "locallyPresent");
-            if (r.nextDouble() < 0.5) {
-                leftPresent.add(present);
-                rightPresent.add(absent);
-            } else {
-                leftPresent.add(absent);
-                rightPresent.add(present);
+        boolean done = false;
+        while (!done) {
+            int leftC = 0;
+            int rightC = 0;
+            leftPresent = new ArrayList<>();
+            rightPresent = new ArrayList<>();
+            for (int i = 0; i < data.getNumberOfIndividuals(); i++) {
+                Attribute present = new Attribute(Attribute.AttributeType.bool, "true", "locallyPresent");
+                Attribute absent = new Attribute(Attribute.AttributeType.bool, "false", "locallyPresent");
+                if (r.nextDouble() < 0.5) {
+                    leftC++;
+                    leftPresent.add(present);
+                    rightPresent.add(absent);
+                } else {
+                    rightC++;
+                    leftPresent.add(absent);
+                    rightPresent.add(present);
+                }
             }
+            done = leftC >= 50 && rightC >= 50;
         }
+
         left.add(leftPresent);
         right.add(rightPresent);
 
