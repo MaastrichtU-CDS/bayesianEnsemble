@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = true;
+    public static final boolean SMALLTEST = false;
     public static final List<Double> tresholds = Arrays.asList(0.05, 0.1, 0.3);
 
     @Test
@@ -193,7 +193,7 @@ public class PerformanceTest {
 //                                         MushroomTest.testPerformanceThreeWayManualUnknown(treshold), true);
 //            }
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 1; i++) {
                 printPerformance("Alarm automatic unknown " + 0.05,
                                  AlarmTest.testPerformanceAutomaticUnknown(0.05), true);
                 printPerformance("Mushroom automatic unknown " + 0.05,

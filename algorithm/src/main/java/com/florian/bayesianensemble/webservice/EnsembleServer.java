@@ -48,7 +48,7 @@ public class EnsembleServer extends BayesServer {
     }
 
     @PostMapping ("isFullyLocal")
-    public boolean isFullyLocal(CheckFullyLocalRequest req) {
+    public boolean isFullyLocal(@RequestBody CheckFullyLocalRequest req) {
         for (WebNode n : req.getNodes()) {
             if (getData().getAttributeCollumn(n.getName()) == null) {
                 return false;
@@ -329,7 +329,7 @@ public class EnsembleServer extends BayesServer {
     }
 
     @PostMapping ("getWeightedAUC")
-    public BigInteger getWeightedAUC(WeightedAUCReq req) {
+    public BigInteger getWeightedAUC(@RequestBody WeightedAUCReq req) {
         double weighted = 0;
         Integer column = getData().getAttributeCollumn(req.getAttributeName());
         int count = 0;
