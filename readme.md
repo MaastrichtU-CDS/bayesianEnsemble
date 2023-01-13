@@ -1,3 +1,5 @@
+mvn install:install-file -Dfile=./openmarkov/OpenMarkov-0.4.0.jar -DgroupId=org.openmarkov -DartifactId=org.openmarkov.full -Dversion=0.4.0-SNAPSHOT -Dpackaging=jar
+
 # Federated Bayesian Ensembles
 
 This project implements a network of bayesian ensembles that specificly makes use of the federated nature of the data to creates
