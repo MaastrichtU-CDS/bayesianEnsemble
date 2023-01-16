@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static com.florian.bayesianensemble.util.Util.createArrfString;
+import static com.florian.bayesianensemble.webservice.performance.base.Util.createArrfString;
 import static com.florian.nscalarproduct.data.Parser.parseData;
 
 public class TestFileGeneration {

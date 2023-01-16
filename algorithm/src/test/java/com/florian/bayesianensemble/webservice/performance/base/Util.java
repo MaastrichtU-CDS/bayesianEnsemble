@@ -71,4 +71,73 @@ public class Util {
         n.setParents(parents);
         return n;
     }
+
+    public static String createArrfString(Data d, String target) {
+        List<String> data = new ArrayList<>();
+        String s = "@Relation genericBIFF";
+        data.add(s);
+
+        List<List<Attribute>> attributes = d.getData();
+        for (int i = 0; i < attributes.size(); i++) {
+            if (i == d.getLocalPresenceColumn() || i == d.getIdColumn()) {
+                continue;
+            } else {
+                Attribute a = attributes.get(i).get(0);
+                s = "";
+                s += "@Attribute";
+                s += " " + a.getAttributeName() + " ";
+                if (a.getType() == Attribute.AttributeType.string || a.getType() == Attribute.AttributeType.bool) {
+                    s += "{";
+                    int count = 0;
+                    Set<String> uniqueValues =
+                            Data.getUniqueValues(d.getAttributeValues(a.getAttributeName()));
+                    for (String unique : uniqueValues) {
+                        if (!unique.equals("?")) {
+                            //only print valid values here, otherwiseweka will think ? is also valid.
+                            if (count > 0) {
+                                s += ",";
+                            }
+                            count++;
+                            s += unique;
+                        }
+                    }
+                    s += "}";
+                } else {
+                    s += a.getType();
+                }
+                data.add(s);
+            }
+        }
+
+        if (d.getAttributeCollumn(target) == null) {
+            data.add("@Attribute " + target + "{}");
+        }
+        data.add("");
+        data.add("@DATA");
+
+        for (int j = 0; j < d.getNumberOfIndividuals(); j++) {
+            String ind = "";
+            for (int i = 0; i < attributes.size(); i++) {
+                if (i == d.getLocalPresenceColumn() || i == d.getIdColumn()) {
+                    continue;
+                } else {
+                    if (ind.length() > 0) {
+                        ind += ",";
+                    }
+                    ind += attributes.get(i).get(j).getValue();
+                }
+            }
+            if (d.getAttributeCollumn(target) == null) {
+                ind += ",?";
+            }
+            data.add(ind);
+        }
+
+        String arff = "";
+        for (int i = 0; i < data.size() - 1; i++) {
+            arff += data.get(i) + "\n";
+        }
+        arff += data.get(data.size() - 1);
+        return arff;
+    }
 }

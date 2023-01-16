@@ -8,13 +8,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PerformanceTest {
-    public static final boolean SMALLTEST = false;
+    public static final boolean SMALLTEST = true;
     public static final List<Double> tresholds = Arrays.asList(0.05, 0.1, 0.3);
 
     @Test
     public void testHorizontal() throws Exception {
         if (SMALLTEST) {
-            printPerformance("Diabetes automatic horizontal", DiabetesTest.testPerformancePopulation(), true);
+            printPerformance("SmallDiabetes automatic horizontal", SmallDiabetesTest.testPerformancePopulation(), true);
         }
 
         if (!SMALLTEST) {
@@ -34,6 +34,8 @@ public class PerformanceTest {
             printThreeWayPerformance("Autism automatic threeways horizontal",
                                      AutismTest.testPerformanceThreeWayPopulation(),
                                      false);
+            printThreeWayPerformance("Iris automatic threeways horizontal",
+                                     IrisTest.testPerformanceThreeWayPopulation(), false);
             printThreeWayPerformance("Mushroom automatic threeways horizontal",
                                      MushroomTest.testPerformanceThreeWayPopulation(),
                                      false);
@@ -56,6 +58,8 @@ public class PerformanceTest {
                 printThreeWayPerformance("Diabetes automatic threeways unknown horizontal" + treshold,
                                          DiabetesTest.testPerformanceThreeWayPopulationUnknown(treshold),
                                          true);
+                printPerformance("Iris automatic threeways unknown horizontal" + treshold,
+                                 IrisTest.testPerformanceThreeWayPopulationUnknown(treshold), false);
                 printThreeWayPerformance("Asia automatic threeways unknown horizontal" + treshold,
                                          AsiaTest.testPerformanceThreeWayPopulationUnknown(treshold), false);
                 printThreeWayPerformance("Autism automatic threeways unknown horizontal" + treshold,
@@ -117,14 +121,10 @@ public class PerformanceTest {
     @Test
     public void testPerformance() throws Exception {
         if (SMALLTEST) {
-            printPerformance("smallIris automatic", SmallIrisTest.testPerformanceAutomatic(), true);
-            printPerformance("smallIris manual", SmallIrisTest.testPerformanceManual(), false);
+            printPerformance("SmallDiabetesTest automatic", SmallDiabetesTest.testPerformanceAutomatic(), true);
 
-            printPerformance("smallIris automatic unknown " + 0.05,
-                             SmallIrisTest.testPerformanceAutomaticUnknown(0.05), false);
-            printPerformance("smallIris manual unknown " + 0.05,
-                             SmallIrisTest.testPerformanceManualUnknown(0.05), false);
-
+            printPerformance("SmallDiabetesTest automatic unknown " + 0.05,
+                             SmallDiabetesTest.testPerformanceAutomaticUnknown(0.05), false);
         }
 
         if (!SMALLTEST) {
@@ -193,16 +193,17 @@ public class PerformanceTest {
 //                                         MushroomTest.testPerformanceThreeWayManualUnknown(treshold), true);
 //            }
 
-            for (int i = 0; i < 1; i++) {
-                printPerformance("Alarm automatic unknown " + 0.05,
-                                 AlarmTest.testPerformanceAutomaticUnknown(0.05), true);
-                printPerformance("Mushroom automatic unknown " + 0.05,
-                                 MushroomTest.testPerformanceAutomaticUnknown(0.05), false);
-            }
+//            for (int i = 0; i < 1; i++) {
+//                printPerformance("Alarm automatic unknown " + 0.05,
+//                                 AlarmTest.testPerformanceAutomaticUnknown(0.05), true);
+//                printPerformance("Mushroom automatic unknown " + 0.05,
+//                                 MushroomTest.testPerformanceAutomaticUnknown(0.05), false);
+//            }
 
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 3; i++) {
                 printPerformance("Alarm automatic unknown " + 0.1,
                                  AlarmTest.testPerformanceAutomaticUnknown(0.1), true);
+
                 printPerformance("Mushroom automatic unknown " + 0.1,
                                  MushroomTest.testPerformanceAutomaticUnknown(0.1), false);
             }
@@ -214,7 +215,7 @@ public class PerformanceTest {
                                  MushroomTest.testPerformanceAutomaticUnknown(0.3), false);
             }
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 10; i++) {
                 printPerformance("Alarm automatic unknown " + 0.05,
                                  AlarmTest.testPerformanceThreeWayAutomaticUnknown(0.05), true);
                 printPerformance("Mushroom automatic unknown " + 0.05,

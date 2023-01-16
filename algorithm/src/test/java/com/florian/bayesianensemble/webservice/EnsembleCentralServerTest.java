@@ -199,6 +199,76 @@ public class EnsembleCentralServerTest {
     }
 
     @Test
+    public void testCreateEnsembleAutism() throws Exception {
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/autism/left.arff",
+                                                     "1");
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/autism/right.arff",
+                                                     "2");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "Class/ASD";
+        req.setTarget(target);
+        EnsembleResponse response = central.createEnsemble(req);
+        List<ProbNet> networks = new ArrayList<>();
+        for (String net : response.getNetworks()) {
+            networks.add(loadModel(net));
+        }
+
+        assertEquals(networks.size(), 2);
+
+        ProbNet network1 = networks.get(0);
+        ProbNet network2 = networks.get(1);
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+
+        //assert that the only node that is present in both is the target node
+        for (Variable n : network1.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network2.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network2.getVariables(), n));
+            }
+        }
+
+        for (Variable n : network2.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network1.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network1.getVariables(), n));
+            }
+        }
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not explicitly checked
+
+
+        assertEquals(links_1.size(), 6);
+
+        assertEquals(links_2.size(), 10);
+
+        assertEquals(response.getAucs().get("NO"), 0.89, 0.05);
+        assertEquals(response.getAucs().get("YES"), 0.89, 0.05);
+        assertEquals(response.getWeightedAUC(), 0.89, 0.05);
+    }
+
+    @Test
     public void testCreateEnsemblePredefinedStructure() throws Exception {
         EnsembleServer station1 = new EnsembleServer("resources/Experiments/k2/smallK2Example_firsthalf.csv",
                                                      "1");
@@ -637,7 +707,7 @@ public class EnsembleCentralServerTest {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         String target = "x1";
         req.setTarget(target);
-        req.setHybrid(true);
+        req.setHybrid(false);
         EnsembleResponse response = central.createEnsemble(req);
         List<String> networks = response.getNetworks();
 
@@ -742,7 +812,7 @@ public class EnsembleCentralServerTest {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         String target = "x1";
         req.setTarget(target);
-        req.setHybrid(true);
+        req.setHybrid(false);
         req.setFolds(3);
         EnsembleResponse response = central.createEnsemble(req);
         List<String> networks = response.getNetworks();

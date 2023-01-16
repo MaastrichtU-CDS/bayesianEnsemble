@@ -4,9 +4,6 @@ import com.florian.bayesianensemble.webservice.performance.base.Performance;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceTestBase;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceThreeWayTestBase;
 
-import java.util.HashSet;
-import java.util.Set;
-
 
 public class DiabetesTest {
     private static final String SOURCE = "resources/Experiments/Diabetes/diabetesWeka.arff";
@@ -64,36 +61,11 @@ public class DiabetesTest {
         return p;
     }
 
-    public static Performance testPerformanceManual() throws Exception {
-        //there is no logical way to split this dataset, so don't use this
-        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
-        Performance p = test.manualSplit(leftManual(), rightManual());
-        return p;
-    }
-
     public static Performance testPerformanceThreeWayAutomatic() throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
         return p;
     }
 
-    private static Set<String> leftManual() {
-        Set<String> left = new HashSet<>();
-        left.add("Pregnancies");
-        left.add("Glucose");
-        left.add("BloodPressure");
-        left.add("SkinThickness");
-        left.add("Insulin");
-        left.add("BMI");
-        left.add("DiabetesPedigreeFunction");
-        left.add("Age");
-        left.add("Outcome");
-        return left;
-    }
-
-    private static Set<String> rightManual() {
-        Set<String> right = new HashSet<>();
-        return right;
-    }
 }
 

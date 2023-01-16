@@ -182,6 +182,10 @@
                                         <exclude>com.florian.bayesianensemble.WebserviceDtApplication</exclude>
                                         <exclude>com.florian.bayesianensemble</exclude>
                                         <exclude>com.florian.bayesianensemble.webservice.domain</exclude>
+                                        <!--Exclude openMarkovClassifier because there are some exceptions that
+                                        occasionally happen for which I've made handlers, but I cannot purposefully
+                                        reproduce them so the class has poor coverage.-->
+                                        <exclude>com.florian.bayesianensemble.openmarkov</exclude>
                                         <exclude>com</exclude>
                                     </excludes>
                                     <element>PACKAGE</element>

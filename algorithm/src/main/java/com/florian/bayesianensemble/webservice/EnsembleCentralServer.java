@@ -153,10 +153,11 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         } else {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
             boolean fullyLocal = ((EnsembleEndpoint) e).isFullyLocal(network);
+
             setBins(network, req);
             setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
 
-            return learnStructure(network, req.getMinPercentage(), fullyLocal, e);
+            return learnStructure(network, req.getMinPercentage(), fullyLocal, e, target.getName());
 
         }
     }
@@ -178,9 +179,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             ((VertiBayesEndpoint) end).setUseLocalOnly(false);
         }
         //check if purely local data should be used for the local endpoint
-        if (hybrid) {
-            e.setUseLocalOnly(true);
-        }
+        e.setUseLocalOnly(!hybrid);
     }
 
     private List<Node> getLocalNodes(EnsembleEndpoint e, Node target) {
@@ -215,7 +214,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     }
 
     private List<Node> learnStructure(List<Node> nodes, int minpercentage, boolean fullyLocal,
-                                      ServerEndpoint endpoint) {
+                                      ServerEndpoint endpoint, String target) throws Exception {
         Network n = new Network(getEndpoints(), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());
         if (fullyLocal) {
             n = new Network(Arrays.asList(endpoint), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());

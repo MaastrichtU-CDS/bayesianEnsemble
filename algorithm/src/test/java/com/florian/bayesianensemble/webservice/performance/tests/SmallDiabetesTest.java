@@ -4,12 +4,11 @@ import com.florian.bayesianensemble.webservice.performance.base.Performance;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceTestBase;
 import com.florian.bayesianensemble.webservice.performance.base.PerformanceThreeWayTestBase;
 
-import java.util.HashSet;
-import java.util.Set;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SmallIrisTest {
-    private static final String SOURCE = "resources/Experiments/iris/iris.arff";
-    private static final String TARGET = "label";
+public class SmallDiabetesTest {
+    private static final String SOURCE = "resources/Experiments/Diabetes/diabetesWeka.arff";
+    private static final String TARGET = "Outcome";
     private static final int FOLDS = 2;
     private static final int ROUNDS = 2;
 
@@ -29,11 +28,18 @@ public class SmallIrisTest {
         return p;
     }
 
-    public static Performance testPerformanceManualUnknown(double treshold) throws Exception {
-        PerformanceTestBase test = new PerformanceTestBase(
-                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
-                        ".arff"), TARGET, ROUNDS, FOLDS);
-        Performance p = test.manualSplit(leftManual(), rightManual());
+    public static Performance testPerformanceThreeWayPopulation() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        return p;
+    }
+
+    public static Performance testPerformancePopulation() throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationSplit();
+        assertEquals(p.getWeightedAUCEnsemble(), 0.78, 0.05);
+        assertEquals(p.getWeightedAUCCentral(), 0.78, 0.05);
+        assertEquals(p.getVertibayesPerformance(), 0.78, 0.05);
         return p;
     }
 
@@ -41,27 +47,6 @@ public class SmallIrisTest {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.automaticSplit();
         return p;
-    }
-
-    public static Performance testPerformanceManual() throws Exception {
-        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
-        Performance p = test.manualSplit(leftManual(), rightManual());
-        return p;
-    }
-
-    private static Set<String> leftManual() {
-        Set<String> left = new HashSet<>();
-        left.add("sepallength");
-        left.add("sepalwidth");
-        return left;
-    }
-
-    private static Set<String> rightManual() {
-        Set<String> right = new HashSet<>();
-        right.add("petallength");
-        right.add("petalwidth");
-        right.add("label");
-        return right;
     }
 }
 
