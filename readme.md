@@ -74,14 +74,23 @@ To handle a Hybrid split in your data include an attributecolumn in all relevant
 bool" as it's type. Locally available data should have the value "TRUE". Missing records are then inserted as a row that
 has the value "FALSE" for this attribute. This should be handled in a preprocessing step.
 
-Important to note; datasets still need to have the same ordering for their records. It is assumed that recordlinkage is
-handled in a preprocessing step as well.
+In the request one can indicate if the models need to be made in a hybrid manner. If hybrid is set to false the models
+will only look at local data, if hybrid is set to false it'll look at all available data for locally.
+
+For example; in a horizontal split; ```"hybrid:"false"``` will result in 2 different models based on the local data.
+```"hybrid:"false"``` will result in two models that are exactly the same.
+
+The only exception to this is the class-label, which will always be treated as a hybrid value.
+
+Important to note; datasets still need to have the same ordering for their records. Missing local records can be empty
+aside from the locallyPresent attribute. It is assumed that recordlinkage is handled in a preprocessing step as well.
 
 ## Implemented methods:
 
 createEnsemble:
 This method creates an ensemble of bayesian networks.
 It can either use predefined structures or determine them themselves using K2.
+It will also return the AUC for the ensemble using k-fold cross validation.
 
 ### Request example Expectation Maximization
 
