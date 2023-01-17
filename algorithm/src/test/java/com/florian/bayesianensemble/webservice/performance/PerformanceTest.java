@@ -14,70 +14,77 @@ public class PerformanceTest {
     @Test
     public void testHybrid() throws Exception {
         if (SMALLTEST) {
-            printPerformance("SmallDiabetes automatic hybrid", SmallDiabetesTest.testPerformanceThreeWayHybrid(), true);
+            printPerformance("SmallDiabetes automatic hybrid", SmallDiabetesTest.testPerformanceThreeWayHybrid(true),
+                             true);
+            printPerformance("SmallDiabetes automatic hybrid", SmallDiabetesTest.testPerformanceThreeWayHybrid(false),
+                             true);
         }
 
         if (!SMALLTEST) {
-
+            List<Boolean> hybrid = Arrays.asList(true, false);
             // three way split
-            printThreeWayPerformance("Diabetes automatic threeways hybrid",
-                                     DiabetesTest.testPerformanceThreeWayHybrid(),
-                                     true);
-            printThreeWayPerformance("Asia automatic threeways hybrid",
-                                     AsiaTest.testPerformanceThreeWayHybrid(), false);
-            printThreeWayPerformance("Autism automatic threeways hybrid",
-                                     AutismTest.testPerformanceThreeWayHybrid(),
-                                     false);
-            printThreeWayPerformance("Iris automatic threeways hybrid",
-                                     IrisTest.testPerformanceThreeWayHybrid(), false);
-
-            for (Double treshold : tresholds) {
-                //three way split
-                printThreeWayPerformance("Diabetes automatic threeways unknown hybrid" + treshold,
-                                         DiabetesTest.testPerformanceThreeWayHybridUnknown(treshold),
+            for (Boolean b : hybrid) {
+                printThreeWayPerformance("Diabetes automatic threeways hybrid model:" + b,
+                                         DiabetesTest.testPerformanceThreeWayHybrid(b),
                                          true);
-                printPerformance("Iris automatic threeways unknown hybrid" + treshold,
-                                 IrisTest.testPerformanceThreeWayHybridUnknown(treshold), false);
-                printThreeWayPerformance("Asia automatic threeways unknown hybrid" + treshold,
-                                         AsiaTest.testPerformanceThreeWayHybridUnknown(treshold), false);
-                printThreeWayPerformance("Autism automatic threeways unknown hybrid" + treshold,
-                                         AutismTest.testPerformanceThreeWayHybridUnknown(treshold),
+                printThreeWayPerformance("Asia automatic threeways hybrid model:" + b,
+                                         AsiaTest.testPerformanceThreeWayHybrid(b), false);
+                printThreeWayPerformance("Autism automatic threeways hybrid model:" + b,
+                                         AutismTest.testPerformanceThreeWayHybrid(b),
                                          false);
-            }
+                printThreeWayPerformance("Iris automatic threeways hybrid model:" + b,
+                                         IrisTest.testPerformanceThreeWayHybrid(b), false);
 
-            for (int i = 0; i < 10; i++) {
-                printThreeWayPerformance("Mushroom automatic threeways hybrid",
-                                         MushroomTest.testPerformanceThreeWayHybrid(),
-                                         false);
-                printThreeWayPerformance("Alarm automatic threeways hybrid",
-                                         AlarmTest.testPerformanceThreeWayHybrid(),
-                                         false);
+                for (Double treshold : tresholds) {
+                    //three way split
+                    printThreeWayPerformance("Diabetes automatic threeways unknown hybrid model:" + b + treshold,
+                                             DiabetesTest.testPerformanceThreeWayHybridUnknown(treshold, b),
+                                             true);
+                    printPerformance("Iris automatic threeways unknown hybrid model:" + b + treshold,
+                                     IrisTest.testPerformanceThreeWayHybridUnknown(treshold, b), false);
+                    printThreeWayPerformance("Asia automatic threeways unknown hybrid model:" + b + treshold,
+                                             AsiaTest.testPerformanceThreeWayHybridUnknown(treshold, b), false);
+                    printThreeWayPerformance("Autism automatic threeways unknown hybrid model:" + b + treshold,
+                                             AutismTest.testPerformanceThreeWayHybridUnknown(treshold, b),
+                                             false);
+                }
             }
+            for (Boolean b : hybrid) {
 
-            for (Double treshold : tresholds) {
-                printThreeWayPerformance("Mushroom manual threeways unknown " + treshold,
-                                         MushroomTest.testPerformanceThreeWayHybridUnknown(treshold), true);
-            }
+                for (int i = 0; i < 10; i++) {
+                    printThreeWayPerformance("Mushroom automatic threeways hybrid model:" + b,
+                                             MushroomTest.testPerformanceThreeWayHybrid(b),
+                                             false);
+                    printThreeWayPerformance("Alarm automatic threeways hybrid model:" + b,
+                                             AlarmTest.testPerformanceThreeWayHybrid(b),
+                                             false);
+                }
 
-            for (int i = 0; i < 10; i++) {
-                printPerformance("Alarm automatic unknown " + 0.05,
-                                 AlarmTest.testPerformanceThreeWayHybridUnknown(0.05), true);
-                printPerformance("Mushroom automatic unknown " + 0.05,
-                                 MushroomTest.testPerformanceThreeWayHybridUnknown(0.05), false);
-            }
+                for (Double treshold : tresholds) {
+                    printThreeWayPerformance("Mushroom manual threeways unknown " + treshold,
+                                             MushroomTest.testPerformanceThreeWayHybridUnknown(treshold, b), true);
+                }
 
-            for (int i = 0; i < 10; i++) {
-                printPerformance("Alarm automatic unknown " + 0.1,
-                                 AlarmTest.testPerformanceThreeWayHybridUnknown(0.1), true);
-                printPerformance("Mushroom automatic unknown " + 0.1,
-                                 MushroomTest.testPerformanceThreeWayHybridUnknown(0.1), false);
-            }
+                for (int i = 0; i < 10; i++) {
+                    printPerformance("Alarm automatic unknown " + 0.05,
+                                     AlarmTest.testPerformanceThreeWayHybridUnknown(0.05, b), true);
+                    printPerformance("Mushroom automatic unknown " + 0.05,
+                                     MushroomTest.testPerformanceThreeWayHybridUnknown(0.05, b), false);
+                }
 
-            for (int i = 0; i < 10; i++) {
-                printPerformance("Alarm automatic unknown " + 0.3,
-                                 AlarmTest.testPerformanceThreeWayHybridUnknown(0.3), true);
-                printPerformance("Mushroom automatic unknown " + 0.3,
-                                 MushroomTest.testPerformanceThreeWayHybridUnknown(0.3), false);
+                for (int i = 0; i < 10; i++) {
+                    printPerformance("Alarm automatic unknown " + 0.1,
+                                     AlarmTest.testPerformanceThreeWayHybridUnknown(0.1, b), true);
+                    printPerformance("Mushroom automatic unknown " + 0.1,
+                                     MushroomTest.testPerformanceThreeWayHybridUnknown(0.1, b), false);
+                }
+
+                for (int i = 0; i < 10; i++) {
+                    printPerformance("Alarm automatic unknown " + 0.3,
+                                     AlarmTest.testPerformanceThreeWayHybridUnknown(0.3, b), true);
+                    printPerformance("Mushroom automatic unknown " + 0.3,
+                                     MushroomTest.testPerformanceThreeWayHybridUnknown(0.3, b), false);
+                }
             }
 
         }
@@ -132,17 +139,17 @@ public class PerformanceTest {
             }
 
             for (int i = 0; i < 10; i++) {
-                printThreeWayPerformance("Mushroom automatic threeways hybrid",
+                printThreeWayPerformance("Mushroom automatic threeways horizontal",
                                          MushroomTest.testPerformanceThreeWayPopulation(),
                                          false);
-                printThreeWayPerformance("Alarm automatic threeways hybrid",
+                printThreeWayPerformance("Alarm automatic threeways horizontal",
                                          AlarmTest.testPerformanceThreeWayPopulation(),
                                          false);
 
-                printThreeWayPerformance("Mushroom automatic threeways hybrid",
+                printThreeWayPerformance("Mushroom automatic threeways horizontal",
                                          MushroomTest.testPerformancePopulation(),
                                          false);
-                printThreeWayPerformance("Alarm automatic threeways hybrid",
+                printThreeWayPerformance("Alarm automatic threeways horizontal",
                                          AlarmTest.testPerformancePopulation(),
                                          false);
             }

@@ -163,7 +163,7 @@ public class PerformanceThreeWayTestBase {
         return p;
     }
 
-    public Performance hybridSplit() throws Exception {
+    public Performance hybridSplit(boolean hybridModel) throws Exception {
         Map<String, Double> aucs = new HashMap<>();
         double weightedAUCEnsemble = 0;
         double weightedAUCLeft = 0;
@@ -176,7 +176,7 @@ public class PerformanceThreeWayTestBase {
         for (int i = 0; i < ROUNDS; i++) {
             splitHybrid();
             long start = System.currentTimeMillis();
-            EnsembleResponse e = trainModelHybrid(true);
+            EnsembleResponse e = trainModelHybrid(hybridModel);
             long duration = System.currentTimeMillis() - start;
             time += duration;
             if (duration > p.getMaxTime()) {

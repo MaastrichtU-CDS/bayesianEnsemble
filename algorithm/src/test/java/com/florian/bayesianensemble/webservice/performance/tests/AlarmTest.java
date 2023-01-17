@@ -14,17 +14,17 @@ public class AlarmTest {
     private static final int FOLDS = 10;
     private static final int ROUNDS = 1;
 
-    public static Performance testPerformanceThreeWayHybridUnknown(double treshold) throws Exception {
+    public static Performance testPerformanceThreeWayHybridUnknown(double treshold, boolean hybrid) throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
                         ".arff"), TARGET, ROUNDS, FOLDS);
-        Performance p = test.hybridSplit();
+        Performance p = test.hybridSplit(hybrid);
         return p;
     }
 
-    public static Performance testPerformanceThreeWayHybrid() throws Exception {
+    public static Performance testPerformanceThreeWayHybrid(boolean hybrid) throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
-        Performance p = test.hybridSplit();
+        Performance p = test.hybridSplit(hybrid);
         return p;
     }
 
