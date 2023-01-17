@@ -12,6 +12,21 @@ public class SmallDiabetesTest {
     private static final int FOLDS = 2;
     private static final int ROUNDS = 2;
 
+
+    public static Performance testPerformanceThreeWayHybridUnknown(double treshold) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.hybridSplit();
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayHybrid() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.hybridSplit();
+        return p;
+    }
+
     public static Performance testPerformanceAutomaticUnknown(double treshold) throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +

@@ -103,8 +103,10 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         for (ServerEndpoint e : getEndpoints()) {
             if (e.getServerId().equals(key)) {
                 setUseLocalData(isHybrid, (EnsembleEndpoint) e);
-                fullyLocal = ((EnsembleEndpoint) e).isFullyLocal(structures.get(key));
+                fullyLocal = !isHybrid && ((EnsembleEndpoint) e).isFullyLocal(structures.get(key));
+                //only use fully local model if not hybrid and everything is locally available
                 relevantEndpoint = e;
+
             }
         }
         WebBayesNetwork n = new WebBayesNetwork();
@@ -152,7 +154,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             return network;
         } else {
             List<Node> network = getLocalNodes((EnsembleEndpoint) e, target);
-            boolean fullyLocal = ((EnsembleEndpoint) e).isFullyLocal(network);
+            boolean fullyLocal = !req.isHybrid() && ((EnsembleEndpoint) e).isFullyLocal(network);
 
             setBins(network, req);
             setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);

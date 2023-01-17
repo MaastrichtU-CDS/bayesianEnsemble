@@ -13,6 +13,20 @@ public class MushroomTest {
     private static final int FOLDS = 10;
     private static final int ROUNDS = 1;
 
+    public static Performance testPerformanceThreeWayHybridUnknown(double treshold) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.hybridSplit();
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayHybrid() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.hybridSplit();
+        return p;
+    }
+
     public static Performance testPerformanceAutomaticUnknown(double treshold) throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(
                 SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +

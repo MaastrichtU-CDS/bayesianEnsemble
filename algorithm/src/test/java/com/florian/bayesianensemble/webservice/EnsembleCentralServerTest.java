@@ -675,7 +675,7 @@ public class EnsembleCentralServerTest {
     }
 
     @Test
-    public void testCreateEnsembleHybridSplit() throws Exception {
+    public void testCreateEnsembleHybridLocalModelSplit() throws Exception {
         EnsembleServer station1 = new EnsembleServer(
                 "resources/Experiments/hybridsplit/smallK2Example_firsthalf_hybrid1.csv",
                 "1");
@@ -772,6 +772,111 @@ public class EnsembleCentralServerTest {
         assertEquals(network2.getPotentials().get(0).getVariables().get(0).getName(), "x1");
         assertEquals(network1.getPotentials().get(0).getCPT().values[0], 0.40, 0.02);
         assertEquals(network2.getPotentials().get(0).getCPT().values[0], 0.60, 0.02);
+
+        //assert the AUCS are correctly calculate for this small dataset with little to no internal logic
+        assertEquals(response.getAucs().get("1"), 0.82, 0.05);
+        assertEquals(response.getAucs().get("0"), 0.82, 0.05);
+        assertEquals(response.getWeightedAUC(), 0.82, 0.05);
+    }
+
+    @Test
+    public void testCreateEnsembleHybridHybridModelSplit() throws Exception {
+        EnsembleServer station1 = new EnsembleServer(
+                "resources/Experiments/hybridsplit/smallK2Example_firsthalf_hybrid1.csv",
+                "1");
+        EnsembleServer station2 = new EnsembleServer(
+                "resources/Experiments/hybridsplit/smallK2Example_firsthalf_hybrid2.csv",
+                "2");
+        EnsembleServer station3 = new EnsembleServer("resources/Experiments/hybridsplit/smallK2Example_secondhalf.csv",
+                                                     "3");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleEndpoint endpoint3 = new EnsembleEndpoint(station3);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1, endpoint2, endpoint3));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(endpoint2);
+        all.add(endpoint3);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+        station2.setEndpoints(all);
+        station3.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1, endpoint2, endpoint3), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        String target = "x1";
+        req.setTarget(target);
+        req.setHybrid(true);
+        EnsembleResponse response = central.createEnsemble(req);
+        List<String> networks = response.getNetworks();
+
+        assertEquals(networks.size(), 3);
+
+        ProbNet network1 = loadModel(networks.get(0));
+        ProbNet network2 = loadModel(networks.get(1));
+        ProbNet network3 = loadModel(networks.get(2));
+
+        //check network 1 & 2 have the same nodes, but only share the target with network 3
+
+        for (Variable n : network1.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network3.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network3.getVariables(), n));
+            }
+            assertTrue(checkNodeIsPresent(network2.getVariables(), n));
+        }
+
+        for (Variable n : network2.getVariables()) {
+            if (n.getName().equals(target)) {
+                assertTrue(checkNodeIsPresent(network3.getVariables(), n));
+            } else {
+                assertFalse(checkNodeIsPresent(network3.getVariables(), n));
+            }
+            assertTrue(checkNodeIsPresent(network1.getVariables(), n));
+        }
+
+        //check expected network
+        //network 1: x1 -> x2
+        //network 2: x3 -> x1
+        //probabilities are not
+        List<Link<Node>> links_1 = network1.getLinks();
+        List<Link<Node>> links_2 = network2.getLinks();
+        List<Link<Node>> links_3 = network3.getLinks();
+
+        assertEquals(links_1.size(), 1);
+        assertEquals(links_1.get(0).getNode1().getName(), "x1");
+        assertEquals(links_1.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_1.get(0).getNode2().getName(), "x2");
+        assertEquals(links_1.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_1.get(0).getNode2().getParents().get(0).getName(), "x1");
+
+        assertEquals(links_2.size(), 1);
+        assertEquals(links_2.get(0).getNode1().getName(), "x1");
+        assertEquals(links_2.get(0).getNode1().getParents().size(), 0);
+        assertEquals(links_2.get(0).getNode2().getName(), "x2");
+        assertEquals(links_2.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_2.get(0).getNode2().getParents().get(0).getName(), "x1");
+
+
+        assertEquals(links_3.size(), 1);
+        assertEquals(links_3.get(0).getNode2().getName(), "x1");
+        assertEquals(links_3.get(0).getNode2().getParents().size(), 1);
+        assertEquals(links_3.get(0).getNode2().getParents().get(0).getName(), "x3");
+        assertEquals(links_3.get(0).getNode1().getName(), "x3");
+        assertEquals(links_3.get(0).getNode1().getParents().size(), 0);
+
+        //check probabilities are  the same for the two hybrid split networks
+        assertEquals(network1.getPotentials().get(0).getVariables().get(0).getName(), "x1");
+        assertEquals(network2.getPotentials().get(0).getVariables().get(0).getName(), "x1");
+        assertEquals(network1.getPotentials().get(0).getCPT().values[0], 0.50, 0.02);
+        assertEquals(network2.getPotentials().get(0).getCPT().values[0], 0.50, 0.02);
 
         //assert the AUCS are correctly calculate for this small dataset with little to no internal logic
         assertEquals(response.getAucs().get("1"), 0.82, 0.05);

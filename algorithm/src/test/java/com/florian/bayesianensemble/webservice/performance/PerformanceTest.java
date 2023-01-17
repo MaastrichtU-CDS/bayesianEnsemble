@@ -12,6 +12,78 @@ public class PerformanceTest {
     public static final List<Double> tresholds = Arrays.asList(0.05, 0.1, 0.3);
 
     @Test
+    public void testHybrid() throws Exception {
+        if (SMALLTEST) {
+            printPerformance("SmallDiabetes automatic hybrid", SmallDiabetesTest.testPerformanceThreeWayHybrid(), true);
+        }
+
+        if (!SMALLTEST) {
+
+            // three way split
+            printThreeWayPerformance("Diabetes automatic threeways hybrid",
+                                     DiabetesTest.testPerformanceThreeWayHybrid(),
+                                     true);
+            printThreeWayPerformance("Asia automatic threeways hybrid",
+                                     AsiaTest.testPerformanceThreeWayHybrid(), false);
+            printThreeWayPerformance("Autism automatic threeways hybrid",
+                                     AutismTest.testPerformanceThreeWayHybrid(),
+                                     false);
+            printThreeWayPerformance("Iris automatic threeways hybrid",
+                                     IrisTest.testPerformanceThreeWayHybrid(), false);
+
+            for (Double treshold : tresholds) {
+                //three way split
+                printThreeWayPerformance("Diabetes automatic threeways unknown hybrid" + treshold,
+                                         DiabetesTest.testPerformanceThreeWayHybridUnknown(treshold),
+                                         true);
+                printPerformance("Iris automatic threeways unknown hybrid" + treshold,
+                                 IrisTest.testPerformanceThreeWayHybridUnknown(treshold), false);
+                printThreeWayPerformance("Asia automatic threeways unknown hybrid" + treshold,
+                                         AsiaTest.testPerformanceThreeWayHybridUnknown(treshold), false);
+                printThreeWayPerformance("Autism automatic threeways unknown hybrid" + treshold,
+                                         AutismTest.testPerformanceThreeWayHybridUnknown(treshold),
+                                         false);
+            }
+
+            for (int i = 0; i < 10; i++) {
+                printThreeWayPerformance("Mushroom automatic threeways hybrid",
+                                         MushroomTest.testPerformanceThreeWayHybrid(),
+                                         false);
+                printThreeWayPerformance("Alarm automatic threeways hybrid",
+                                         AlarmTest.testPerformanceThreeWayHybrid(),
+                                         false);
+            }
+
+            for (Double treshold : tresholds) {
+                printThreeWayPerformance("Mushroom manual threeways unknown " + treshold,
+                                         MushroomTest.testPerformanceThreeWayHybridUnknown(treshold), true);
+            }
+
+            for (int i = 0; i < 10; i++) {
+                printPerformance("Alarm automatic unknown " + 0.05,
+                                 AlarmTest.testPerformanceThreeWayHybridUnknown(0.05), true);
+                printPerformance("Mushroom automatic unknown " + 0.05,
+                                 MushroomTest.testPerformanceThreeWayHybridUnknown(0.05), false);
+            }
+
+            for (int i = 0; i < 10; i++) {
+                printPerformance("Alarm automatic unknown " + 0.1,
+                                 AlarmTest.testPerformanceThreeWayHybridUnknown(0.1), true);
+                printPerformance("Mushroom automatic unknown " + 0.1,
+                                 MushroomTest.testPerformanceThreeWayHybridUnknown(0.1), false);
+            }
+
+            for (int i = 0; i < 10; i++) {
+                printPerformance("Alarm automatic unknown " + 0.3,
+                                 AlarmTest.testPerformanceThreeWayHybridUnknown(0.3), true);
+                printPerformance("Mushroom automatic unknown " + 0.3,
+                                 MushroomTest.testPerformanceThreeWayHybridUnknown(0.3), false);
+            }
+
+        }
+    }
+
+    @Test
     public void testHorizontal() throws Exception {
         if (SMALLTEST) {
             printPerformance("SmallDiabetes automatic horizontal", SmallDiabetesTest.testPerformancePopulation(), true);
@@ -21,9 +93,7 @@ public class PerformanceTest {
             printPerformance("Diabetes automatic horizontal", DiabetesTest.testPerformancePopulation(), true);
             printPerformance("Iris automatic horizontal", IrisTest.testPerformancePopulation(), false);
             printPerformance("Autism automatic horizontal", AutismTest.testPerformancePopulation(), false);
-            printPerformance("Mushroom automatic horizontal", MushroomTest.testPerformancePopulation(), false);
             printPerformance("Asia automatic horizontal", AsiaTest.testPerformancePopulation(), false);
-            printPerformance("Alarm automatic horizontal", AlarmTest.testPerformancePopulation(), false);
 
             // three way split
             printThreeWayPerformance("Diabetes automatic threeways horizontal",
@@ -36,12 +106,6 @@ public class PerformanceTest {
                                      false);
             printThreeWayPerformance("Iris automatic threeways horizontal",
                                      IrisTest.testPerformanceThreeWayPopulation(), false);
-            printThreeWayPerformance("Mushroom automatic threeways horizontal",
-                                     MushroomTest.testPerformanceThreeWayPopulation(),
-                                     false);
-            printThreeWayPerformance("Alarm automatic threeways horizontal",
-                                     AlarmTest.testPerformanceThreeWayPopulation(),
-                                     false);
 
             for (Double treshold : tresholds) {
                 //two-way split
@@ -64,6 +128,22 @@ public class PerformanceTest {
                                          AsiaTest.testPerformanceThreeWayPopulationUnknown(treshold), false);
                 printThreeWayPerformance("Autism automatic threeways unknown horizontal" + treshold,
                                          AutismTest.testPerformanceThreeWayPopulationUnknown(treshold),
+                                         false);
+            }
+
+            for (int i = 0; i < 10; i++) {
+                printThreeWayPerformance("Mushroom automatic threeways hybrid",
+                                         MushroomTest.testPerformanceThreeWayPopulation(),
+                                         false);
+                printThreeWayPerformance("Alarm automatic threeways hybrid",
+                                         AlarmTest.testPerformanceThreeWayPopulation(),
+                                         false);
+
+                printThreeWayPerformance("Mushroom automatic threeways hybrid",
+                                         MushroomTest.testPerformancePopulation(),
+                                         false);
+                printThreeWayPerformance("Alarm automatic threeways hybrid",
+                                         AlarmTest.testPerformancePopulation(),
                                          false);
             }
             for (Double treshold : tresholds) {

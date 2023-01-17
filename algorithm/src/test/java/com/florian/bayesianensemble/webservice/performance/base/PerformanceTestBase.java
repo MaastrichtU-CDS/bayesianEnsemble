@@ -165,7 +165,7 @@ public class PerformanceTestBase {
         for (int i = 0; i < ROUNDS; i++) {
             splitPopulation();
             long start = System.currentTimeMillis();
-            EnsembleResponse e = trainModelHybrid();
+            EnsembleResponse e = trainModelHybrid(false);
             long duration = System.currentTimeMillis() - start;
             time += duration;
             if (duration > p.getMaxTime()) {
@@ -305,7 +305,7 @@ public class PerformanceTestBase {
         return response;
     }
 
-    private EnsembleResponse trainModelHybrid() throws Exception {
+    private EnsembleResponse trainModelHybrid(boolean hybrid) throws Exception {
         EnsembleServer station1 = new EnsembleServer(LEFT, "1");
         EnsembleServer station2 = new EnsembleServer(RIGHT, "2");
         EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
@@ -328,6 +328,7 @@ public class PerformanceTestBase {
         CreateEnsembleRequest req = new CreateEnsembleRequest();
         req.setTarget(TARGET);
         req.setFolds(FOLDS);
+        req.setHybrid(hybrid);
 
         EnsembleResponse response = central.createEnsemble(req);
         return response;
@@ -482,7 +483,7 @@ public class PerformanceTestBase {
             }
         }
         left.remove(index);
-
+        index = -1;
         for (int i = 0; i < right.size(); i++) {
             if (right.get(i).get(0).getAttributeName().equals("locallyPresent")) {
                 index = i;
