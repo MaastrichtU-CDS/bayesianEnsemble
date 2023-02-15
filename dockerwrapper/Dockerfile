@@ -18,19 +18,19 @@ RUN apk add --no-cache gcompat
 
 # Build n-scalar-product protocol
 WORKDIR /build
-RUN git clone --branch 2.2-stable git@github.com:MaastrichtU-CDS/n-scalar-product-protocol.git
+RUN git clone --branch 3.0-stable git@github.com:MaastrichtU-CDS/n-scalar-product-protocol.git
 
 WORKDIR /build/n-scalar-product-protocol/java
 RUN mvn install
 
 # Build vertibayes
 WORKDIR /build
-RUN git clone --branch 2.1-stable-library git@github.com:MaastrichtU-CDS/vertibayes.git
+RUN git clone --branch 3.0-stable-library git@github.com:MaastrichtU-CDS/vertibayes.git
 WORKDIR /build/vertibayes
 RUN mvn install
 
 WORKDIR /build
-RUN git clone --branch 1.0-stable git@github.com:MaastrichtU-CDS/bayesianEnsemble.git
+RUN git clone --branch 2.0-stable git@github.com:MaastrichtU-CDS/bayesianEnsemble.git
 
 WORKDIR /build/bayesianEnsemble/algorithm
 RUN mvn install:install-file -Dfile=./openmarkov/OpenMarkov-0.4.0.jar -DgroupId=org.openmarkov -DartifactId=org.openmarkov.full -Dversion=0.4.0-SNAPSHOT -Dpackaging=jar
