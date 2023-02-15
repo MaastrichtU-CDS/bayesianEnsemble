@@ -12,19 +12,19 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.6</version>
+        <version>3.0.2</version>
     </parent>
 
     <properties>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.florian</groupId>
             <artifactId>vertibayes</artifactId>
-            <version>2.1-LIBRARY</version>
+            <version>3.0-LIBRARY</version>
         </dependency>
         <dependency>
             <groupId>org.openmarkov</groupId>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.florian</groupId>
             <artifactId>n-scalar-product-protocol</artifactId>
-            <version>2.2-STABLE</version>
+            <version>3.0-STABLE</version>
         </dependency>
         <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
@@ -58,20 +58,20 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.3.12</version>
+            <version>6.0.4</version>
         </dependency>
 
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>2.5.6</version>
+            <version>3.0.2</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <version>2.5.6</version>
+            <version>3.0.2</version>
         </dependency>
 
     </dependencies>
@@ -112,7 +112,7 @@
             <!--Dependency check-->
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
