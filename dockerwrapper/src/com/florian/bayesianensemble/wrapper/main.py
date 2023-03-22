@@ -12,7 +12,7 @@ RETRY = 20
 IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/bayesian_ensemble'
 
 
-def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentage, hybrid, folds, *args, **kwargs):
+def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentage, hybrid, folds, trainStructure, *args, **kwargs):
         """
     
         :param client:
@@ -72,7 +72,7 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
         info('were here now')
         _initCentralServer(commodity_address, adresses)
 
-        response = _trainEnsemble(commodity_address, target, networks, binned, minpercentage, hybrid, folds)
+        response = _trainEnsemble(commodity_address, target, networks, binned, minpercentage, hybrid, folds, trainStructure)
 
         info('Commiting murder')
         for adress in adresses:
@@ -80,7 +80,7 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
 
         return response
 
-def _trainEnsemble(targetUrl, target, networks, binned, minpercentage, hybrid, folds):
+def _trainEnsemble(targetUrl, target, networks, binned, minpercentage, hybrid, folds, trainStructure):
     r = requests.post(targetUrl + "/createEnsemble", json={
         "target": target,
         "networks": networks,
@@ -88,6 +88,7 @@ def _trainEnsemble(targetUrl, target, networks, binned, minpercentage, hybrid, f
         "hybrid":hybrid,
         "minPercentage":minpercentage,
         "folds":folds,
+        "trainStructure":trainStructure
     })
     return r.json()
 

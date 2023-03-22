@@ -13,9 +13,9 @@ class BayesianEnsembleClient:
         """
         self.client = client
 
-    def bayesianEnsemble(self, collaboration, commodity_node, nodes,  target, networks, binned, minpercentage, hybrid, folds):
+    def bayesianEnsemble(self, collaboration, commodity_node, nodes,  target, networks, binned, minpercentage, hybrid, folds, trainStructure):
         return self.client.task.create(collaboration=collaboration,
                                        organizations=[commodity_node],
                                        name=NAME, image=IMAGE, description=NAME,
                                        input={'method': 'bayesianEnsemble', 'master': True,
-                                              'args': [nodes, target, networks, binned, minpercentage, hybrid, folds]})
+                                              'args': [nodes, target, networks, binned, minpercentage, hybrid, folds, trainStructure]})
