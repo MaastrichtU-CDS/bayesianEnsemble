@@ -29,11 +29,51 @@ public class test {
 
     @Test
     public void test() throws Exception {
-        String SOURCE = "resources/Experiments/Asia/Asia10kWeka_missing_0_1.arff";
-        String TARGET = "lung";
+        String SOURCE = "resources/Experiments/Autism/autism.arff";
+        String TARGET = "Class/ASD";
         splitSource(SOURCE);
         ExpectationMaximizationResponse x = vertiBayesComparison(TARGET);
         int probs = 0;
+        for (WebNode n : x.getNodes()) {
+            probs += (n.getProbabilities().size());
+        }
+        System.out.println("Autism " + probs);
+
+        SOURCE = "resources/Experiments/Mushrooms/agaricus-lepiota.arff";
+        TARGET = "class";
+        splitSource(SOURCE);
+        x = vertiBayesComparison(TARGET);
+        probs = 0;
+        for (WebNode n : x.getNodes()) {
+            probs += (n.getProbabilities().size());
+        }
+        System.out.println("Mushrooms " + probs);
+
+        SOURCE = "resources/Experiments/Autism/autism_missing_0_1.arff";
+        TARGET = "Class/ASD";
+        splitSource(SOURCE);
+        x = vertiBayesComparison(TARGET);
+        probs = 0;
+        for (WebNode n : x.getNodes()) {
+            probs += (n.getProbabilities().size());
+        }
+        System.out.println("Autism missing" + probs);
+
+        SOURCE = "resources/Experiments/Mushrooms/agaricus-lepiota_missing_0_1.arff";
+        TARGET = "class";
+        splitSource(SOURCE);
+        x = vertiBayesComparison(TARGET);
+        probs = 0;
+        for (WebNode n : x.getNodes()) {
+            probs += (n.getProbabilities().size());
+        }
+        System.out.println("Mushrooms missing" + probs);
+
+        SOURCE = "resources/Experiments/Asia/Asia10kWeka_missing_0_1.arff";
+        TARGET = "lung";
+        splitSource(SOURCE);
+        x = vertiBayesComparison(TARGET);
+        probs = 0;
         for (WebNode n : x.getNodes()) {
             probs += (n.getProbabilities().size());
         }

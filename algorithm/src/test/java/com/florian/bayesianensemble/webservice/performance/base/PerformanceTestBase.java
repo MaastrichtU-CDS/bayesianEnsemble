@@ -46,6 +46,7 @@ public class PerformanceTestBase {
         double weightedAUCEnsemble = 0;
         double weightedAUCLeft = 0;
         double weightedAUCRight = 0;
+        double weightedAUCCentral = 0;
 
         Performance p = new Performance();
         long time = 0;
@@ -70,6 +71,11 @@ public class PerformanceTestBase {
             }
         }
 
+        EnsembleResponse central = validateAgainstLocal(SOURCE);
+        weightedAUCCentral = central.getWeightedAUC();
+        p.setCentralAuc(central.getAucs());
+        p.setAverageTime(time);
+
         p.setEnsembleAuc(aucs);
 
         p.setAverageTime(time);
@@ -77,6 +83,8 @@ public class PerformanceTestBase {
         p.setWeightedAUCRight(weightedAUCRight);
         p.setWeightedAUCLeft(weightedAUCLeft);
         p.setWeightedAUCEnsemble(weightedAUCEnsemble);
+
+        p.setWeightedAUCCentral(weightedAUCCentral);
 
         long vertibayesTime = System.currentTimeMillis();
         ExpectationMaximizationResponse res = vertiBayesComparison();
@@ -242,7 +250,7 @@ public class PerformanceTestBase {
 
 
         CreateNetworkRequest r = new CreateNetworkRequest();
-        r.setMinPercentage(10);
+        r.setMinPercentage(0.1);
 
         WebBayesNetwork req = new WebBayesNetwork();
         req.setNodes(central.buildNetwork(r).getNodes());

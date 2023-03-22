@@ -147,7 +147,8 @@ The request for createEnsemble looks as follows:
   } ],
   "hybrid" : false,
   "minPercentage" : 0,
-  "folds" : 1
+  "folds" : 1,
+  "trainStructure":true
 }
 ```
 #### Bins:
@@ -162,6 +163,7 @@ Networks can be used to predefine network structures. They are assigned to speci
 If no network is provided K2 is used to determine the local structure.
 
 Within vantage6 the key used to indicate a party will correspond to the node ID.
+The "trainStructure" flag can be used to further train the network structure even if a predefined structure is given.
 
 #### Hybrid 
 Hybrid can be used to indicate if there are hybrid attributes

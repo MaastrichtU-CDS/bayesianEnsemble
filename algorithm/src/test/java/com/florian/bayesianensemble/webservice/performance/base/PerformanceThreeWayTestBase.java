@@ -76,6 +76,10 @@ public class PerformanceThreeWayTestBase {
 
         p.setEnsembleAuc(aucs);
 
+        EnsembleResponse central = validateAgainstLocal(SOURCE);
+        double weightedAUCCentral = central.getWeightedAUC();
+        p.setWeightedAUCCentral(weightedAUCCentral);
+
         p.setAverageTime(time);
 
         p.setWeightedAUCRight(weightedAUCRight);
@@ -332,7 +336,7 @@ public class PerformanceThreeWayTestBase {
         central.initEndpoints(Arrays.asList(endpoint1, endpoint2, endpoint3), secretEnd);
 
         CreateNetworkRequest r = new CreateNetworkRequest();
-        r.setMinPercentage(10);
+        r.setMinPercentage(0.1);
 
         WebBayesNetwork req = new WebBayesNetwork();
         req.setNodes(central.buildNetwork(r).getNodes());
