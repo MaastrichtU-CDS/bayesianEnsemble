@@ -1,5 +1,7 @@
 package com.florian.bayesianensemble.webservice.performance;
 
+import com.florian.bayesianensemble.webservice.performance.base.Performance;
+import com.florian.bayesianensemble.webservice.performance.tests.DiabetesTest;
 import com.florian.nscalarproduct.data.Attribute;
 import com.florian.nscalarproduct.data.Data;
 import com.florian.nscalarproduct.data.Parser;
@@ -26,6 +28,13 @@ public class test {
 
     final String LEFT = "resources/Experiments/left.arff";
     final String RIGHT = "resources/Experiments/right.arff";
+
+
+    @Test
+    public void test2() throws Exception {
+        Performance p = DiabetesTest.testPerformancePopulationBiassed();
+        System.out.println(p);
+    }
 
     @Test
     public void test() throws Exception {

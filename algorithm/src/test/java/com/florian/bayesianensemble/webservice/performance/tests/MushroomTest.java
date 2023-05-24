@@ -11,7 +11,8 @@ public class MushroomTest {
     private static final String SOURCE = "resources/Experiments/Mushrooms/agaricus-lepiota.arff";
     private static final String TARGET = "class";
     private static final int FOLDS = 10;
-    private static final int ROUNDS = 1;
+    private static final int ROUNDS = 10;
+    private static final double BIAS = 0.9;
 
     public static Performance testPerformanceThreeWayHybridUnknown(double treshold, boolean hybrid) throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
@@ -108,6 +109,34 @@ public class MushroomTest {
     public static Performance testPerformanceThreeWayManual() throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.manualSplit(leftThreeWayManual(), rightManual(), centerManual());
+        return p;
+    }
+
+    public static Performance testPerformancePopulationBiassedUnknown(double treshold) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, BIAS);
+        return p;
+    }
+
+    public static Performance testPerformancePopulationBiassed() throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, BIAS);
+        return p;
+    }
+
+    public static Performance testPerformancePopulationBiassedThreeway() throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, BIAS);
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayPopulationBiassedUnknown(double treshold) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, BIAS);
         return p;
     }
 

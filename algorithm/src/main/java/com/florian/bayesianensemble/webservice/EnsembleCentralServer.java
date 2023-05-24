@@ -44,6 +44,29 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         }
     }
 
+    public EnsembleResponse validateEnsemble(String model, String target) throws Exception {
+        initEndpoints();
+
+        activateAll(createFolds(1));
+
+        List<double[]> probablites = new ArrayList<>();
+        ClassifyRequest classify = new ClassifyRequest();
+        String encryptionName = String.valueOf(System.currentTimeMillis());
+        classify.setTarget(target);
+        Map<String, String> bayesNets = new HashMap<>();
+        bayesNets.put("1", model);
+        classify.setNetworks(bayesNets);
+        classify.setKey(getPublicPaillierKey(encryptionName));
+        classify.setPrecision(PRECISION);
+
+        sumProbabilities(classify, probablites, encryptionName);
+
+
+        EnsembleResponse response = createEnsembleResponse(calculateAUC(probablites, target, bayesNets), bayesNets,
+                                                           target);
+        return response;
+    }
+
     private EnsembleResponse kfoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
 
         List<double[]> probablites = new ArrayList<>();

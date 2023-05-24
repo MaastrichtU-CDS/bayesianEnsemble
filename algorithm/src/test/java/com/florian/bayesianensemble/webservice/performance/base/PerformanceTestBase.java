@@ -189,10 +189,79 @@ public class PerformanceTestBase {
             p.addVertibayesPerformance(res.getSvdgAuc());
 
             weightedAUCEnsemble += e.getWeightedAUC();
-            EnsembleResponse left = validateAgainstLocal(LEFT_LOCAL);
+            EnsembleResponse left = validateLocalAgainstGlobal(LEFT_LOCAL);
             weightedAUCLeft += left.getWeightedAUC();
             p.addLeftAuc(left.getAucs());
-            EnsembleResponse right = validateAgainstLocal(RIGHT_LOCAL);
+            EnsembleResponse right = validateLocalAgainstGlobal(RIGHT_LOCAL);
+            weightedAUCRight += right.getWeightedAUC();
+            p.addRightAuc(right.getAucs());
+
+            for (String key : e.getAucs().keySet()) {
+                if (aucs.containsKey(key)) {
+                    aucs.put(key, aucs.get(key) + e.getAucs().get(key));
+                } else {
+                    aucs.put(key, e.getAucs().get(key));
+                }
+            }
+        }
+        for (String key : aucs.keySet()) {
+            aucs.put(key, aucs.get(key) / ROUNDS);
+        }
+        p.normalize(ROUNDS);
+        p.setEnsembleAuc(aucs);
+
+        EnsembleResponse central = validateAgainstLocal(SOURCE);
+        weightedAUCCentral = central.getWeightedAUC();
+        p.setCentralAuc(central.getAucs());
+        p.setAverageTime(time / ROUNDS);
+
+
+        weightedAUCLeft /= ROUNDS;
+        weightedAUCRight /= ROUNDS;
+        weightedAUCEnsemble /= ROUNDS;
+
+        p.setWeightedAUCCentral(weightedAUCCentral);
+        p.setWeightedAUCRight(weightedAUCRight);
+        p.setWeightedAUCLeft(weightedAUCLeft);
+        p.setWeightedAUCEnsemble(weightedAUCEnsemble);
+
+        return p;
+    }
+
+
+    public Performance populationBiassedSplit(String label, double bias) throws Exception {
+        Map<String, Double> aucs = new HashMap<>();
+        double weightedAUCEnsemble = 0;
+        double weightedAUCLeft = 0;
+        double weightedAUCRight = 0;
+        double weightedAUCCentral = 0;
+
+        Performance p = new Performance();
+        long time = 0;
+        for (int i = 0; i < ROUNDS; i++) {
+            splitPopulationManualBias(label, bias);
+
+            long start = System.currentTimeMillis();
+            EnsembleResponse e = trainModelHybrid(false);
+            long duration = System.currentTimeMillis() - start;
+            time += duration;
+            if (duration > p.getMaxTime()) {
+                p.setMaxTime(duration);
+            }
+            if (p.getMinTime() == 0 || duration < p.getMinTime()) {
+                p.setMinTime(duration);
+            }
+
+            long vertibayesTime = System.currentTimeMillis();
+            ExpectationMaximizationResponse res = vertiBayesComparison();
+            p.addVertibayesTime(System.currentTimeMillis() - vertibayesTime);
+            p.addVertibayesPerformance(res.getSvdgAuc());
+
+            weightedAUCEnsemble += e.getWeightedAUC();
+            EnsembleResponse left = validateLocalAgainstGlobal(LEFT_LOCAL);
+            weightedAUCLeft += left.getWeightedAUC();
+            p.addLeftAuc(left.getAucs());
+            EnsembleResponse right = validateLocalAgainstGlobal(RIGHT_LOCAL);
             weightedAUCRight += right.getWeightedAUC();
             p.addRightAuc(right.getAucs());
 
@@ -282,6 +351,46 @@ public class PerformanceTestBase {
         req.setFolds(FOLDS);
 
         EnsembleResponse response = central.createEnsemble(req);
+
+        return response;
+    }
+
+    public EnsembleResponse validateLocalAgainstGlobal(String source) throws Exception {
+        Performance p = new Performance();
+        EnsembleServer station1 = new EnsembleServer(source, "1");
+        EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
+        EnsembleServer secret = new EnsembleServer("4", Arrays.asList(endpoint1));
+
+        ServerEndpoint secretEnd = new ServerEndpoint(secret);
+
+        List<ServerEndpoint> all = new ArrayList<>();
+        all.add(endpoint1);
+        all.add(secretEnd);
+        secret.setEndpoints(all);
+        station1.setEndpoints(all);
+
+        EnsembleCentralServer central = new EnsembleCentralServer();
+        central.initEndpoints(Arrays.asList(endpoint1), secretEnd);
+
+        CreateEnsembleRequest req = new CreateEnsembleRequest();
+        req.setTarget(TARGET);
+        req.setFolds(FOLDS);
+
+        EnsembleResponse response = central.createEnsemble(req);
+
+        EnsembleServer station2 = new EnsembleServer(SOURCE, "1");
+        EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
+        EnsembleServer secret2 = new EnsembleServer("4", Arrays.asList(endpoint2));
+
+        ServerEndpoint secretEnd2 = new ServerEndpoint(secret2);
+
+
+        EnsembleCentralServer central2 = new EnsembleCentralServer();
+        central2.initEndpoints(Arrays.asList(endpoint2), secretEnd2);
+        EnsembleResponse response2 = central2.validateEnsemble(response.getNetworks().get(0), TARGET);
+        response.setAucs(response2.getAucs());
+        response.setWeightedAUC(response2.getWeightedAUC());
+
         return response;
     }
 
@@ -457,6 +566,84 @@ public class PerformanceTestBase {
         createLocalPopulation(left, right);
     }
 
+    private void splitPopulationManualBias(String label, double bias) throws IOException, InvalidDataFormatException {
+        Data data = Parser.parseData(SOURCE, 0);
+
+        List<List<Attribute>> left = new ArrayList<>();
+        List<List<Attribute>> right = new ArrayList<>();
+
+        Random r = new Random();
+
+
+        left = new ArrayList<>();
+        right = new ArrayList<>();
+
+        for (int i = 0; i < data.getData().size(); i++) {
+            if (i == data.getIdColumn()) {
+                left.add(0, data.getData().get(i));
+                right.add(0, data.getData().get(i));
+            } else {
+                left.add(data.getData().get(i));
+                right.add(data.getData().get(i));
+            }
+        }
+
+
+        List<Attribute> leftPresent = new ArrayList<>();
+        List<Attribute> rightPresent = new ArrayList<>();
+
+        Set<String> labels = data.getUniqueValues(data.getAttributeValues(label));
+
+        //pick a random label
+
+        String selected = labels.stream().skip(new Random().nextInt(labels.size() - 1)).findFirst().orElse(null);
+
+        boolean done = false;
+        while (!done) {
+            int leftC = 0;
+            int rightC = 0;
+            leftPresent = new ArrayList<>();
+            rightPresent = new ArrayList<>();
+            for (int i = 0; i < data.getNumberOfIndividuals(); i++) {
+                Attribute present = new Attribute(Attribute.AttributeType.bool, "true", "locallyPresent");
+                Attribute absent = new Attribute(Attribute.AttributeType.bool, "false", "locallyPresent");
+
+                if (!data.getAttributeValues(label).get(i).getValue().equals(selected)) {
+                    //label is not equal to the one we want to dominate on our site
+                    if (r.nextDouble() < 1 - bias) {
+                        leftC++;
+                        leftPresent.add(present);
+                        rightPresent.add(absent);
+                    } else {
+                        rightC++;
+                        leftPresent.add(absent);
+                        rightPresent.add(present);
+                    }
+                } else {
+                    // label is equal to the one we want to bias
+                    if (r.nextDouble() < bias) {
+                        leftC++;
+                        leftPresent.add(present);
+                        rightPresent.add(absent);
+                    } else {
+                        rightC++;
+                        leftPresent.add(absent);
+                        rightPresent.add(present);
+                    }
+                }
+            }
+            done = leftC >= 50 && rightC >= 50;
+        }
+
+        left.add(leftPresent);
+        right.add(rightPresent);
+
+        dataToArff(new Data(0, -1, left), LEFT);
+        dataToArff(new Data(0, -1, right), RIGHT);
+
+        createLocalPopulation(left, right);
+    }
+
     private void createLocal(List<List<Attribute>> left, List<List<Attribute>> right) {
         int leftTarget = -1;
         int rightTarget = -1;
@@ -484,12 +671,16 @@ public class PerformanceTestBase {
     private void createLocalPopulation(List<List<Attribute>> left, List<List<Attribute>> right) {
         int index = -1;
 
+        left = removeNotPresent(left);
+        right = removeNotPresent(right);
+
         for (int i = 0; i < left.size(); i++) {
             if (left.get(i).get(0).getAttributeName().equals("locallyPresent")) {
                 index = i;
                 break;
             }
         }
+
         left.remove(index);
         index = -1;
         for (int i = 0; i < right.size(); i++) {
@@ -502,5 +693,31 @@ public class PerformanceTestBase {
 
         dataToArff(new Data(0, -1, left), LEFT_LOCAL);
         dataToArff(new Data(0, -1, right), RIGHT_LOCAL);
+    }
+
+    private List<List<Attribute>> removeNotPresent(List<List<Attribute>> data) {
+        int index = 0;
+
+        List<List<Attribute>> copy = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            copy.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < data.size(); i++) {
+            if (data.get(i).get(0).getAttributeName().equals("locallyPresent")) {
+                index = i;
+                break;
+            }
+        }
+        for (int i = 0; i < data.get(0).size(); i++) {
+            boolean present = Boolean.valueOf(data.get(index).get(i).getValue());
+            if (present) {
+                for (int j = 0; j < data.size(); j++) {
+                    copy.get(j).add(data.get(j).get(i));
+                }
+            }
+
+        }
+        return copy;
     }
 }
