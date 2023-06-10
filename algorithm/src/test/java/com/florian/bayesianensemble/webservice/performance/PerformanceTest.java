@@ -16,70 +16,80 @@ public class PerformanceTest {
         if (!SMALLTEST) {
             List<Double> bias = Arrays.asList(0.75, 0.85, 0.95);
             for (Double b : bias) {
-                printPerformance("Diabetes biassed: " + b + " horizontal",
-                                 DiabetesTest.testPerformancePopulationBiassed(b), true);
-                printPerformance("Iris biassed: " + b + " horizontal", IrisTest.testPerformancePopulationBiassed(b),
-                                 false);
-                printPerformance("Autism biassed: " + b + " horizontal", AutismTest.testPerformancePopulationBiassed(b),
-                                 false);
-                printPerformance("Asia biassed: " + b + " horizontal", AsiaTest.testPerformancePopulationBiassed(b),
-                                 false);
+                if (false) {
+                    printPerformance("Iris biassed: " + b + " horizontal", IrisTest.testPerformancePopulationBiassed(b),
+                                     true);
+                    printPerformance("Diabetes biassed: " + b + " horizontal",
+                                     DiabetesTest.testPerformancePopulationBiassed(b), false);
+                    printPerformance("Autism biassed: " + b + " horizontal",
+                                     AutismTest.testPerformancePopulationBiassed(b),
+                                     false);
+                    printPerformance("Asia biassed: " + b + " horizontal", AsiaTest.testPerformancePopulationBiassed(b),
+                                     false);
+
 //            printPerformance("Alarm biassed: "+ b+ " horizontal", AlarmTest.testPerformancePopulationBiassed(b),
 //            false);
 //            printPerformance("Mushroom biassed: "+ b+ " horizontal", MushroomTest.testPerformancePopulationBiassed
 //            (b), false);
 
-                // three way split
-                printThreeWayPerformance("Diabetes biassed: " + b + " threeways horizontal",
-                                         DiabetesTest.testPerformancePopulationBiassedThreeway(b),
-                                         true);
-                printThreeWayPerformance("Asia biassed: " + b + " threeways horizontal",
-                                         AsiaTest.testPerformancePopulationBiassedThreeway(b), false);
+                    // three way split
+                    printThreeWayPerformance("Diabetes biassed: " + b + " threeways horizontal",
+                                             DiabetesTest.testPerformancePopulationBiassedThreeway(b),
+                                             true);
+                    printThreeWayPerformance("Asia biassed: " + b + " threeways horizontal",
+                                             AsiaTest.testPerformancePopulationBiassedThreeway(b), false);
+                }
+
 //            printThreeWayPerformance("Autism biassed: "+ b+ " threeways horizontal",
 //                                     AutismTest.testPerformancePopulationBiassedThreeway(b),
 //                                     false);
-                printThreeWayPerformance("Iris biassed: " + b + " threeways horizontal",
-                                         IrisTest.testPerformancePopulationBiassedThreeway(b), false);
 //            printThreeWayPerformance("Alarm biassed: "+ b+ " threeways horizontal",
 //                                     AlarmTest.testPerformancePopulationBiassedThreeway(b), false);
 //            printThreeWayPerformance("MushroomTest biassed: "+ b+ " threeways horizontal",
 //                                     MushroomTest.testPerformancePopulationBiassedThreeway(b), false);
-
+            }
+            for (Double b : bias) {
                 for (Double treshold : tresholds) {
-                    printPerformance("Diabetes biassed: " + b + " horizontal",
-                                     DiabetesTest.testPerformancePopulationBiassedUnknown(treshold, b), true);
-                    printPerformance("Iris biassed: " + b + " horizontal",
-                                     IrisTest.testPerformancePopulationBiassedUnknown(treshold, b),
-                                     false);
-//                printPerformance("Autism biassed: "+ b+ " horizontal",
-//                                 AutismTest.testPerformancePopulationBiassedUnknown(treshold, b), false);
-                    printPerformance("Asia biassed: " + b + " horizontal",
-                                     AsiaTest.testPerformancePopulationBiassedUnknown(treshold, b),
-                                     false);
-//                printPerformance("Alarm biassed: "+ b+ " horizontal",
+                    if (false) {
+                        printPerformance("Diabetes biassed: " + b + " horizontal unknown:" + treshold,
+                                         DiabetesTest.testPerformancePopulationBiassedUnknown(treshold, b), true);
+                        printPerformance("Iris biassed: " + b + " horizontal unknown:" + treshold,
+                                         IrisTest.testPerformancePopulationBiassedUnknown(treshold, b),
+                                         false);
+                        printPerformance("Autism biassed: " + b + " horizontal unknown:" + treshold,
+                                         AutismTest.testPerformancePopulationBiassedUnknown(treshold, b), false);
+                        printPerformance("Asia biassed: " + b + " horizontal unknown:" + treshold,
+                                         AsiaTest.testPerformancePopulationBiassedUnknown(treshold, b),
+                                         false);
+                    }
+                }
+            }
+            for (Double b : bias) {
+                for (Double treshold : tresholds) {
+//                printPerformance("Alarm biassed: "+ b+ " horizontal unknown:" + treshold,
 //                                 AlarmTest.testPerformancePopulationBiassedUnknown(treshold, b), false);
-//                printPerformance("Mushroom biassed: "+ b+ " horizontal",
+//                printPerformance("Mushroom biassed: "+ b+ " horizontal unknown:" + treshold,
 //                                 MushroomTest.testPerformancePopulationBiassedUnknown(treshold, b), false);
-
+                    
                     // three way split
-                    printThreeWayPerformance("Diabetes biassed: " + b + " threeways horizontal",
-                                             DiabetesTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
+                    printThreeWayPerformance("Diabetes biassed: " + b + " threeways horizontal unknown:" + treshold,
+                                             DiabetesTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold,
+                                                                                                          b),
                                              true);
-                    printThreeWayPerformance("Asia biassed: " + b + " threeways horizontal",
+                    printThreeWayPerformance("Asia biassed: " + b + " threeways horizontal unknown:" + treshold,
                                              AsiaTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
                                              false);
+
 //                printThreeWayPerformance("Autism biassed: "+ b+ " threeways horizontal",
 //                                         AutismTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
 //                                         false);
-                    printThreeWayPerformance("Iris biassed: " + b + " threeways horizontal",
-                                             IrisTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
-                                             false);
-                    printThreeWayPerformance("Alarm biassed: " + b + " threeways horizontal",
-                                             AlarmTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
-                                             false);
-                    printThreeWayPerformance("MushroomTest biassed: " + b + " threeways horizontal",
-                                             MushroomTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
-                                             false);
+//                    printThreeWayPerformance("Alarm biassed: " + b + " threeways horizontal",
+//                                             AlarmTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
+//                                             false);
+//                    printThreeWayPerformance("MushroomTest biassed: " + b + " threeways horizontal",
+//                                             MushroomTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold,
+//                                             b),
+//                                             false);
                 }
             }
         }

@@ -741,7 +741,7 @@ public class PerformanceThreeWayTestBase {
                         leftPresent.add(present);
                         rightPresent.add(absent);
                         middlePresent.add(absent);
-                    } else if (ran < bias + ((1 - bias) / 2)) {
+                    } else if (ran < (1 - (1 - bias)) / 2) {
                         rightC++;
                         leftPresent.add(absent);
                         rightPresent.add(present);

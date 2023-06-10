@@ -12,7 +12,7 @@ public class AsiaTest {
     private static final String SOURCE = "resources/Experiments/Asia/Asia10kWeka.arff";
     private static final String TARGET = "lung";
     private static final int FOLDS = 10;
-    private static final int ROUNDS = 1;
+    private static final int ROUNDS = 10;
 
     public static Performance testPerformanceThreeWayHybridUnknown(double treshold, boolean hybrid) throws Exception {
         PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(

@@ -159,7 +159,7 @@ public class EnsembleServer extends BayesServer {
 
     private Probability classifyInstance(int i, ClassifyRequest req, ProbNet network)
             throws NodeNotFoundException, NotEvaluableNetworkException, IncompatibleEvidenceException,
-                   InvalidStateException, UnexpectedInferenceException {
+                   UnexpectedInferenceException, InvalidStateException {
         Probability p = new Probability();
         if (recordIsActive(i)) {
             p.setActive(true);
