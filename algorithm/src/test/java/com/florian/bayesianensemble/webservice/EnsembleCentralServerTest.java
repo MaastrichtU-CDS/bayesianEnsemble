@@ -200,9 +200,9 @@ public class EnsembleCentralServerTest {
 
     @Test
     public void testCreateEnsembleAutism() throws Exception {
-        EnsembleServer station1 = new EnsembleServer("resources/Experiments/autism/left.arff",
+        EnsembleServer station1 = new EnsembleServer("resources/Experiments/Autism/left.arff",
                                                      "1");
-        EnsembleServer station2 = new EnsembleServer("resources/Experiments/autism/right.arff",
+        EnsembleServer station2 = new EnsembleServer("resources/Experiments/Autism/right.arff",
                                                      "2");
         EnsembleEndpoint endpoint1 = new EnsembleEndpoint(station1);
         EnsembleEndpoint endpoint2 = new EnsembleEndpoint(station2);
