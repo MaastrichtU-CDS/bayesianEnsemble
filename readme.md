@@ -8,9 +8,8 @@ It uses two libraries:
 n-party scalar-product: https://github.com/MaastrichtU-CDS/n-scalar-product-protocol
 VertiBayes: https://github.com/MaastrichtU-CDS/vertibayes
 
-## Preprint:
-
-A preprint is currently being prepared.
+## Scientific article:
+A scientific article has been presented at the FLTA 2023 conference in Tartu. The proceedings are currently being prepared for publication on IEEE.
 
 #### Privacy
 The privacy concerns are similar to VertiBayes this means the following:
