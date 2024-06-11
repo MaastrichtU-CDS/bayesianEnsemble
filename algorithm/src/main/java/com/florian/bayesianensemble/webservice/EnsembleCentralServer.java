@@ -37,6 +37,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     public EnsembleResponse createEnsemble(@RequestBody CreateEnsembleRequest req) throws Exception {
         initEndpoints();
         int[] folds = createFolds(req.getFolds());
+        System.out.println(req.getFolds());
         if (req.getFolds() > 1) {
             return kfoldEnsemble(req, folds);
         } else {
@@ -293,6 +294,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             validate.setNetworks(bayesNets);
             validate.setProbabilities(probabilities);
             System.out.println("validate");
+            System.out.println(bayesNets.size());
             for (String s : bayesNets.values()) {
                 System.out.println(s);
             }
