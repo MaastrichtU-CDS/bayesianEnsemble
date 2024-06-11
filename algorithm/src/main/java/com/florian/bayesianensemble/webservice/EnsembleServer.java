@@ -89,6 +89,7 @@ public class EnsembleServer extends BayesServer {
 
     @PostMapping ("validate")
     public ValidateResponse validate(@RequestBody ValidateRequest req) throws Exception {
+        System.out.println("Here \n" + req.getNetworks().get(this.serverId));
         if (isLocallyPresent(req.getTarget())) {
             ValidateResponse res = new ValidateResponse();
             res.setAucs(calculateAUCOpenMarkov(req.getProbabilities(), req.getTarget(),
