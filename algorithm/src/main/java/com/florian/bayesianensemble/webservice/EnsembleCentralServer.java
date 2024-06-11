@@ -295,6 +295,9 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             for (String s : bayesNets.values()) {
                 System.out.println(s);
             }
+            for (String s : bayesNets.keySet()) {
+                System.out.println(s);
+            }
             Map<String, Double> foldAUC = ((EnsembleEndpoint) e).validate(validate).getAucs();
             for (String key : foldAUC.keySet()) {
                 if (aucs.get(key) == null) {
