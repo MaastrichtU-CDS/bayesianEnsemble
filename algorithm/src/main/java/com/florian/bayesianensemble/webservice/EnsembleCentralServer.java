@@ -292,6 +292,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             validate.setTarget(target);
             validate.setNetworks(bayesNets);
             validate.setProbabilities(probabilities);
+            System.out.println("validate");
             for (String s : bayesNets.values()) {
                 System.out.println(s);
             }
