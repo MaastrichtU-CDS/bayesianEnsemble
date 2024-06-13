@@ -96,17 +96,21 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Map<String, List<Node>> structures = generateStructures(req);
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
         System.out.println("zijn nu hier");
-        for (String s : req.getNetworks().keySet()) {
-            System.out.println(s);
+        if (req.getNetworks() != null) {
+            for (String s : req.getNetworks().keySet()) {
+                System.out.println(s);
+            }
+            for (List<WebNode> s : req.getNetworks().values()) {
+                System.out.println(s);
+            }
         }
-        for (List<WebNode> s : req.getNetworks().values()) {
-            System.out.println(s);
-        }
-        for (String s : bayesNets.keySet()) {
-            System.out.println(s);
-        }
-        for (String s : bayesNets.values()) {
-            System.out.println(s);
+        if (bayesNets != null) {
+            for (String s : bayesNets.keySet()) {
+                System.out.println(s);
+            }
+            for (String s : bayesNets.values()) {
+                System.out.println(s);
+            }
         }
 
 
