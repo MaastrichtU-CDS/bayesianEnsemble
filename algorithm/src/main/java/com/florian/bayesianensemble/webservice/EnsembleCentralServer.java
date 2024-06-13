@@ -95,6 +95,20 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
         Map<String, List<Node>> structures = generateStructures(req);
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
+        System.out.println("zijn nu hier");
+        for (String s : req.getNetworks().keySet()) {
+            System.out.println(s);
+        }
+        for (List<WebNode> s : req.getNetworks().values()) {
+            System.out.println(s);
+        }
+        for (String s : bayesNets.keySet()) {
+            System.out.println(s);
+        }
+        for (String s : bayesNets.values()) {
+            System.out.println(s);
+        }
+
 
         activateAll(folds);
         List<double[]> probablites = new ArrayList<>();
