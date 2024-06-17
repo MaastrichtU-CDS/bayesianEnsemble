@@ -7,6 +7,7 @@ import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.encryption.Paillier;
 import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
+import com.florian.vertibayes.bayes.Bin;
 import com.florian.vertibayes.bayes.Network;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
@@ -37,6 +38,25 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     public EnsembleResponse createEnsemble(@RequestBody CreateEnsembleRequest req) throws Exception {
         initEndpoints();
         int[] folds = createFolds(req.getFolds());
+
+        if (req.getNetworks() != null) {
+            System.out.println(req.getNetworks().size());
+            for (List<WebNode> nodes : req.getNetworks().values()) {
+                List<Node> n2 = mapWebNodeToNode(nodes);
+                for (Node n : n2) {
+                    if (n.getBins() != null) {
+                        for (Bin b : n.getBins()) {
+                            System.out.println(b);
+                            HashMap<Bin, String> bins = new HashMap<>();
+                            bins.put(b, b.getUpperLimit());
+                            System.out.println(bins);
+                        }
+
+                    }
+                }
+            }
+        }
+
         System.out.println(req.getFolds());
         if (req.getFolds() > 1) {
             return kfoldEnsemble(req, folds);
