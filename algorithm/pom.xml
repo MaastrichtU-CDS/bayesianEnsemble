@@ -65,13 +65,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>3.0.2</version>
+            <version>3.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
             <version>3.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>6.0.8</version>
         </dependency>
 
     </dependencies>
@@ -121,6 +127,9 @@
                         </goals>
                         <configuration>
                             <failOnWarning>true</failOnWarning>
+                            <usedDependencies>
+                                <usedDependency>org.springframework:spring-core</usedDependency>
+                            </usedDependencies>
                         </configuration>
                     </execution>
                 </executions>
