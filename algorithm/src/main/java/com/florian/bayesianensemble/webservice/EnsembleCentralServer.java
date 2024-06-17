@@ -128,6 +128,11 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Node target = getTargetNode(req.getTarget());
         Map<String, String> bayesNets = new HashMap<>();
 
+        System.out.println("number of structure: " + structures.size());
+        for (String s : structures.keySet()) {
+            System.out.println(s);
+        }
+
         structures.keySet().parallelStream().forEach(x -> {
             try {
                 bayesNets.put(x, trainStructure(x, structures, target, req.isHybrid(), req.isTrainStructure()));
