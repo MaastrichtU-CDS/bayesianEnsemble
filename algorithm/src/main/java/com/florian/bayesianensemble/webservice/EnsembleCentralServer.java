@@ -280,6 +280,14 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         CreateNetworkRequest req = new CreateNetworkRequest();
         req.setNodes(mapWebNodeFromNode(nodes));
         req.setMinPercentage(minpercentage);
+        System.out.println("Nodes " + req.getNodes());
+        for (WebNode no : req.getNodes()) {
+            System.out.println("bins:  " + no.getBins());
+            if (no.getBins() != null) {
+                System.out.println("bins:  " + no.getBins().size());
+            }
+        }
+
         n.createNetwork(req);
         System.out.println("network size after training: " + n.getNodes().size());
         return n.getNodes();
