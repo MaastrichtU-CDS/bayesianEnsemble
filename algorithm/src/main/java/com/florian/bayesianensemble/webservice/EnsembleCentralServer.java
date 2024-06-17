@@ -39,6 +39,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         initEndpoints();
         int[] folds = createFolds(req.getFolds());
 
+        System.out.println("Begin");
         if (req.getNetworks() != null) {
             System.out.println(req.getNetworks().size());
             for (List<WebNode> nodes : req.getNetworks().values()) {
@@ -55,7 +56,15 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                     }
                 }
             }
+        } else {
+            HashMap<Bin, String> bins = new HashMap<>();
+            Bin b = new Bin();
+            b.setUpperLimit("100");
+            bins.put(b, b.getUpperLimit());
+            System.out.println(b);
+            System.out.println(bins);
         }
+        System.out.println("Continue");
 
         System.out.println(req.getFolds());
         if (req.getFolds() > 1) {
