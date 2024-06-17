@@ -95,7 +95,8 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
         Map<String, List<Node>> structures = generateStructures(req);
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
-        System.out.println("zijn nu hier");
+        System.out.println("zijn nu hier" + req.getNetworks().size() + " " + bayesNets.size());
+
         if (req.getNetworks() != null) {
             for (String s : req.getNetworks().keySet()) {
                 System.out.println(s);
@@ -185,6 +186,8 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private Map<String, List<Node>> generateStructures(CreateEnsembleRequest req) {
         Node target = getTargetNode(req.getTarget());
         Map<String, List<Node>> networks = new HashMap<>();
+
+        System.out.println("number of endpoints: " + getEndpoints().size());
 
         getEndpoints().stream().forEach(x -> {
             try {
