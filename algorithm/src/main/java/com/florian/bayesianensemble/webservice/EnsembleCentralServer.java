@@ -197,6 +197,9 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             }
         });
 
+        System.out.println("number of networks: " + networks.size());
+
+
         return networks;
     }
 
