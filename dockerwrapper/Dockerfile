@@ -21,13 +21,13 @@ WORKDIR /build
 RUN git clone --branch 3.0-stable git@github.com:MaastrichtU-CDS/n-scalar-product-protocol.git
 
 WORKDIR /build/n-scalar-product-protocol/java
-RUN mvn install
+RUN mvn install -DskipTests
 
 # Build vertibayes
 WORKDIR /build
 RUN git clone --branch 3.0-stable-library git@github.com:MaastrichtU-CDS/vertibayes.git
 WORKDIR /build/vertibayes
-RUN mvn install
+RUN mvn install -DskipTests
 
 WORKDIR /build
 RUN git clone --branch 2.0-stable git@github.com:MaastrichtU-CDS/bayesianEnsemble.git
@@ -36,7 +36,7 @@ WORKDIR /build/bayesianEnsemble/algorithm
 RUN mvn install:install-file -Dfile=./openmarkov/OpenMarkov-0.4.0.jar -DgroupId=org.openmarkov -DartifactId=org.openmarkov.full -Dversion=0.4.0-SNAPSHOT -Dpackaging=jar
 RUN mvn install
 
-FROM openjdk:17-slim as runner
+FROM eclipse-temurin:17.0.7_7-jdk as runner
 
 # This is a placeholder that should be overloaded by invoking
 # docker build with '--build-arg PKG_NAME=...'
@@ -57,8 +57,10 @@ COPY ./pyproject.toml /app/pyproject.toml
 
 WORKDIR /app
 RUN poetry install && poetry cache clear -n --all pypi
+# RUN pip install .
 
 ENV PKG_NAME=${PKG_NAME}
 
 # Tell docker to execute `docker_wrapper()` when the image is run.
-CMD poetry run python -c "from vantage6.tools.docker_wrapper import docker_wrapper; docker_wrapper('${PKG_NAME}')"
+# CMD python -c "from vantage6.algorithm.tools.wrap import wrap_algorithm; wrap_algorithm()"
+CMD poetry run python -c "from vantage6.algorithm.tools.wrap import wrap_algorithm; wrap_algorithm()"

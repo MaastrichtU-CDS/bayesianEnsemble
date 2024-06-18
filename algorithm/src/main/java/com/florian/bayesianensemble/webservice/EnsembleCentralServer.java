@@ -7,7 +7,6 @@ import com.florian.bayesianensemble.webservice.domain.internal.*;
 import com.florian.nscalarproduct.encryption.Paillier;
 import com.florian.nscalarproduct.encryption.PublicPaillierKey;
 import com.florian.nscalarproduct.webservice.ServerEndpoint;
-import com.florian.vertibayes.bayes.Bin;
 import com.florian.vertibayes.bayes.Network;
 import com.florian.vertibayes.bayes.Node;
 import com.florian.vertibayes.webservice.VertiBayesCentralServer;
@@ -39,34 +38,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         initEndpoints();
         int[] folds = createFolds(req.getFolds());
 
-        System.out.println("Begin");
-        if (req.getNetworks() != null) {
-            System.out.println(req.getNetworks().size());
-            for (List<WebNode> nodes : req.getNetworks().values()) {
-                List<Node> n2 = mapWebNodeToNode(nodes);
-                for (Node n : n2) {
-                    if (n.getBins() != null) {
-                        for (Bin b : n.getBins()) {
-                            System.out.println(b);
-                            HashMap<Bin, String> bins = new HashMap<>();
-                            bins.put(b, b.getUpperLimit());
-                            System.out.println(bins);
-                        }
-
-                    }
-                }
-            }
-        } else {
-            HashMap<Bin, String> bins = new HashMap<>();
-            Bin b = new Bin();
-            b.setUpperLimit("100");
-            bins.put(b, b.getUpperLimit());
-            System.out.println(b);
-            System.out.println(bins);
-        }
-        System.out.println("Continue");
-
-        System.out.println(req.getFolds());
         if (req.getFolds() > 1) {
             return kfoldEnsemble(req, folds);
         } else {
@@ -124,25 +95,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     private EnsembleResponse noFoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
         Map<String, List<Node>> structures = generateStructures(req);
         Map<String, String> bayesNets = performEnsembleOpenMarkov(req, structures);
-        System.out.println("zijn nu hier" + req.getNetworks().size() + " " + bayesNets.size());
-
-        if (req.getNetworks() != null) {
-            for (String s : req.getNetworks().keySet()) {
-                System.out.println(s);
-            }
-            for (List<WebNode> s : req.getNetworks().values()) {
-                System.out.println(s);
-            }
-        }
-        if (bayesNets != null) {
-            for (String s : bayesNets.keySet()) {
-                System.out.println(s);
-            }
-            for (String s : bayesNets.values()) {
-                System.out.println(s);
-            }
-        }
-
 
         activateAll(folds);
         List<double[]> probablites = new ArrayList<>();
@@ -157,11 +109,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             throws Exception {
         Node target = getTargetNode(req.getTarget());
         Map<String, String> bayesNets = new HashMap<>();
-
-        System.out.println("number of structure: " + structures.size());
-        for (String s : structures.keySet()) {
-            System.out.println(s);
-        }
 
         structures.keySet().parallelStream().forEach(x -> {
             try {
@@ -216,8 +163,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         Node target = getTargetNode(req.getTarget());
         Map<String, List<Node>> networks = new HashMap<>();
 
-        System.out.println("number of endpoints: " + getEndpoints().size());
-
         getEndpoints().stream().forEach(x -> {
             try {
                 networks.put(x.getServerId(), generateStructure(req, target, x));
@@ -225,9 +170,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
                 e.printStackTrace();
             }
         });
-
-        System.out.println("number of networks: " + networks.size());
-
 
         return networks;
     }
@@ -309,16 +251,8 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         CreateNetworkRequest req = new CreateNetworkRequest();
         req.setNodes(mapWebNodeFromNode(nodes));
         req.setMinPercentage(minpercentage);
-        System.out.println("Nodes " + req.getNodes());
-        for (WebNode no : req.getNodes()) {
-            System.out.println("bins:  " + no.getBins());
-            if (no.getBins() != null) {
-                System.out.println("bins:  " + no.getBins().size());
-            }
-        }
 
         n.createNetwork(req);
-        System.out.println("network size after training: " + n.getNodes().size());
         return n.getNodes();
     }
 
@@ -360,14 +294,6 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             validate.setTarget(target);
             validate.setNetworks(bayesNets);
             validate.setProbabilities(probabilities);
-            System.out.println("validate");
-            System.out.println(bayesNets.size());
-            for (String s : bayesNets.values()) {
-                System.out.println(s);
-            }
-            for (String s : bayesNets.keySet()) {
-                System.out.println(s);
-            }
             Map<String, Double> foldAUC = ((EnsembleEndpoint) e).validate(validate).getAucs();
             for (String key : foldAUC.keySet()) {
                 if (aucs.get(key) == null) {

@@ -3,6 +3,7 @@ from typing import List
 
 import requests
 from vantage6.common import info
+from vantage6.algorithm.tools.decorators import algorithm_client
 
 from com.florian.bayesianensemble import urlcollector
 from com.florian.bayesianensemble.wrapper import secondary
@@ -11,8 +12,24 @@ WAIT = 10
 RETRY = 20
 IMAGE = 'harbor.carrier-mu.src.surf-hosted.nl/carrier/bayesian_ensemble'
 
+SLEEP = 10
+WAIT_CONTAINER_STARTUP = 10
+NODE_TIMEOUT = 360
+MAX_RETRIES = NODE_TIMEOUT // SLEEP
 
-def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentage, hybrid, folds, trainStructure, *args, **kwargs):
+
+def parse_addresses(adresses):
+    parsed = []
+    for adress in adresses:
+        parsed.append(parse_adress(adress))
+
+    return parsed
+
+def parse_adress(adress):
+    return f'http://{adress["ip"]}:{adress["port"]}'
+
+@algorithm_client
+def bayesianEnsemble(client, nodes, target, networks, binned, minpercentage, hybrid, folds, trainStructure, *args, **kwargs):
         """
     
         :param client:
@@ -21,32 +38,20 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
         :param commoditynode: organization id of commodity node
         :return: bayesian network in the form of a bif-file, such as pgmpy expects.
         """
-        tasks = []
         info('Initializing nodes')
-        info('Dit is de nieuwste image')
-        i = 0
-        print(nodes)
-        names = []
         for node in nodes:
-            info('Node ' + str(i))
-            tasks.append(_initEndpoints(client, [node]))
-            names.append(node)
-            i = i+1
+            _initEndpoints(client, [node])
 
         # TODO: init commodity server on a different server?
         info('initializing commodity server')
         commodity_node_task = secondary.init_local()
 
-        adresses = []
+        adresses = _get_algorithm_addresses(client, len(nodes))
 
-        for task in tasks:
-            adresses.append(_await_addresses(client, task["id"])[0])
-
-
-        #assuming the last taks before tasks[0] controls the commodity server
-        #Assumption is basically that noone got in between the starting of this master-task and its subtasks
-        #ToDo make this more stable in case of multiple users
-        global_commodity_address = _await_addresses(client, tasks[0]["id"]-1)[0]
+        # assuming the last taks before tasks[0] controls the commodity server
+        # Assumption is basically that noone got in between the starting of this master-task and its subtasks
+        # ToDo make this more stable in case of multiple users
+        global_commodity_address = client.vpn.get_own_address()
 
         # Assuming commodity server is on same machine
         commodity_address = _http_url('localhost', 8888)
@@ -58,18 +63,20 @@ def bayesianEnsemble(client, data, nodes, target, networks, binned, minpercentag
 
         info('Sharing addresses & setting ids')
         _setId(commodity_address, "0");
-        id = 0
+
+        adresses = parse_addresses(adresses)
+
+        id = 1
+
         for adress in adresses:
-            info('adress')
-            info(adress)
-            _setId(adress, str(nodes[id]));
-            id+=1
+            _setId(adress, str(id));
+            id += 1
             others = adresses.copy()
             others.remove(adress)
-            others.append(global_commodity_address)
+            # for some reason global_commodity_address is a list of length 1, so pick first one
+            others.append(parse_adress(global_commodity_address[0]))
             urlcollector.put_endpoints(adress, others)
 
-        info('were here now')
         _initCentralServer(commodity_address, adresses)
 
         response = _trainEnsemble(commodity_address, target, networks, binned, minpercentage, hybrid, folds, trainStructure)
@@ -111,35 +118,42 @@ def _killSpring(server: str):
         pass
 
 def _setId(ip: str, id:str):
-    info(id)
-    info(ip)
-    r = requests.post(ip + "/setID?id="+id)
+    r = requests.post(ip + "/setID",params={"id":id})
+
 
 def _initEndpoints(client, organizations):
     # start the various java endpoints for n2n
-    return client.create_new_task(
+    return client.task.create(
+        name="vertiBayesSpring",
         input_={'method': 'init'},
-        organization_ids=organizations
+        organizations=organizations
     )
 
 
 def _wait():
     time.sleep(WAIT)
 
-def _await_addresses(client, task_id, n_nodes=1):
-    addresses = client.get_algorithm_addresses(task_id=task_id)
+def _get_algorithm_addresses(client, expected_amount: int):
+    retries = 0
 
-    c = 0
-    while not _addresses_complete(addresses):
-        if c >= RETRY:
-            raise Exception('Retried too many times')
+    # Wait for nodes to get ready
+    while True:
+        addresses = client.vpn.get_child_addresses()
 
-        info(f'Polling results for port numbers attempt {c}...')
-        addresses = client.get_algorithm_addresses(task_id=task_id)
-        c += 1
-        time.sleep(WAIT)
-    info("Found adresses")
-    return [_http_url(address['ip'], address['port']) for address in addresses]
+        info(f"Addresses: {addresses}")
+
+        if len(addresses) >= expected_amount:
+            break
+
+        if retries >= MAX_RETRIES:
+            raise Exception(
+                f"Could not connect to all {expected_amount} datanodes. There are "
+                f"only {len(addresses)} nodes available"
+            )
+        time.sleep(SLEEP)
+        retries += 1
+
+    return addresses
 
 
 def _addresses_complete(addresses):
