@@ -37,11 +37,35 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
     public EnsembleResponse createEnsemble(@RequestBody CreateEnsembleRequest req) throws Exception {
         initEndpoints();
         int[] folds = createFolds(req.getFolds());
+
         if (req.getFolds() > 1) {
             return kfoldEnsemble(req, folds);
         } else {
             return noFoldEnsemble(req, folds);
         }
+    }
+
+    public EnsembleResponse validateEnsemble(String model, String target) throws Exception {
+        initEndpoints();
+
+        activateAll(createFolds(1));
+
+        List<double[]> probablites = new ArrayList<>();
+        ClassifyRequest classify = new ClassifyRequest();
+        String encryptionName = String.valueOf(System.currentTimeMillis());
+        classify.setTarget(target);
+        Map<String, String> bayesNets = new HashMap<>();
+        bayesNets.put("1", model);
+        classify.setNetworks(bayesNets);
+        classify.setKey(getPublicPaillierKey(encryptionName));
+        classify.setPrecision(PRECISION);
+
+        sumProbabilities(classify, probablites, encryptionName);
+
+
+        EnsembleResponse response = createEnsembleResponse(calculateAUC(probablites, target, bayesNets), bayesNets,
+                                                           target);
+        return response;
     }
 
     private EnsembleResponse kfoldEnsemble(CreateEnsembleRequest req, int[] folds) throws Exception {
@@ -88,7 +112,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
 
         structures.keySet().parallelStream().forEach(x -> {
             try {
-                bayesNets.put(x, trainStructure(x, structures, target, req.isHybrid()));
+                bayesNets.put(x, trainStructure(x, structures, target, req.isHybrid(), req.isTrainStructure()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -96,7 +120,8 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return bayesNets;
     }
 
-    private String trainStructure(String key, Map<String, List<Node>> structures, Node target, boolean isHybrid)
+    private String trainStructure(String key, Map<String, List<Node>> structures, Node target, boolean isHybrid,
+                                  boolean trainStructure)
             throws Exception {
         boolean fullyLocal = false;
         ServerEndpoint relevantEndpoint = null;
@@ -113,6 +138,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         n.setNodes(mapWebNodeFromNode(structures.get(key)));
         n.setOpenMarkovResponse(true);
         n.setTarget(target.getName());
+        n.setTrainStructure(trainStructure);
 
         if (!fullyLocal) {
             ExpectationMaximizationOpenMarkovResponse res =
@@ -159,7 +185,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
             setBins(network, req);
             setUseLocalData(req.isHybrid(), (EnsembleEndpoint) e);
 
-            return learnStructure(network, req.getMinPercentage(), fullyLocal, e, target.getName());
+            return learnStructure(network, req.getMinPercentage(), fullyLocal, e);
 
         }
     }
@@ -215,8 +241,8 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         return null;
     }
 
-    private List<Node> learnStructure(List<Node> nodes, int minpercentage, boolean fullyLocal,
-                                      ServerEndpoint endpoint, String target) throws Exception {
+    private List<Node> learnStructure(List<Node> nodes, double minpercentage, boolean fullyLocal,
+                                      ServerEndpoint endpoint) throws Exception {
         Network n = new Network(getEndpoints(), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());
         if (fullyLocal) {
             n = new Network(Arrays.asList(endpoint), getSecretEndpoint(), this, getEndpoints().get(0).getPopulation());
@@ -225,6 +251,7 @@ public class EnsembleCentralServer extends VertiBayesCentralServer {
         CreateNetworkRequest req = new CreateNetworkRequest();
         req.setNodes(mapWebNodeFromNode(nodes));
         req.setMinPercentage(minpercentage);
+
         n.createNetwork(req);
         return n.getNodes();
     }

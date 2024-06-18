@@ -10,7 +10,8 @@ public class CreateEnsembleRequest {
     private Map<String, List<WebNode>> networks;
     private List<WebNode> binned;
     private boolean hybrid;
-    private int minPercentage;
+    private double minPercentage;
+    private boolean trainStructure;
 
     private int folds = 1;
     private static final int MIN_FOLDS = 1;
@@ -30,11 +31,11 @@ public class CreateEnsembleRequest {
     }
 
 
-    public int getMinPercentage() {
+    public double getMinPercentage() {
         return minPercentage;
     }
 
-    public void setMinPercentage(int minPercentage) {
+    public void setMinPercentage(double minPercentage) {
         this.minPercentage = minPercentage;
     }
 
@@ -71,5 +72,13 @@ public class CreateEnsembleRequest {
 
     public void setBinned(List<WebNode> binned) {
         this.binned = binned;
+    }
+
+    public boolean isTrainStructure() {
+        return trainStructure;
+    }
+
+    public void setTrainStructure(boolean trainStructure) {
+        this.trainStructure = trainStructure;
     }
 }

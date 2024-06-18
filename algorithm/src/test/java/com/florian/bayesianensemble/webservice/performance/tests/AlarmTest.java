@@ -52,6 +52,35 @@ public class AlarmTest {
         return p;
     }
 
+    public static Performance testPerformancePopulationBiassedUnknown(double treshold, double bias) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, bias);
+        return p;
+    }
+
+    public static Performance testPerformancePopulationBiassed(double bias) throws Exception {
+        PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, bias);
+        return p;
+    }
+
+    public static Performance testPerformancePopulationBiassedThreeway(double bias) throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, bias);
+        return p;
+    }
+
+    public static Performance testPerformanceThreeWayPopulationBiassedUnknown(double treshold, double bias)
+            throws Exception {
+        PerformanceThreeWayTestBase test = new PerformanceThreeWayTestBase(
+                SOURCE.replace(".arff", "_missing_" + String.valueOf(treshold).replace(".", "_") +
+                        ".arff"), TARGET, ROUNDS, FOLDS);
+        Performance p = test.populationBiassedSplit(TARGET, bias);
+        return p;
+    }
+
     public static Performance testPerformancePopulation() throws Exception {
         PerformanceTestBase test = new PerformanceTestBase(SOURCE, TARGET, ROUNDS, FOLDS);
         Performance p = test.populationSplit();

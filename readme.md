@@ -8,9 +8,8 @@ It uses two libraries:
 n-party scalar-product: https://github.com/MaastrichtU-CDS/n-scalar-product-protocol
 VertiBayes: https://github.com/MaastrichtU-CDS/vertibayes
 
-## Preprint:
-
-A preprint is currently being prepared.
+## Scientific article:
+A scientific article has been presented at the FLTA 2023 conference in Tartu. The proceedings are currently being prepared for publication on IEEE.
 
 #### Privacy
 The privacy concerns are similar to VertiBayes this means the following:
@@ -147,7 +146,8 @@ The request for createEnsemble looks as follows:
   } ],
   "hybrid" : false,
   "minPercentage" : 0,
-  "folds" : 1
+  "folds" : 1,
+  "trainStructure":true
 }
 ```
 #### Bins:
@@ -162,6 +162,7 @@ Networks can be used to predefine network structures. They are assigned to speci
 If no network is provided K2 is used to determine the local structure.
 
 Within vantage6 the key used to indicate a party will correspond to the node ID.
+The "trainStructure" flag can be used to further train the network structure even if a predefined structure is given.
 
 #### Hybrid 
 Hybrid can be used to indicate if there are hybrid attributes

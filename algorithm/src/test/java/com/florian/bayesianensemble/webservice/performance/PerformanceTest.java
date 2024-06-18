@@ -12,6 +12,128 @@ public class PerformanceTest {
     public static final List<Double> tresholds = Arrays.asList(0.05, 0.1, 0.3);
 
     @Test
+    public void testHorizontalBiassed() throws Exception {
+        if (!SMALLTEST) {
+            List<Double> bias = Arrays.asList(0.75, 0.85, 0.95);
+            for (Double b : bias) {
+                printPerformance("Iris biassed: " + b + " horizontal", IrisTest.testPerformancePopulationBiassed(b),
+                                 true);
+                printPerformance("Diabetes biassed: " + b + " horizontal",
+                                 DiabetesTest.testPerformancePopulationBiassed(b), false);
+                printPerformance("Autism biassed: " + b + " horizontal",
+                                 AutismTest.testPerformancePopulationBiassed(b),
+                                 false);
+                printPerformance("Asia biassed: " + b + " horizontal", AsiaTest.testPerformancePopulationBiassed(b),
+                                 false);
+                // three way split
+                printThreeWayPerformance("Diabetes biassed threeway: " + b + " threeway horizontal ",
+                                         DiabetesTest.testPerformancePopulationBiassedThreeway(b), true);
+                printThreeWayPerformance("Autism biassed threeway: " + b + " threeway horizontal ",
+                                         AutismTest.testPerformancePopulationBiassedThreeway(b), false);
+                printThreeWayPerformance("Asia biassed threeway: " + b + " threeway horizontal ",
+                                         AsiaTest.testPerformancePopulationBiassedThreeway(b),
+                                         false);
+            }
+
+            for (Double b : bias) {
+                for (Double treshold : tresholds) {
+                    printPerformance("Diabetes biassed: " + b + " horizontal unknown:" + treshold,
+                                     DiabetesTest.testPerformancePopulationBiassedUnknown(treshold, b), true);
+                    printPerformance("Iris biassed: " + b + " horizontal unknown:" + treshold,
+                                     IrisTest.testPerformancePopulationBiassedUnknown(treshold, b),
+                                     false);
+                    printPerformance("Autism biassed: " + b + " horizontal unknown:" + treshold,
+                                     AutismTest.testPerformancePopulationBiassedUnknown(treshold, b), false);
+                    printPerformance("Asia biassed: " + b + " horizontal unknown:" + treshold,
+                                     AsiaTest.testPerformancePopulationBiassedUnknown(treshold, b),
+                                     false);
+
+                    //threeway split:
+                    printThreeWayPerformance("Diabetes biassed: " + b + " threeway horizontal unknown:" + treshold,
+                                             DiabetesTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold,
+                                                                                                          b),
+                                             true);
+                    printThreeWayPerformance("Autism biassed: " + b + " threeway horizontal unknown:" + treshold,
+                                             AutismTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold,
+                                                                                                        b),
+                                             false);
+                    printThreeWayPerformance("Asia biassed: " + b + " threeway horizontal unknown:" + treshold,
+                                             AsiaTest.testPerformanceThreeWayPopulationBiassedUnknown(treshold, b),
+                                             false);
+                }
+            }
+
+        }
+
+    }
+
+    @Test
+    public void testHorizontalBasic() throws Exception {
+        if (!SMALLTEST) {
+            if (false) {
+                printPerformance("Diabetes horizontal", DiabetesTest.testPerformancePopulation(), true);
+                printPerformance("Iris horizontal", IrisTest.testPerformancePopulation(), false);
+                printPerformance("Autism horizontal", AutismTest.testPerformancePopulation(), false);
+                printPerformance("Asia horizontal", AsiaTest.testPerformancePopulation(), false);
+                printPerformance("Alarm horizontal", AlarmTest.testPerformancePopulation(), false);
+                printPerformance("Mushroom horizontal", MushroomTest.testPerformancePopulation(), false);
+
+//             three way split
+                printThreeWayPerformance("Diabetes threeways horizontal",
+                                         DiabetesTest.testPerformanceThreeWayPopulation(),
+                                         true);
+                printThreeWayPerformance("Asia threeways horizontal",
+                                         AsiaTest.testPerformanceThreeWayPopulation(), false);
+                printThreeWayPerformance("Autism threeways horizontal",
+                                         AutismTest.testPerformanceThreeWayPopulation(),
+                                         false);
+                printThreeWayPerformance("Iris threeways horizontal",
+                                         IrisTest.testPerformanceThreeWayPopulation(), false);
+//            printThreeWayPerformance("Alarm threeways horizontal",
+//                                     AlarmTest.testPerformanceThreeWayPopulation(), false);
+                printThreeWayPerformance("MushroomTest threeways horizontal",
+                                         MushroomTest.testPerformanceThreeWayPopulation(), false);
+            }
+            for (Double treshold : tresholds) {
+                printPerformance("Diabetes horizontal " + "unknown:" + treshold,
+                                 DiabetesTest.testPerformancePopulationUnknown(treshold), true);
+
+                printPerformance("Iris horizontal " + "unknown:" + treshold,
+                                 IrisTest.testPerformancePopulationUnknown(treshold),
+                                 false);
+                printPerformance("Autism horizontal " + "unknown:" + treshold,
+                                 AutismTest.testPerformancePopulationUnknown(treshold), false);
+                printPerformance("Asia horizontal " + "unknown:" + treshold,
+                                 AsiaTest.testPerformancePopulationUnknown(treshold),
+                                 false);
+//                printPerformance("Alarm horizontal",
+//                                 AlarmTest.testPerformancePopulationUnknown(treshold), false);
+//                printPerformance("Mushroom horizontal",
+//                                 MushroomTest.testPerformancePopulationUnknown(treshold), false);
+
+                // three way split
+                printThreeWayPerformance("Diabetes threeways horizontal " + "unknown:" + treshold,
+                                         DiabetesTest.testPerformanceThreeWayPopulationUnknown(treshold),
+                                         true);
+                printThreeWayPerformance("Asia threeways horizontal " + "unknown:" + treshold,
+                                         AsiaTest.testPerformanceThreeWayPopulationUnknown(treshold), false);
+                printThreeWayPerformance("Autism threeways horizontal " + "unknown:" + treshold,
+                                         AutismTest.testPerformanceThreeWayPopulationUnknown(treshold),
+                                         false);
+                printThreeWayPerformance("Iris threeways horizontal " + "unknown:" + treshold,
+                                         IrisTest.testPerformanceThreeWayPopulationUnknown(treshold), false);
+//                printThreeWayPerformance("Alarm threeways horizontal",
+//                                         AlarmTest.testPerformanceThreeWayPopulationUnknown(treshold), false);
+//                printThreeWayPerformance("MushroomTest threeways horizontal",
+//                                         MushroomTest.testPerformanceThreeWayPopulationUnknown(treshold),
+//                                         false);
+            }
+        }
+
+    }
+
+
+    @Test
     public void testHybrid() throws Exception {
         if (SMALLTEST) {
             printPerformance("SmallDiabetes automatic hybrid " + true,
@@ -26,6 +148,9 @@ public class PerformanceTest {
             List<Boolean> hybrid = Arrays.asList(true, false);
             // three way split
             for (Boolean b : hybrid) {
+                if (b == false) {
+                    continue;
+                }
                 printThreeWayPerformance("Diabetes automatic threeways hybrid model:" + b,
                                          DiabetesTest.testPerformanceThreeWayHybrid(b),
                                          true);
@@ -40,11 +165,11 @@ public class PerformanceTest {
 
                 for (Double treshold : tresholds) {
                     printThreeWayPerformance("Iris automatic threeways unknown hybrid model:" + b + treshold,
-                                             IrisTest.testPerformanceThreeWayHybridUnknown(treshold, b), false);
+                                             IrisTest.testPerformanceThreeWayHybridUnknown(treshold, b), true);
                     printThreeWayPerformance(
                             "Diabetes automatic threeways unknown hybrid model:" + b + treshold,
                             DiabetesTest.testPerformanceThreeWayHybridUnknown(treshold, b),
-                            true);
+                            false);
                     printThreeWayPerformance("Autism automatic threeways unknown hybrid model:" + b + treshold,
                                              AutismTest.testPerformanceThreeWayHybridUnknown(treshold, b),
                                              false);
